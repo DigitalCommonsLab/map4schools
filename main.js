@@ -1,13 +1,14 @@
 
-var $ = require('jquery'),
-	_ = require('underscore'),
-	s = require('underscore.string'),
-	csv = require('jquery-csv'),
-	L = require('leaflet'),
-	Search = require('leaflet-search'),
-	Select = require('leaflet-geojson-selector');
-	//dissolve = require('geojson-dissolve');
-	//Panel = require('leaflet-panel-layers');
+var $ = require('jquery');
+var _ = require('underscore');
+var s = require('underscore.string');
+var csv = require('jquery-csv');
+var L = require('leaflet');
+var Search = require('leaflet-search');
+var Select = require('leaflet-geojson-selector');
+//var dissolve = require('geojson-dissolve');
+//var Panel = require('leaflet-panel-layers');
+var Draw = require('leaflet-draw');
 
 _.mixin({str: s});
 
@@ -16,7 +17,7 @@ require('./node_modules/bootstrap/dist/css/bootstrap.min.css'),
 require('./node_modules/leaflet/dist/leaflet.css'),
 require('./node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('./node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
-require('./node_modules/leaflet.draw/src/leaflet.draw.css');
+require('./node_modules/leaflet-draw/dist/leaflet.draw.css');
 
 function randomColor(str) {
 	var letters = '0123456789ABCDEF';
@@ -27,6 +28,41 @@ function randomColor(str) {
 	return color;
 }
 
+var drawLayer = new L.FeatureGroup(),
+	drawOpts = {
+        position: 'topright',
+        draw: {
+            marker: false,
+            polyline: false,
+            polygon: {
+                allowIntersection: false,
+                drawError: {
+                    color: '#399BCC',
+                    timeout: 1000
+                },
+                shapeOptions: {
+                    color: '#3FAAA9',
+                    fillColor: '#3FAAA9',
+                    fillOpacity: 0.1
+                },
+                showArea: true
+            },
+            circlemarker: false,
+            circle: {
+                shapeOptions: {
+                    color: '#3FAAA9',
+                    fillColor: '#3FAAA9',
+                    fillOpacity: 0.1
+                }
+            }
+        },
+        edit: {
+            featureGroup: drawLayer,
+            edit: false
+        }
+    };
+
+
 $(function() {
 
 var map = new L.Map('map', {
@@ -36,6 +72,9 @@ var map = new L.Map('map', {
 		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 	})
 });
+
+var drawControl = new L.Control.Draw(drawOpts);
+drawControl.addTo(map);
 
 $.getJSON('data/italy-regions.json', function(json) {
 
