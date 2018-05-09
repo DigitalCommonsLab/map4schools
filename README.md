@@ -1,1 +1,1 @@
-# map4schools
+# osm4schools
