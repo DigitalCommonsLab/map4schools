@@ -62,7 +62,28 @@
 				</form>
 		    </div>
 		    <div class="col-sm">
-		      <div id="map"></div>
+		    	<ul class="nav nav-tabs" role="tablist">
+				     <li class="nav-item">
+				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
+				     </li>
+				     <li class="nav-item">
+				          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
+				     </li>
+				     <li class="nav-item">
+				          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
+				     </li>
+				</ul>
+				<div class="tab-content">
+				  <div class="tab-pane active" id="tab_admin" role="tabpanel">
+				  	<div id="map_admin" class="map"></div>
+				  </div>
+				  <div class="tab-pane" id="tab_area" role="tabpanel">
+				  	<div id="map_area" class="map"></div>
+				  </div>
+				  <div class="tab-pane" id="tab_gps" role="tabpanel">
+				  	<div id="map_gps" class="map"></div>
+				  </div>
+				</div>
 		    </div>
 		    <div class="col-sm">
 		      One of three columns
