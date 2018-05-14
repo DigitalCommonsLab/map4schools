@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 
 var $ = require('jquery');
@@ -49,130 +34,119 @@ function randomColor(str) {
 
 $(function() {
 
-	function getMapOpts() {
-		return {
-			zoom: 15,
-			center: new L.latLng([46.07,11.13]),
-			zoomControl: false,
-			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-			})
-		}
+function getMapOpts() {
+	return {
+		zoom: 15,
+		center: new L.latLng([46.07,11.13]),
+		zoomControl: false,
+		layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		})
 	}
+}
 
-	//ADMIN SELECTION
-	var maps = {
-		admin: new L.Map('map_admin', getMapOpts()),
-		area: new L.Map('map_area', getMapOpts()),
-		gps: new L.Map('map_gps', getMapOpts()),
-	};
+//ADMIN SELECTION
+var map_admin = new L.Map('map_admin', getMapOpts());
 
-	
+$.getJSON('data/italy-regions.json', function(json) {
 
-	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-	    //$(event.target).find();
-	    //simplified
-	    _.each(maps, function(m) {
-	    	m.invalidateSize(false);
-	    });
-	});
+		geoLayer = L.geoJson(json).addTo(map_admin);
 
-	$.getJSON('data/italy-regions.json', function(json) {
+		var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
+			zoomToLayer: true,
+			listOnlyVisibleLayers: true
+		}).on('change', function(e) {
+			
+			console.log( e.layers[0].feature.properties.name );
 
-			geoLayer = L.geoJson(json).addTo(maps.admin);
+		}).addTo(map_admin);
 
-			var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
-				zoomToLayer: true,
-				listOnlyVisibleLayers: true
-			}).on('change', function(e) {
-				
-				console.log( e.layers[0].feature.properties.name );
+		map_admin.setMaxBounds( geoLayer.getBounds().pad(0.5) );
 
-			}).addTo(maps.admin);
+		map_admin.fitBounds(geoLayer.getBounds());
 
-			maps.admin.setMaxBounds( geoLayer.getBounds().pad(0.5) );
+		map_admin.on('click', function(e) {
+			map_admin.fitBounds(geoLayer.getBounds())
+		});
+});
 
-			maps.admin.fitBounds(geoLayer.getBounds());
+//AREA SELECTION
+var map_area = new L.Map('map_area', getMapOpts());
 
-			maps.admin.on('click', function(e) {
-				maps.admin.fitBounds(geoLayer.getBounds())
+var drawLayer = L.featureGroup(),
+	drawOpts = {
+        position: 'topleft',
+        draw: {
+            marker: false,
+            polyline: false,
+            polygon: {
+                allowIntersection: false,
+                drawError: {
+                    color: '#399BCC',
+                    timeout: 1000
+                },
+                shapeOptions: {
+                    color: '#3FAAA9',
+                    fillColor: '#3FAAA9',
+                    fillOpacity: 0.1
+                },
+                showArea: true
+            },
+            circlemarker: false,
+            circle: {
+                shapeOptions: {
+                    color: '#3FAAA9',
+                    fillColor: '#3FAAA9',
+                    fillOpacity: 0.1
+                }
+            }
+        },
+        edit: {
+            featureGroup: drawLayer,
+            edit: false
+        }
+    };
+
+var drawControl = new L.Control.Draw(drawOpts);
+drawControl.addTo(map_area);
+
+/*
+	L.control.search({
+		layer: geo,
+		propertyName: 'name',
+		marker: false,
+		initial: false,
+		casesensitive: false,
+		buildTip: function(text, val) {
+			var name = val.layer.feature.properties.name;
+			return '<a href="#">'+name+'</a>';
+		},
+		moveToLocation: function(latlng, title, map) {
+			//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+  			//map.setView(latlng, zoom); // access the zoom
+  			latlng.layer.fire('click')
+		}
+	}).on('search:locationfound', function(e) {
+		e.layer.openTooltip();
+	}).addTo(map);*/
+
+/*
+	map.on('click', function(e) {
+		geo.eachLayer(function(l) {
+			l.setStyle({
+				weight: 6,
+				opacity:0.8,
 			});
-	});
+		});
+	});*/
 
-	//AREA SELECTION
-	var drawLayer = L.featureGroup(),
-		drawOpts = {
-	        position: 'topleft',
-	        draw: {
-	            marker: false,
-	            polyline: false,
-	            polygon: {
-	                allowIntersection: false,
-	                drawError: {
-	                    color: '#399BCC',
-	                    timeout: 1000
-	                },
-	                shapeOptions: {
-	                    color: '#3FAAA9',
-	                    fillColor: '#3FAAA9',
-	                    fillOpacity: 0.1
-	                },
-	                showArea: true
-	            },
-	            circlemarker: false,
-	            circle: {
-	                shapeOptions: {
-	                    color: '#3FAAA9',
-	                    fillColor: '#3FAAA9',
-	                    fillOpacity: 0.1
-	                }
-	            }
-	        },
-	        edit: {
-	            featureGroup: drawLayer,
-	            edit: false
-	        }
-	    };
+//GPS SELECTION
+var map_gps = new L.Map('map_gps', getMapOpts());
 
-	var drawControl = new L.Control.Draw(drawOpts);
-	drawControl.addTo(maps.area);
-
-	/*
-		L.control.search({
-			layer: geo,
-			propertyName: 'name',
-			marker: false,
-			initial: false,
-			casesensitive: false,
-			buildTip: function(text, val) {
-				var name = val.layer.feature.properties.name;
-				return '<a href="#">'+name+'</a>';
-			},
-			moveToLocation: function(latlng, title, map) {
-				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-	  			//map.setView(latlng, zoom); // access the zoom
-	  			latlng.layer.fire('click')
-			}
-		}).on('search:locationfound', function(e) {
-			e.layer.openTooltip();
-		}).addTo(map);*/
-
-	/*
-		map.on('click', function(e) {
-			geo.eachLayer(function(l) {
-				l.setStyle({
-					weight: 6,
-					opacity:0.8,
-				});
-			});
-		});*/
-
-	//GPS SELECTION
-	var gpsControl = new L.Control.Gps({
-		position: 'topleft'
-	});
-	gpsControl.addTo(maps.gps);
+var gpsControl = new L.Control.Gps({
+	position: 'topleft'
+});
+gpsControl.addTo(map_gps);
 
 });
 },{"./node_modules/bootstrap/dist/css/bootstrap.min.css":2,"./node_modules/leaflet-draw/dist/leaflet.draw.css":7,"./node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":9,"./node_modules/leaflet-gps/dist/leaflet-gps.min.css":11,"./node_modules/leaflet-search/dist/leaflet-search.min.css":13,"./node_modules/leaflet/dist/leaflet.css":16,"bootstrap":3,"jquery":6,"jquery-csv":5,"leaflet":15,"leaflet-draw":8,"leaflet-geojson-selector":10,"leaflet-gps":12,"leaflet-search":14,"popper.js":17,"underscore":89,"underscore.string":43}],2:[function(require,module,exports){
