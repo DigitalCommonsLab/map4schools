@@ -1,10 +1,15 @@
 
-var $ = require('jquery');
+var $ = jQuery = require('jquery');
 var _ = require('underscore');
 var s = require('underscore.string');
+var hb = require('handlebars');
 var csv = require('jquery-csv');
 var popper = require('popper.js');
 var bt = require('bootstrap');
+
+var bttable = require('bootstrap-table');
+//https://github.com/wenzhixin/bootstrap-table
+
 var L = require('leaflet');
 var Search = require('leaflet-search');
 var Select = require('leaflet-geojson-selector');
@@ -15,8 +20,9 @@ var Draw = require('leaflet-draw');
 
 _.mixin({str: s});
 
-require('./node_modules/bootstrap/dist/css/bootstrap.min.css'),
-require('./node_modules/leaflet/dist/leaflet.css'),
+require('./node_modules/bootstrap/dist/css/bootstrap.min.css');
+require('./node_modules/bootstrap-table/dist/bootstrap-table.min.css');
+require('./node_modules/leaflet/dist/leaflet.css');
 require('./node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('./node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 require('./node_modules/leaflet-draw/dist/leaflet.draw.css');
@@ -31,18 +37,18 @@ function randomColor(str) {
 	return color;
 }
 
-$(function() {
-
-	function getMapOpts() {
-		return {
-			zoom: 15,
-			center: new L.latLng([46.07,11.13]),
-			zoomControl: false,
-			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-			})
-		}
+function getMapOpts() {
+	return {
+		zoom: 15,
+		center: new L.latLng([46.07,11.13]),
+		zoomControl: false,
+		layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		})
 	}
+}
+
+$(function() {
 
 	//ADMIN SELECTION
 	var maps = {
@@ -69,7 +75,9 @@ $(function() {
 				listOnlyVisibleLayers: true
 			}).on('change', function(e) {
 				
-				console.log( e.layers[0].feature.properties.name );
+				var sel = e.layers[0].feature.properties;
+
+				$('#geo_selection').text( JSON.stringify(sel) )
 
 			}).addTo(maps.admin);
 
@@ -155,5 +163,40 @@ $(function() {
 		position: 'topleft'
 	});
 	gpsControl.addTo(maps.gps);
+
+	$.getJSON('data/schools_trentino.json', function(json) {
+		//TODO move to submit event
+		$('#table_results').bootstrapTable({
+			pagination:true,
+			pageSize: 5,
+		    columns: [{
+		        field: 'id',
+		        title: 'Id'
+		    }, {
+		        field: 'name',
+		        title: 'Name'
+		    }, {
+		        field: 'isced:level',
+		        title: 'Level'
+		    }, {
+		        field: 'website',
+		        title: 'Website'
+		    }, {
+		        field: 'operator',
+		        title: 'Operator'
+		    }
+		    ],
+		    data: _.map(json.features, function(f) {
+		    	var p = f.properties;
+		    	return {
+			        'id': p.osm_id,
+			        'name': p.name,
+			        'isced:level': p.isced_leve,
+			        'operator': p.operator_r,
+			        'website': p.website
+		    	};
+		    })
+		});
+	});
 
 });

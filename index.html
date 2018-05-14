@@ -7,70 +7,113 @@
 	<link rel="stylesheet" href="main.css" />
 </head> 	
 <body>
-	<div class="container-fluid">		
+	<div class="container">		
 
 		<div class="row">
-		    <div class="col-sm">
+		    <div class="col-sm-6">
 		    	<h2>Zona geografica</h2>
-
-		    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
-				     <li class="nav-item">
-				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
-				     </li>
-				     <li class="nav-item">
-				          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
-				     </li>
-				     <li class="nav-item">
-				          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
-				     </li>
-				</ul>
-				<div class="tab-content">
-				  <div class="tab-pane active" id="tab_admin" role="tabpanel">
-				  	<div id="map_admin" class="map"></div>
-				  </div>
-				  <div class="tab-pane" id="tab_area" role="tabpanel">
-				  	<div id="map_area" class="map"></div>
-				  </div>
-				  <div class="tab-pane" id="tab_gps" role="tabpanel">
-				  	<div id="map_gps" class="map"></div>
-				  </div>
+				<div class="row">
+					<div class="col-sm">
+				    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
+						     <li class="nav-item">
+						          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
+						     </li>
+						     <li class="nav-item">
+						          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
+						     </li>
+						     <li class="nav-item">
+						          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
+						     </li>
+						</ul>
+						<div class="tab-content">
+						  <div class="tab-pane active" id="tab_admin" role="tabpanel">
+						  	<div id="map_admin" class="map"></div>
+						  </div>
+						  <div class="tab-pane" id="tab_area" role="tabpanel">
+						  	<div id="map_area" class="map"></div>
+						  </div>
+						  <div class="tab-pane" id="tab_gps" role="tabpanel">
+						  	<div id="map_gps" class="map"></div>
+						  </div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<label>Selected</label>
+					<pre id="geo_selection"></pre>
 				</div>
 		    </div>
-		    <div class="col-sm">
-		    	<h2>Tipologia Scuola</h2>
-		    	<form>
-				  <div class="form-group">
-				    <label for="sel_level">ISCED level</label>
-					<select id="sel_level" class="custom-select">
-					  <option selected>Open this select menu</option>
-						<option value="0">Pre-primary</option>
-						<option value="1">Primary education or first stage of basic education</option>
-						<option value="2">Lower secondary or second stage of basic education</option>
-						<option value="3">(Upper) secondary education</option>
-						<option value="4">Post-secondary</option>
-						<option value="5">First stage</option> 
-						<option value="6">Second stage</option>
-					</select>
-					<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
-				  </div>
-				  <div class="form-group">
-				    <label for="exampleInputPassword1">Password</label>
-				    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-				  </div>
-				  <div class="form-check">
-				    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-				    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-				  </div>
-				  <button type="submit" class="btn btn-primary">Submit</button>
-				</form>
-		    </div>
-		    <div class="col-sm">
-		      <h2>Risultati</h2>
+		    <div class="col-sm-6">
+		    	<div class="row">
+			    	<div class="col-sm">
+				    	<h2>Tipologia Scuola</h2>
+				    	<form>
+						  <div class="form-group">
+						    <label for="sel_level">ISCED level</label>
+							<select id="sel_level" class="custom-select">
+							  <option selected>Open this select menu</option>
+								<option value="0">Pre-primary</option>
+								<option value="1">Primary education or first stage of basic education</option>
+								<option value="2">Lower secondary or second stage of basic education</option>
+								<option value="3">(Upper) secondary education</option>
+								<option value="4">Post-secondary</option>
+								<option value="5">First stage</option> 
+								<option value="6">Second stage</option>
+							</select>
+							<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
+						  </div>
+						  <button type="submit" class="btn btn-primary">Submit</button>
+						</form>
+					</div>
+			  	</div>
+			  	<div class="row">
+			    	<div class="col-sm">
+		      			<h2>Risultati</h2>
 
+		 				<table id="table_results" class="table">
+						</table>
+
+					</div>
+				</div>
 		    </div>
 		  </div>
-
 	</div>
+	
+	<hr />
+
+	<div class="container">		
+		<h2>Grafici Parametri Scuola</h2>
+		<div class="row">
+			<div class="col-sm-4">
+				<div class="card" style="width: 18rem;">
+				  <div class="card-body">
+				    <h5 class="card-title">Radar 7 parametri</h5>
+				    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>				    
+				  </div>
+				  <img class="card-img-top" src="https://user-images.githubusercontent.com/69814/39750971-fb2550d2-52b6-11e8-989a-56075cd11f81.png" alt="Card image cap">
+				</div>
+			</div>
+			<div class="col-sm-4">				
+				<div class="card" style="width: 18rem;">				  
+				  <div class="card-body">
+				    <h5 class="card-title">Barre verticali stacked 2x2</h5>
+				    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+				  </div>
+				  <img class="card-img-top" src="https://user-images.githubusercontent.com/69814/39749131-363cc0e2-52b2-11e8-9af2-3cc0e70c0d78.png" alt="Card image cap">
+				</div>
+			</div>
+			<div class="col-sm-4">				
+				<div class="card" style="width: 18rem;">				  
+				  <div class="card-body">
+				    <h5 class="card-title">Barre orizzontali stacked 5x5</h5>
+				    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+				  </div>
+				  <img class="card-img-top" src="https://user-images.githubusercontent.com/69814/39749128-342987c2-52b2-11e8-98f2-f3a6db173086.png" alt="Card image cap">
+				</div>
+			</div>		    
+		</div>
+	</div>
+
 	<script src="bundle.js"></script>
 </body>
 </html>
