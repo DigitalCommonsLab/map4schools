@@ -12,7 +12,6 @@ var Draw = require('leaflet-draw');
 
 _.mixin({str: s});
 
-//TODO test browsrify-css
 require('./node_modules/bootstrap/dist/css/bootstrap.min.css'),
 require('./node_modules/leaflet/dist/leaflet.css'),
 require('./node_modules/leaflet-search/dist/leaflet-search.min.css');
