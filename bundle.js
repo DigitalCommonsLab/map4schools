@@ -62,25 +62,23 @@ $(function() {
 
 	//ADMIN SELECTION
 	var maps = {
-		admin: new L.Map('map_admin', getMapOpts()),
-		area: new L.Map('map_area', getMapOpts()),
-		gps: new L.Map('map_gps', getMapOpts()),
+		admin: L.map('map_admin', getMapOpts()),
+		area: L.map('map_area', getMapOpts()),
+		gps: L.map('map_gps', getMapOpts()),
 	};
-
-	
 
 	$('#tabs_maps a').on('shown.bs.tab', function(event) {
 		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-	    //$(event.target).find();
-	    //simplified
-	    _.each(maps, function(m) {
-	    	m.invalidateSize(false);
-	    });
+		//$(event.target).find();
+		//simplified
+		_.each(maps, function(m) {
+			m.invalidateSize(false);
+		});
 	});
 
 	$.getJSON('data/italy-regions.json', function(json) {
 
-			geoLayer = L.geoJson(json).addTo(maps.admin);
+			var geoLayer = L.geoJson(json).addTo(maps.admin);
 
 			var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
 				zoomToLayer: true,

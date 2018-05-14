@@ -7,61 +7,12 @@
 	<link rel="stylesheet" href="main.css" />
 </head> 	
 <body>
-	<div class="container-fluid">
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-		  
-		  <a class="navbar-brand" href="#">Navbar</a>
-
-		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-		    <span class="navbar-toggler-icon"></span>
-		  </button>
-
-		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-		    <ul class="navbar-nav mr-auto">
-		      <li class="nav-item active">
-		        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link" href="#">Link</a>
-		      </li>
-		      <li class="nav-item dropdown">
-		        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		          Dropdown
-		        </a>
-		        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-		          <a class="dropdown-item" href="#">Action</a>
-		          <a class="dropdown-item" href="#">Another action</a>
-		          <div class="dropdown-divider"></div>
-		          <a class="dropdown-item" href="#">Something else here</a>
-		        </div>
-		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link disabled" href="#">Disabled</a>
-		      </li>
-		    </ul>
-		  </div>
-		</nav>
+	<div class="container-fluid">		
 
 		<div class="row">
 		    <div class="col-sm">
-		    	<form>
-				  <div class="form-group">
-				    <label for="exampleInputEmail1">Email address</label>
-				    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-				    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-				  </div>
-				  <div class="form-group">
-				    <label for="exampleInputPassword1">Password</label>
-				    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-				  </div>
-				  <div class="form-check">
-				    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-				    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-				  </div>
-				  <button type="submit" class="btn btn-primary">Submit</button>
-				</form>
-		    </div>
-		    <div class="col-sm">
+		    	<h2>Zona geografica</h2>
+
 		    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
 				     <li class="nav-item">
 				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
@@ -86,7 +37,36 @@
 				</div>
 		    </div>
 		    <div class="col-sm">
-		      One of three columns
+		    	<h2>Tipologia Scuola</h2>
+		    	<form>
+				  <div class="form-group">
+				    <label for="sel_level">ISCED level</label>
+					<select id="sel_level" class="custom-select">
+					  <option selected>Open this select menu</option>
+						<option value="0">Pre-primary</option>
+						<option value="1">Primary education or first stage of basic education</option>
+						<option value="2">Lower secondary or second stage of basic education</option>
+						<option value="3">(Upper) secondary education</option>
+						<option value="4">Post-secondary</option>
+						<option value="5">First stage</option> 
+						<option value="6">Second stage</option>
+					</select>
+					<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
+				  </div>
+				  <div class="form-group">
+				    <label for="exampleInputPassword1">Password</label>
+				    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+				  </div>
+				  <div class="form-check">
+				    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+				    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+				  </div>
+				  <button type="submit" class="btn btn-primary">Submit</button>
+				</form>
+		    </div>
+		    <div class="col-sm">
+		      <h2>Risultati</h2>
+
 		    </div>
 		  </div>
 
