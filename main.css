@@ -3,3 +3,12 @@
 	width: 100%;
 	height: 400px;
 }
+
+.breadcrumb-item + .breadcrumb-item::before,
+.breadcrumb > li:before {
+    content: "► ";
+}
+
+.breadcrumb > li:first-child:before {
+	content:none;
+}

@@ -27,6 +27,7 @@ require('./node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('./node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 require('./node_modules/leaflet-draw/dist/leaflet.draw.css');
 require('./node_modules/leaflet-gps/dist/leaflet-gps.min.css');
+require('./main.css');
 
 function randomColor(str) {
 	var letters = '0123456789ABCDEF';
@@ -57,14 +58,14 @@ $(function() {
 		gps: L.map('map_gps', getMapOpts()),
 	};
 
-	$('#tabs_maps a').on('shown.bs.tab', function(event) {
+/*	$('#tabs_maps a').on('shown.bs.tab', function(event) {
 		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
 		//$(event.target).find();
 		//simplified
 		_.each(maps, function(m) {
 			m.invalidateSize(false);
 		});
-	});
+	});*/
 
 	$.getJSON('data/italy-regions.json', function(json) {
 
