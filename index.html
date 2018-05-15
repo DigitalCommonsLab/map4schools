@@ -27,11 +27,7 @@
 						<div class="tab-content">
 						  <div class="tab-pane active" id="tab_admin" role="tabpanel">
 						  	<nav aria-label="breadcrumb">
-								<ol id="bread_admin" class="breadcrumb">
-									<li class="breadcrumb-item"><a href="#">Regione</a></li>
-									<li class="breadcrumb-item"><a href="#">Provincia</a></li>
-									<li class="breadcrumb-item active" aria-current="page">Comune</li>
-								</ol>
+						  		<!-- TMPLS -->
 							</nav>
 						  	<div id="map_admin" class="map"></div>
 						  </div>
@@ -57,14 +53,7 @@
 						  <div class="form-group">
 						    <label for="sel_level">ISCED level</label>
 							<select id="sel_level" class="custom-select">
-							  <option selected>Open this select menu</option>
-								<option value="0">Pre-primary</option>
-								<option value="1">Primary education or first stage of basic education</option>
-								<option value="2">Lower secondary or second stage of basic education</option>
-								<option value="3">(Upper) secondary education</option>
-								<option value="4">Post-secondary</option>
-								<option value="5">First stage</option> 
-								<option value="6">Second stage</option>
+								<!-- TMPLS -->
 							</select>
 							<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
 						  </div>
@@ -120,6 +109,32 @@
 		</div>
 	</div>
 
-	<script src="bundle.js"></script>
+<script id="tmpl_bread_admin" type="text/x-handlebars-template">
+	<ol id="bread_admin" class="breadcrumb">
+		<li class="breadcrumb-item"><a href="#">Regione</a></li>
+		<li class="breadcrumb-item"><a href="#">Provincia</a></li>
+		<li class="breadcrumb-item active" aria-current="page">Comune</li>
+	</ol>
+</script>
+<script id="tmpl_sel_level" type="text/x-handlebars-template">
+	<option selected>Open this select menu</option>
+	<option value="0">Pre-primary</option>
+	<option value="1">Primary education or first stage of basic education</option>
+	<option value="2">Lower secondary or second stage of basic education</option>
+	<option value="3">(Upper) secondary education</option>
+	<option value="4">Post-secondary</option>
+	<option value="5">First stage</option> 
+	<option value="6">Second stage</option>
+</script>
+<script id="tmpl_popup" type="text/x-handlebars-template">
+<ul class="list-group">
+  <li class="list-group-item">Cras justo odio</li>
+  <li class="list-group-item">Dapibus ac facilisis in</li>
+  <li class="list-group-item">Morbi leo risus</li>
+  <li class="list-group-item">Porta ac consectetur ac</li>
+  <li class="list-group-item">Vestibulum at eros</li>
+</ul>
+</script>
+<script src="bundle.js"></script>
 </body>
 </html>
