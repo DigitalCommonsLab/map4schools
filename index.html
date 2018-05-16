@@ -51,7 +51,7 @@
 				    	<h2>Tipologia Scuola</h2>
 				    	<form>
 						  <div class="form-group">
-						    <label for="sel_level">ISCED level</label>
+						    <label for="sel_level">Livello istruzione</label>
 							<select id="sel_level" class="custom-select">
 								<!-- TMPLS -->
 							</select>
@@ -109,38 +109,40 @@
 		</div>
 	</div>
 
-<script id="tmpl_bread_admin" type="text/x-handlebars-template">
-<ol id="bread_admin" class="breadcrumb">
-	{{#if reg}}
-		<li class="breadcrumb-item"><a href="#">{{reg}}</a></li>
-		{{#if prov}}
-			<li class="breadcrumb-item"><a href="#">{{prov}}</a></li>
-			{{#if com}}
-			<li class="breadcrumb-item active" aria-current="page">{{com}}</li>
+	<!-- DYNAMIC TEMAPLATES -->
+	<script id="tmpl_bread_admin" type="text/x-handlebars-template">
+	<ol id="bread_admin" class="breadcrumb">
+		{{#if reg}}
+			<li class="breadcrumb-item"><a href="#">{{reg}}</a></li>
+			{{#if prov}}
+				<li class="breadcrumb-item"><a href="#">{{prov}}</a></li>
+				{{#if com}}
+				<li class="breadcrumb-item active" aria-current="page">{{com}}</li>
+				{{/if}}
 			{{/if}}
+		{{else}}
+		<li class="breadcrumb-item" aria-current="page">Seleziona una regione</li>
 		{{/if}}
-	{{else}}
-	<li class="breadcrumb-item" aria-current="page">Seleziona una regione</li>
-	{{/if}}
-</ol>
-</script>
-<script id="tmpl_sel_level" type="text/x-handlebars-template">
-	<option selected>Open this select menu</option>
-	<option value="0">Pre-primary</option>
-	<option value="1">Primary education or first stage of basic education</option>
-	<option value="2">Lower secondary or second stage of basic education</option>
-	<option value="3">(Upper) secondary education</option>
-	<option value="4">Post-secondary</option>
-	<option value="5">First stage</option> 
-	<option value="6">Second stage</option>
-</script>
-<script id="tmpl_popup" type="text/x-handlebars-template">
-<ul class="list-group">
-  <li class="list-group-item">Cras justo odio</li>
-  <li class="list-group-item">Dapibus ac facilisis in</li>
-  <li class="list-group-item">Morbi leo risus</li>
-</ul>
-</script>
-<script src="bundle.js"></script>
+	</ol>
+	</script>
+	<script id="tmpl_sel_level" type="text/x-handlebars-template">
+		<option selected>Open this select menu</option>
+		<option value="0">Pre-primary</option>
+		<option value="1">Primary education or first stage of basic education</option>
+		<option value="2">Lower secondary or second stage of basic education</option>
+		<option value="3">(Upper) secondary education</option>
+		<option value="4">Post-secondary</option>
+		<option value="5">First stage</option> 
+		<option value="6">Second stage</option>
+	</script>
+	<script id="tmpl_popup" type="text/x-handlebars-template">
+	<ul class="list-group">
+	  <li class="list-group-item">Cras justo odio</li>
+	  <li class="list-group-item">Dapibus ac facilisis in</li>
+	  <li class="list-group-item">Morbi leo risus</li>
+	</ul>
+	</script>
+
+	<script src="bundle.js"></script>
 </body>
 </html>
