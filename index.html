@@ -110,11 +110,19 @@
 	</div>
 
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
-	<ol id="bread_admin" class="breadcrumb">
-		<li class="breadcrumb-item"><a href="#">Regione</a></li>
-		<li class="breadcrumb-item"><a href="#">Provincia</a></li>
-		<li class="breadcrumb-item active" aria-current="page">Comune</li>
-	</ol>
+<ol id="bread_admin" class="breadcrumb">
+	{{#if reg}}
+		<li class="breadcrumb-item"><a href="#">{{reg}}</a></li>
+		{{#if prov}}
+			<li class="breadcrumb-item"><a href="#">{{prov}}</a></li>
+			{{#if com}}
+			<li class="breadcrumb-item active" aria-current="page">{{com}}</li>
+			{{/if}}
+		{{/if}}
+	{{else}}
+	<li class="breadcrumb-item" aria-current="page">Seleziona una regione</li>
+	{{/if}}
+</ol>
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>
@@ -131,8 +139,6 @@
   <li class="list-group-item">Cras justo odio</li>
   <li class="list-group-item">Dapibus ac facilisis in</li>
   <li class="list-group-item">Morbi leo risus</li>
-  <li class="list-group-item">Porta ac consectetur ac</li>
-  <li class="list-group-item">Vestibulum at eros</li>
 </ul>
 </script>
 <script src="bundle.js"></script>

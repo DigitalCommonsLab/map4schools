@@ -1,8 +1,8 @@
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore');
-var s = require('underscore.string');
-var hb = require('handlebars');
+var S = require('underscore.string');
+var H = require('handlebars');
 var csv = require('jquery-csv');
 var popper = require('popper.js');
 var bt = require('bootstrap');
@@ -18,16 +18,16 @@ var Gps = require('leaflet-gps');
 //var Panel = require('leaflet-panel-layers');
 var Draw = require('leaflet-draw');
 
-_.mixin({str: s});
+_.mixin({str: S});
 
-require('./node_modules/bootstrap/dist/css/bootstrap.min.css');
-require('./node_modules/bootstrap-table/dist/bootstrap-table.min.css');
-require('./node_modules/leaflet/dist/leaflet.css');
-require('./node_modules/leaflet-search/dist/leaflet-search.min.css');
-require('./node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
-require('./node_modules/leaflet-draw/dist/leaflet.draw.css');
-require('./node_modules/leaflet-gps/dist/leaflet-gps.min.css');
-require('./main.css');
+require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
+require('../node_modules/bootstrap-table/dist/bootstrap-table.min.css');
+require('../node_modules/leaflet/dist/leaflet.css');
+require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
+require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
+require('../node_modules/leaflet-draw/dist/leaflet.draw.css');
+require('../node_modules/leaflet-gps/dist/leaflet-gps.min.css');
+require('../main.css');
 
 function randomColor(str) {
 	var letters = '0123456789ABCDEF';
@@ -56,6 +56,12 @@ $(function() {
 		admin: L.map('map_admin', getMapOpts()),
 		area: L.map('map_area', getMapOpts()),
 		gps: L.map('map_gps', getMapOpts()),
+	};
+
+	var tmpls = {
+		bread_admin: H.compile($('#tmpl_bread_admin').html()),
+		sel_level: H.compile($('#tmpl_sel_level').html()),
+		popup: H.compile($('#tmpl_popup').html())
 	};
 
 /*	$('#tabs_maps a').on('shown.bs.tab', function(event) {
