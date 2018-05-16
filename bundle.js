@@ -47010,9 +47010,6 @@ var H = require('handlebars');
 var popper = require('popper.js');
 var bt = require('bootstrap');
 
-var bttable = require('bootstrap-table');
-//https://github.com/wenzhixin/bootstrap-table
-
 var L = require('leaflet');
 require('../node_modules/leaflet/dist/leaflet.css');
 
@@ -47020,7 +47017,6 @@ require('../node_modules/leaflet/dist/leaflet.css');
 //var Panel = require('leaflet-panel-layers');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
-require('../node_modules/bootstrap-table/dist/bootstrap-table.min.css');
 require('../main.css');
 
 var utils = require('./utils');
@@ -47028,6 +47024,7 @@ var utils = require('./utils');
 var mapArea = require('./map_area');
 var mapAdmin = require('./map_admin');
 var mapGps = require('./map_gps');
+var results = require('./results');
 
 $(function() {
 
@@ -47037,6 +47034,8 @@ $(function() {
 		area: mapArea.init('map_area'),
 		gps: mapGps.init('map_gps')
 	};
+
+	results.init('#table_results');
 
 	var tmpls = {
 		bread_admin: H.compile($('#tmpl_bread_admin').html()),
@@ -47053,43 +47052,14 @@ $(function() {
 		});
 	});
 
-	$.getJSON('data/schools_trentino.json', function(json) {
-		//TODO move to submit event
-		$('#table_results').bootstrapTable({
-			pagination:true,
-			pageSize: 5,
-		    columns: [{
-		        field: 'id',
-		        title: 'Id'
-		    }, {
-		        field: 'name',
-		        title: 'Name'
-		    }, {
-		        field: 'isced:level',
-		        title: 'Level'
-		    }, {
-		        field: 'website',
-		        title: 'Website'
-		    }, {
-		        field: 'operator',
-		        title: 'Operator'
-		    }
-		    ],
-		    data: _.map(json.features, function(f) {
-		    	var p = f.properties;
-		    	return {
-			        'id': p.osm_id,
-			        'name': p.name,
-			        'isced:level': p.isced_leve,
-			        'operator': p.operator_r,
-			        'website': p.website
-		    	};
-		    })
-		});
+	$.getJSON('./data/schools_trentino.json', function(geo) {
+
+		results.update(geo);
+
 	});
 
 });
-},{"../main.css":1,"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./utils":141,"bootstrap":6,"bootstrap-table":3,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./results":141,"./utils":142,"bootstrap":6,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47168,7 +47138,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":53,"../node_modules/leaflet-search/dist/leaflet-search.min.css":57,"./utils":141,"jquery":50,"leaflet-geojson-selector":54,"leaflet-search":58}],139:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":53,"../node_modules/leaflet-search/dist/leaflet-search.min.css":57,"./utils":142,"jquery":50,"leaflet-geojson-selector":54,"leaflet-search":58}],139:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47232,7 +47202,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":51,"./utils":141,"jquery":50,"leaflet-draw":52}],140:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":51,"./utils":142,"jquery":50,"leaflet-draw":52}],140:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47258,7 +47228,70 @@ module.exports = {
 		return this;
 	}
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":55,"./utils":141,"jquery":50,"leaflet-gps":56}],141:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":55,"./utils":142,"jquery":50,"leaflet-gps":56}],141:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var utils = require('./utils');
+
+var bttable = require('bootstrap-table');
+//https://github.com/wenzhixin/bootstrap-table
+require('../node_modules/bootstrap-table/dist/bootstrap-table.min.css');
+
+module.exports = {
+  	
+  	table: null,
+
+	init: function(el) {
+
+		var self = this;
+
+//TODO move to submit event
+		this.table = $(el);
+
+		this.table.bootstrapTable({
+			pagination:true,
+			pageSize: 5,
+			pageList: [5],
+			data: [],
+		    columns: [
+		    	{
+			        field: 'id',
+			        title: 'Id'
+			    }, {
+			        field: 'name',
+			        title: 'Name'
+			    }, {
+			        field: 'isced:level',
+			        title: 'Level'
+			    }, {
+			        field: 'website',
+			        title: 'Website'
+			    }, {
+			        field: 'operator',
+			        title: 'Operator'
+			    }
+		    ]
+		}).on('onClickRow', function(e) {
+			console.log(e)
+		});
+	},
+
+	update: function(geo) {
+		var json = _.map(geo.features, function(f) {
+			var p = f.properties;
+			return {
+				'id': p.osm_id,
+				'name': p.name,
+				'isced:level': p.isced_leve,
+				'operator': p.operator_r,
+				'website': p.website
+			};
+		});
+		this.table.bootstrapTable('load', json);
+	}
+}
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":142,"bootstrap-table":3,"jquery":50,"underscore":135}],142:[function(require,module,exports){
 
 module.exports = {
   
