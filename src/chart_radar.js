@@ -16,6 +16,5 @@ module.exports = {
 		var self = this;
 
 		this.chart = $(el);
-
 	}
 };
