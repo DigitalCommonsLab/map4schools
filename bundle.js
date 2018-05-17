@@ -47025,6 +47025,7 @@ var mapArea = require('./map_area');
 var mapAdmin = require('./map_admin');
 var mapGps = require('./map_gps');
 var results = require('./results');
+var overpass = require('./overpass');
 
 $(function() {
 
@@ -47052,6 +47053,18 @@ $(function() {
 		});
 	});
 
+	maps.admin.onSelect = function(area) {
+		console.log('select admin',area)
+	};
+
+	maps.area.onSelect = function(area) {
+		console.log('select area',area)
+	};
+
+	maps.gps.onSelect = function(area) {
+		console.log('select gps',area)
+	};
+
 	$.getJSON('./data/schools_trentino.json', function(geo) {
 
 		results.update(geo);
@@ -47059,7 +47072,7 @@ $(function() {
 	});
 
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./results":141,"./utils":142,"bootstrap":6,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./overpass":141,"./results":142,"./utils":143,"bootstrap":6,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47072,6 +47085,8 @@ module.exports = {
   	
   	map: null,
 
+  	onSelect: function(area) {},
+
 	init: function(el) {
 
 		var self = this;
@@ -47080,33 +47095,38 @@ module.exports = {
 
 		$.getJSON('data/italy-regions.json', function(json) {
 
-				var geoLayer = L.geoJson(json).addTo(self.map);
+			var geoLayer = L.geoJson(json).addTo(self.map);
 
-				var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
-					zoomToLayer: true,
-					listOnlyVisibleLayers: true
-				}).on('change', function(e) {
-					
+			var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
+				zoomToLayer: true,
+				listOnlyVisibleLayers: true
+			}).on('change', function(e) {
+
+				if(e.selected) {
+				
 					var sel = e.layers[0].feature.properties;
 
-					$('#geo_selection').text( JSON.stringify(sel) )
+					$('#geo_selection').text( JSON.stringify(sel) );
 
-				}).addTo(self.map);
+					self.onSelect( e.layers[0].toGeoJSON().geometry );
+				}
 
-				self.map.setMaxBounds( geoLayer.getBounds().pad(0.5) );
+			}).addTo(self.map);
 
-				self.map.fitBounds(geoLayer.getBounds());
+			self.map.setMaxBounds( geoLayer.getBounds().pad(0.5) );
 
-				self.map.on('click', function(e) {
-					self.map.fitBounds(geoLayer.getBounds())
-				});
+			self.map.fitBounds(geoLayer.getBounds());
+
+			self.map.on('click', function(e) {
+				self.map.fitBounds(geoLayer.getBounds())
+			});
 		});
 
 		return this;
 	},
 
-	initSearch: function() {
-	/*
+/*	initSearch: function() {
+	
 		L.control.search({
 			layer: geo,
 			propertyName: 'name',
@@ -47124,30 +47144,23 @@ module.exports = {
 			}
 		}).on('search:locationfound', function(e) {
 			e.layer.openTooltip();
-		}).addTo(this.map);*/
-
-	/*
-		this.map.on('click', function(e) {
-			geo.eachLayer(function(l) {
-				l.setStyle({
-					weight: 6,
-					opacity:0.8,
-				});
-			});
-		});*/
-	}
+		}).addTo(this.map);
+	}*/
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":53,"../node_modules/leaflet-search/dist/leaflet-search.min.css":57,"./utils":142,"jquery":50,"leaflet-geojson-selector":54,"leaflet-search":58}],139:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":53,"../node_modules/leaflet-search/dist/leaflet-search.min.css":57,"./utils":143,"jquery":50,"leaflet-geojson-selector":54,"leaflet-search":58}],139:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
 var Draw = require('leaflet-draw');
+
 require('../node_modules/leaflet-draw/dist/leaflet.draw.css');
 
 module.exports = {
   	
   	map: null,
+
+  	onSelect: function(area) {},
   	
   	selectionLayer: null,
 
@@ -47187,22 +47200,68 @@ module.exports = {
   	},
 
 	init: function(el) {
-		
-		this.selectionLayer = L.featureGroup();
 
-		this.config.draw.edit.featureGroup = this.selectionLayer;
+		var self = this;
 
 		this.map = L.map(el, utils.getMapOpts() );
+
+		this.selectionLayer = L.featureGroup().addTo(this.map);
+
+		this.config.draw.edit.featureGroup = this.selectionLayer;
 
 		var drawControl = new L.Control.Draw(this.config.draw);
 
 		drawControl.addTo(this.map);
 
+		//DRAW EVENTS
+		self.map.on('draw:created', function (e) {
+                var type = e.layerType,
+                    layer = e.layer;
+
+                //crea un polygono dal cerchio
+                if (type === 'circle') {
+
+                    var origin = layer.getLatLng(); //center of drawn circle
+                    var radius = layer.getRadius(); //radius of drawn circle
+                    var projection = L.CRS.EPSG4326;
+                    var polys = utils.createGeodesicPolygon(origin, radius, 100, 0, projection);
+                    //these are the points that make up the circle
+                    var coords = [];
+                    for (var i = 0; i < polys.length; i++) {
+                        var geometry = [
+                            //parseFloat(polys[i].lat.toFixed(3)),
+                            //parseFloat(polys[i].lng.toFixed(3))
+                            polys[i].lat,
+                            polys[i].lng
+                        ];
+                        coords.push(geometry);
+                    }
+
+                    self.filterPolygon = L.polygon(coords);
+                }
+                else {
+                    self.filterPolygon = layer;
+                }
+
+                self.selectionLayer
+                    .clearLayers()
+                    .addLayer(self.filterPolygon)
+                    .setStyle(self.config.draw.draw.polygon.shapeOptions);
+
+                self.onSelect( self.selectionLayer.toGeoJSON().features[0].geometry );
+            })
+            .on('draw:deleted', function (e) {
+                
+                self.selectionLayer.clearLayers();
+
+                /*delete self.filterPolygon;*/
+            });
+
 		return this;
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":51,"./utils":142,"jquery":50,"leaflet-draw":52}],140:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":51,"./utils":143,"jquery":50,"leaflet-draw":52}],140:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47212,6 +47271,8 @@ require('../node_modules/leaflet-gps/dist/leaflet-gps.min.css');
 module.exports = {
   	
   	map: null,
+
+  	onSelect: function(area) {},
 
 	init: function(el) {
 
@@ -47228,7 +47289,27 @@ module.exports = {
 		return this;
 	}
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":55,"./utils":142,"jquery":50,"leaflet-gps":56}],141:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":55,"./utils":143,"jquery":50,"leaflet-gps":56}],141:[function(require,module,exports){
+
+//https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
+//
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var utils = require('./utils');
+
+module.exports = {
+  	
+  	results: [],
+
+	search: function(area) {
+
+		//TODO
+
+		return []
+	}
+}
+},{"./utils":143,"jquery":50,"underscore":135}],142:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -47291,7 +47372,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":142,"bootstrap-table":3,"jquery":50,"underscore":135}],142:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":143,"bootstrap-table":3,"jquery":50,"underscore":135}],143:[function(require,module,exports){
 
 module.exports = {
   
@@ -47313,7 +47394,106 @@ module.exports = {
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			})
 		}
-	}
+	},
+
+    createGeodesicPolygon: function (origin, radius, sides, rotation, projection) {
+
+        var latlon = origin; //leaflet equivalent
+        var angle;
+        var new_lonlat, geom_point;
+        var points = [];
+
+        for (var i = 0; i < sides; i++) {
+            angle = (i * 360 / sides) + rotation;
+            new_lonlat = this.destinationVincenty(latlon, angle, radius);
+            geom_point = L.latLng(new_lonlat.lng, new_lonlat.lat);
+
+            points.push(geom_point);
+        }
+
+        return points;
+    },
+
+    destinationVincenty: function (lonlat, brng, dist) {
+        //rewritten to work with leaflet
+        var VincentyConstants = {
+                a: 6378137,
+                b: 6356752.3142,
+                f: 1 / 298.257223563
+            },
+            a = VincentyConstants.a,
+            b = VincentyConstants.b,
+            f = VincentyConstants.f,
+            lon1 = lonlat.lng,
+            lat1 = lonlat.lat,
+            s = dist,
+            pi = Math.PI,
+            alpha1 = brng * pi / 180,
+            sinAlpha1 = Math.sin(alpha1),
+            cosAlpha1 = Math.cos(alpha1),
+            tanU1 = (1 - f) * Math.tan(lat1 * pi / 180),
+            cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1)), sinU1 = tanU1 * cosU1,
+            sigma1 = Math.atan2(tanU1, cosAlpha1),
+            sinAlpha = cosU1 * sinAlpha1,
+            cosSqAlpha = 1 - sinAlpha * sinAlpha,
+            uSq = cosSqAlpha * (a * a - b * b) / (b * b),
+            A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq))),
+            B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq))),
+            sigma = s / (b * A), sigmaP = 2 * Math.PI;
+
+        while (Math.abs(sigma - sigmaP) > 1e-12) {
+            var cos2SigmaM = Math.cos(2 * sigma1 + sigma),
+                sinSigma = Math.sin(sigma),
+                cosSigma = Math.cos(sigma),
+                deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
+                    B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
+            sigmaP = sigma;
+            sigma = s / (b * A) + deltaSigma;
+        }
+        
+        var tmp = sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1,
+            lat2 = Math.atan2(sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
+                (1 - f) * Math.sqrt(sinAlpha * sinAlpha + tmp * tmp)),
+            lambda = Math.atan2(sinSigma * sinAlpha1, cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1),
+            C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha)),
+            lam = lambda - (1 - C) * f * sinAlpha *
+                (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM))),
+            revAz = Math.atan2(sinAlpha, -tmp),
+            lamFunc = lon1 + (lam * 180 / pi),
+            lat2a = lat2 * 180 / pi;
+
+        return L.latLng(lamFunc, lat2a);
+    },
+	/*
+		utile in caso di backend PostGis per inviare la shape di selezione
+	 */
+   	toWKT: function (layer) {
+
+        var lng, lat, coords = [];
+
+        if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+            var latlngs = layer.getLatLngs();
+
+            for (var i = 0; i < latlngs.length; i++) {
+                coords.push(latlngs[i].lng + " " + latlngs[i].lat);
+                if (i === 0) {
+                    lng = latlngs[i].lng;
+                    lat = latlngs[i].lat;
+                }
+            }
+
+            if (layer instanceof L.Polygon) {
+                return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+
+            } else if (layer instanceof L.Polyline) {
+                return "LINESTRING(" + coords.join(",") + ")";
+            }
+        }
+        else if (layer instanceof L.Marker) {
+            return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
+        }
+    },
+
 };
 
 },{}]},{},[137]);

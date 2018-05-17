@@ -8,6 +8,8 @@ module.exports = {
   	
   	map: null,
 
+  	onSelect: function(area) {},
+
 	init: function(el) {
 
 		var self = this;

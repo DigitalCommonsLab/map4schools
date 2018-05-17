@@ -10,6 +10,8 @@ module.exports = {
   	
   	map: null,
 
+  	onSelect: function(area) {},
+
 	init: function(el) {
 
 		var self = this;
@@ -18,33 +20,38 @@ module.exports = {
 
 		$.getJSON('data/italy-regions.json', function(json) {
 
-				var geoLayer = L.geoJson(json).addTo(self.map);
+			var geoLayer = L.geoJson(json).addTo(self.map);
 
-				var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
-					zoomToLayer: true,
-					listOnlyVisibleLayers: true
-				}).on('change', function(e) {
-					
+			var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
+				zoomToLayer: true,
+				listOnlyVisibleLayers: true
+			}).on('change', function(e) {
+
+				if(e.selected) {
+				
 					var sel = e.layers[0].feature.properties;
 
-					$('#geo_selection').text( JSON.stringify(sel) )
+					$('#geo_selection').text( JSON.stringify(sel) );
 
-				}).addTo(self.map);
+					self.onSelect( e.layers[0].toGeoJSON().geometry );
+				}
 
-				self.map.setMaxBounds( geoLayer.getBounds().pad(0.5) );
+			}).addTo(self.map);
 
-				self.map.fitBounds(geoLayer.getBounds());
+			self.map.setMaxBounds( geoLayer.getBounds().pad(0.5) );
 
-				self.map.on('click', function(e) {
-					self.map.fitBounds(geoLayer.getBounds())
-				});
+			self.map.fitBounds(geoLayer.getBounds());
+
+			self.map.on('click', function(e) {
+				self.map.fitBounds(geoLayer.getBounds())
+			});
 		});
 
 		return this;
 	},
 
-	initSearch: function() {
-	/*
+/*	initSearch: function() {
+	
 		L.control.search({
 			layer: geo,
 			propertyName: 'name',
@@ -62,16 +69,6 @@ module.exports = {
 			}
 		}).on('search:locationfound', function(e) {
 			e.layer.openTooltip();
-		}).addTo(this.map);*/
-
-	/*
-		this.map.on('click', function(e) {
-			geo.eachLayer(function(l) {
-				l.setStyle({
-					weight: 6,
-					opacity:0.8,
-				});
-			});
-		});*/
-	}
+		}).addTo(this.map);
+	}*/
 };

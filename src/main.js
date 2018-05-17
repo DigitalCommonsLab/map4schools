@@ -23,6 +23,7 @@ var mapArea = require('./map_area');
 var mapAdmin = require('./map_admin');
 var mapGps = require('./map_gps');
 var results = require('./results');
+var overpass = require('./overpass');
 
 $(function() {
 
@@ -49,6 +50,18 @@ $(function() {
 			m.map.invalidateSize(false);
 		});
 	});
+
+	maps.admin.onSelect = function(area) {
+		console.log('select admin',area)
+	};
+
+	maps.area.onSelect = function(area) {
+		console.log('select area',area)
+	};
+
+	maps.gps.onSelect = function(area) {
+		console.log('select gps',area)
+	};
 
 	$.getJSON('./data/schools_trentino.json', function(geo) {
 
