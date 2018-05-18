@@ -12,3 +12,7 @@
 .breadcrumb > li:first-child:before {
 	content:none;
 }
+
+.leaflet-container a {
+    color: inherit;
+}

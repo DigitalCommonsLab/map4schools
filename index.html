@@ -136,11 +136,15 @@
 	<option value="6">Second stage</option>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
-<h4>{{name}}</h4>
+<h5>{{name}}</h5>
 <ul class="list-group">
-  <li class="list-group-item"><a href="{{website}}" target="_blank">website</a></li>
-  <li class="list-group-item"><a href="http://osm.org/{{id}}" target="_blank">osm node</a></li>
+  {{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">website</a></li>{{/if}}
 </ul>
+<br />
+<div class="btn-group btn-group-xs" role="group">
+	<a class="btn btn-secondary" href="{{url_view}}" target="_blank">view</a>
+	<a class="btn btn-secondary" href="{{url_edit}}">edit</a>
+</div>
 </script>
 <script src="bundle.js"></script>
 </body>

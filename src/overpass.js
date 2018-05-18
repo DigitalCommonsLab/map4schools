@@ -6,12 +6,13 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
 var osmtogeo = require('osmtogeojson');
+var geoutils = require('geojson-utils');
 
 module.exports = {
   	
   	results: [],
 
-	search: function(geo, cb) {
+	search: function(geoArea, cb) {
 
 		//TODO
 		//
@@ -19,19 +20,17 @@ module.exports = {
 		var tmplUrl = 'http://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
 			params = {
 				filter: 'amenity=school',
-				bbox: this.polyToBbox(geo)
+				bbox: this.polyToBbox(geoArea)
 			},
 			url = L.Util.template(tmplUrl, params);
-
-		console.log(url)
 
 		$.getJSON(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 
-			console.log(geojson);
-
-			//TODO remove layers outside polygon
+			geojson.features = _.filter(geojson.features, function(f) {
+				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+			});
 
 			cb(geojson);
 

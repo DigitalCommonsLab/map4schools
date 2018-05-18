@@ -53,18 +53,23 @@ $(function() {
 
 	function loadResults(geoArea, map) {
 
-		console.log('loadResults',map)
+		console.log('loadResults', map);
 		
 		if(map.layerData)
 			map.layerData.clearLayers();
-		else
-			map.layerData = L.geoJSON([],{
+		else {
+			map.layerData = L.geoJSON([], {
 				onEachFeature: function(feature, layer) {
-					console.log(feature.properties)
-					layer.bindPopup( tmpls.map_popup(feature.properties) )
+					var p = feature.properties;
+					_.extend(p, {
+						url_view: "http://osm.org/"+p.id,
+						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
+					});
+					
+					layer.bindPopup( tmpls.map_popup(p) )
 				}
 			}).addTo(map);
-			
+		}
 
 		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
