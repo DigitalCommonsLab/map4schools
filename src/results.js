@@ -24,10 +24,11 @@ module.exports = {
 			pageList: [5],
 			data: [],
 		    columns: [
-		    	{
+/*		    	{
 			        field: 'id',
 			        title: 'Id'
-			    }, {
+			    },*/
+			    {
 			        field: 'name',
 			        title: 'Name'
 			    }, {
@@ -50,7 +51,7 @@ module.exports = {
 		var json = _.map(geo.features, function(f) {
 			var p = f.properties;
 			return {
-				'id': p.osm_id,
+				//'id': p.osm_id || p.id,
 				'name': p.name,
 				'isced:level': p.isced_leve,
 				'operator': p.operator_r,

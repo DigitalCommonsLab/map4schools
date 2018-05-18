@@ -9,6 +9,8 @@ module.exports = {
   	
   	map: null,
 
+  	layerData: L.geoJSON(),
+
   	onSelect: function(area) {},
   	
   	selectionLayer: null,
@@ -54,6 +56,8 @@ module.exports = {
 
 		this.map = L.map(el, utils.getMapOpts() );
 
+		this.map.addLayer(this.layerData);
+
 		this.selectionLayer = L.featureGroup().addTo(this.map);
 
 		this.config.draw.edit.featureGroup = this.selectionLayer;
@@ -97,7 +101,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON() );
+                self.onSelect( self.selectionLayer.toGeoJSON(), self.layerData);
             })
             .on('draw:deleted', function (e) {
                 

@@ -320,7 +320,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules/amdefine/amdefine.js")
-},{"_process":63,"path":61}],3:[function(require,module,exports){
+},{"_process":69,"path":67}],3:[function(require,module,exports){
 /**
  * @author zhixin wen <wenzhixin2010@gmail.com>
  * version: 1.12.1
@@ -7550,7 +7550,7 @@ var css = "/*!\n * Bootstrap v4.1.1 (https://getbootstrap.com/)\n * Copyright 20
 })));
 
 
-},{"jquery":50,"popper.js":62}],7:[function(require,module,exports){
+},{"jquery":52,"popper.js":68}],7:[function(require,module,exports){
 'use strict';
 // For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
 
@@ -7630,6 +7630,123 @@ module.exports = {
 },{}],8:[function(require,module,exports){
 
 },{}],9:[function(require,module,exports){
+var wgs84 = require('wgs84');
+
+module.exports.geometry = geometry;
+module.exports.ring = ringArea;
+
+function geometry(_) {
+    if (_.type === 'Polygon') return polygonArea(_.coordinates);
+    else if (_.type === 'MultiPolygon') {
+        var area = 0;
+        for (var i = 0; i < _.coordinates.length; i++) {
+            area += polygonArea(_.coordinates[i]);
+        }
+        return area;
+    } else {
+        return null;
+    }
+}
+
+function polygonArea(coords) {
+    var area = 0;
+    if (coords && coords.length > 0) {
+        area += Math.abs(ringArea(coords[0]));
+        for (var i = 1; i < coords.length; i++) {
+            area -= Math.abs(ringArea(coords[i]));
+        }
+    }
+    return area;
+}
+
+/**
+ * Calculate the approximate area of the polygon were it projected onto
+ *     the earth.  Note that this area will be positive if ring is oriented
+ *     clockwise, otherwise it will be negative.
+ *
+ * Reference:
+ * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
+ *     Polygons on a Sphere", JPL Publication 07-03, Jet Propulsion
+ *     Laboratory, Pasadena, CA, June 2007 http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409
+ *
+ * Returns:
+ * {float} The approximate signed geodesic area of the polygon in square
+ *     meters.
+ */
+
+function ringArea(coords) {
+    var area = 0;
+
+    if (coords.length > 2) {
+        var p1, p2;
+        for (var i = 0; i < coords.length - 1; i++) {
+            p1 = coords[i];
+            p2 = coords[i + 1];
+            area += rad(p2[0] - p1[0]) * (2 + Math.sin(rad(p1[1])) + Math.sin(rad(p2[1])));
+        }
+
+        area = area * wgs84.RADIUS * wgs84.RADIUS / 2;
+    }
+
+    return area;
+}
+
+function rad(_) {
+    return _ * Math.PI / 180;
+}
+
+},{"wgs84":143}],10:[function(require,module,exports){
+var geojsonArea = require('geojson-area');
+
+module.exports = rewind;
+
+function rewind(gj, outer) {
+    switch ((gj && gj.type) || null) {
+        case 'FeatureCollection':
+            gj.features = gj.features.map(curryOuter(rewind, outer));
+            return gj;
+        case 'Feature':
+            gj.geometry = rewind(gj.geometry, outer);
+            return gj;
+        case 'Polygon':
+        case 'MultiPolygon':
+            return correct(gj, outer);
+        default:
+            return gj;
+    }
+}
+
+function curryOuter(a, b) {
+    return function(_) { return a(_, b); };
+}
+
+function correct(_, outer) {
+    if (_.type === 'Polygon') {
+        _.coordinates = correctRings(_.coordinates, outer);
+    } else if (_.type === 'MultiPolygon') {
+        _.coordinates = _.coordinates.map(curryOuter(correctRings, outer));
+    }
+    return _;
+}
+
+function correctRings(_, outer) {
+    outer = !!outer;
+    _[0] = wind(_[0], outer);
+    for (var i = 1; i < _.length; i++) {
+        _[i] = wind(_[i], !outer);
+    }
+    return _;
+}
+
+function wind(_, dir) {
+    return cw(_) === dir ? _ : _.reverse();
+}
+
+function cw(_) {
+    return geojsonArea.ring(_) >= 0;
+}
+
+},{"geojson-area":9}],11:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7696,7 +7813,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars.runtime":10,"./handlebars/compiler/ast":12,"./handlebars/compiler/base":13,"./handlebars/compiler/compiler":15,"./handlebars/compiler/javascript-compiler":17,"./handlebars/compiler/visitor":20,"./handlebars/no-conflict":34}],10:[function(require,module,exports){
+},{"./handlebars.runtime":12,"./handlebars/compiler/ast":14,"./handlebars/compiler/base":15,"./handlebars/compiler/compiler":17,"./handlebars/compiler/javascript-compiler":19,"./handlebars/compiler/visitor":22,"./handlebars/no-conflict":36}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7764,7 +7881,7 @@ exports['default'] = inst;
 module.exports = exports['default'];
 
 
-},{"./handlebars/base":11,"./handlebars/exception":24,"./handlebars/no-conflict":34,"./handlebars/runtime":35,"./handlebars/safe-string":36,"./handlebars/utils":37}],11:[function(require,module,exports){
+},{"./handlebars/base":13,"./handlebars/exception":26,"./handlebars/no-conflict":36,"./handlebars/runtime":37,"./handlebars/safe-string":38,"./handlebars/utils":39}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7870,7 +7987,7 @@ exports.createFrame = _utils.createFrame;
 exports.logger = _logger2['default'];
 
 
-},{"./decorators":22,"./exception":24,"./helpers":25,"./logger":33,"./utils":37}],12:[function(require,module,exports){
+},{"./decorators":24,"./exception":26,"./helpers":27,"./logger":35,"./utils":39}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7903,7 +8020,7 @@ exports['default'] = AST;
 module.exports = exports['default'];
 
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -7953,7 +8070,7 @@ function parse(input, options) {
 }
 
 
-},{"../utils":37,"./helpers":16,"./parser":18,"./whitespace-control":21}],14:[function(require,module,exports){
+},{"../utils":39,"./helpers":18,"./parser":20,"./whitespace-control":23}],16:[function(require,module,exports){
 /* global define */
 'use strict';
 
@@ -8121,7 +8238,7 @@ exports['default'] = CodeGen;
 module.exports = exports['default'];
 
 
-},{"../utils":37,"source-map":39}],15:[function(require,module,exports){
+},{"../utils":39,"source-map":41}],17:[function(require,module,exports){
 /* eslint-disable new-cap */
 
 'use strict';
@@ -8696,7 +8813,7 @@ function transformLiteralToPath(sexpr) {
 }
 
 
-},{"../exception":24,"../utils":37,"./ast":12}],16:[function(require,module,exports){
+},{"../exception":26,"../utils":39,"./ast":14}],18:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -8928,7 +9045,7 @@ function preparePartialBlock(open, program, close, locInfo) {
 }
 
 
-},{"../exception":24}],17:[function(require,module,exports){
+},{"../exception":26}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -10058,7 +10175,7 @@ exports['default'] = JavaScriptCompiler;
 module.exports = exports['default'];
 
 
-},{"../base":11,"../exception":24,"../utils":37,"./code-gen":14}],18:[function(require,module,exports){
+},{"../base":13,"../exception":26,"../utils":39,"./code-gen":16}],20:[function(require,module,exports){
 // File ignored in coverage tests via setting in .istanbul.yml
 /* Jison generated parser */
 "use strict";
@@ -10799,7 +10916,7 @@ var handlebars = (function () {
 module.exports = exports["default"];
 
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /* eslint-disable new-cap */
 'use strict';
 
@@ -10987,7 +11104,7 @@ PrintVisitor.prototype.HashPair = function (pair) {
 /* eslint-enable new-cap */
 
 
-},{"./visitor":20}],20:[function(require,module,exports){
+},{"./visitor":22}],22:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11129,7 +11246,7 @@ exports['default'] = Visitor;
 module.exports = exports['default'];
 
 
-},{"../exception":24}],21:[function(require,module,exports){
+},{"../exception":26}],23:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11352,7 +11469,7 @@ exports['default'] = WhitespaceControl;
 module.exports = exports['default'];
 
 
-},{"./visitor":20}],22:[function(require,module,exports){
+},{"./visitor":22}],24:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11370,7 +11487,7 @@ function registerDefaultDecorators(instance) {
 }
 
 
-},{"./decorators/inline":23}],23:[function(require,module,exports){
+},{"./decorators/inline":25}],25:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11401,7 +11518,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":37}],24:[function(require,module,exports){
+},{"../utils":39}],26:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11457,7 +11574,7 @@ exports['default'] = Exception;
 module.exports = exports['default'];
 
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11505,7 +11622,7 @@ function registerDefaultHelpers(instance) {
 }
 
 
-},{"./helpers/block-helper-missing":26,"./helpers/each":27,"./helpers/helper-missing":28,"./helpers/if":29,"./helpers/log":30,"./helpers/lookup":31,"./helpers/with":32}],26:[function(require,module,exports){
+},{"./helpers/block-helper-missing":28,"./helpers/each":29,"./helpers/helper-missing":30,"./helpers/if":31,"./helpers/log":32,"./helpers/lookup":33,"./helpers/with":34}],28:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11546,7 +11663,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":37}],27:[function(require,module,exports){
+},{"../utils":39}],29:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11642,7 +11759,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":24,"../utils":37}],28:[function(require,module,exports){
+},{"../exception":26,"../utils":39}],30:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11669,7 +11786,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../exception":24}],29:[function(require,module,exports){
+},{"../exception":26}],31:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11700,7 +11817,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":37}],30:[function(require,module,exports){
+},{"../utils":39}],32:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11728,7 +11845,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11742,7 +11859,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11777,7 +11894,7 @@ exports['default'] = function (instance) {
 module.exports = exports['default'];
 
 
-},{"../utils":37}],33:[function(require,module,exports){
+},{"../utils":39}],35:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -11826,7 +11943,7 @@ exports['default'] = logger;
 module.exports = exports['default'];
 
 
-},{"./utils":37}],34:[function(require,module,exports){
+},{"./utils":39}],36:[function(require,module,exports){
 (function (global){
 /* global window */
 'use strict';
@@ -11850,7 +11967,7 @@ module.exports = exports['default'];
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -12159,7 +12276,7 @@ function executeDecorators(fn, prog, container, depths, data, blockParams) {
 }
 
 
-},{"./base":11,"./exception":24,"./utils":37}],36:[function(require,module,exports){
+},{"./base":13,"./exception":26,"./utils":39}],38:[function(require,module,exports){
 // Build out our basic SafeString type
 'use strict';
 
@@ -12176,7 +12293,7 @@ exports['default'] = SafeString;
 module.exports = exports['default'];
 
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -12302,7 +12419,7 @@ function appendContextPath(contextPath, id) {
 }
 
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // USAGE:
 // var handlebars = require('handlebars');
 /* eslint-disable no-var */
@@ -12329,7 +12446,7 @@ if (typeof require !== 'undefined' && require.extensions) {
   require.extensions['.hbs'] = extension;
 }
 
-},{"../dist/cjs/handlebars":9,"../dist/cjs/handlebars/compiler/printer":19,"fs":8}],39:[function(require,module,exports){
+},{"../dist/cjs/handlebars":11,"../dist/cjs/handlebars/compiler/printer":21,"fs":8}],41:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -12339,7 +12456,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":46,"./source-map/source-map-generator":47,"./source-map/source-node":48}],40:[function(require,module,exports){
+},{"./source-map/source-map-consumer":48,"./source-map/source-map-generator":49,"./source-map/source-node":50}],42:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -12448,7 +12565,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":49,"amdefine":2}],41:[function(require,module,exports){
+},{"./util":51,"amdefine":2}],43:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -12596,7 +12713,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":42,"amdefine":2}],42:[function(require,module,exports){
+},{"./base64":44,"amdefine":2}],44:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -12671,7 +12788,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":2}],43:[function(require,module,exports){
+},{"amdefine":2}],45:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -12790,7 +12907,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":2}],44:[function(require,module,exports){
+},{"amdefine":2}],46:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -12878,7 +12995,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":49,"amdefine":2}],45:[function(require,module,exports){
+},{"./util":51,"amdefine":2}],47:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -13000,7 +13117,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":2}],46:[function(require,module,exports){
+},{"amdefine":2}],48:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14079,7 +14196,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":40,"./base64-vlq":41,"./binary-search":43,"./quick-sort":45,"./util":49,"amdefine":2}],47:[function(require,module,exports){
+},{"./array-set":42,"./base64-vlq":43,"./binary-search":45,"./quick-sort":47,"./util":51,"amdefine":2}],49:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14480,7 +14597,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":40,"./base64-vlq":41,"./mapping-list":44,"./util":49,"amdefine":2}],48:[function(require,module,exports){
+},{"./array-set":42,"./base64-vlq":43,"./mapping-list":46,"./util":51,"amdefine":2}],50:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14896,7 +15013,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":47,"./util":49,"amdefine":2}],49:[function(require,module,exports){
+},{"./source-map-generator":49,"./util":51,"amdefine":2}],51:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -15268,7 +15385,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":2}],50:[function(require,module,exports){
+},{"amdefine":2}],52:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.3.1
  * https://jquery.com/
@@ -25634,9 +25751,9 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var css = ".leaflet-draw-section{position:relative}.leaflet-draw-toolbar{margin-top:12px}.leaflet-draw-toolbar-top{margin-top:0}.leaflet-draw-toolbar-notop a:first-child{border-top-right-radius:0}.leaflet-draw-toolbar-nobottom a:last-child{border-bottom-right-radius:0}.leaflet-draw-toolbar a{background-image:url(node_modules/leaflet-draw/dist/images/spritesheet.png);background-image:linear-gradient(transparent,transparent),url(node_modules/leaflet-draw/dist/images/spritesheet.svg);background-repeat:no-repeat;background-size:300px 30px;background-clip:padding-box}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(node_modules/leaflet-draw/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(node_modules/leaflet-draw/dist/images/spritesheet.svg)}.leaflet-draw a{display:block;text-align:center;text-decoration:none}.leaflet-draw a .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.leaflet-draw-actions{display:none;list-style:none;margin:0;padding:0;position:absolute;left:26px;top:0;white-space:nowrap}.leaflet-touch .leaflet-draw-actions{left:32px}.leaflet-right .leaflet-draw-actions{right:26px;left:auto}.leaflet-touch .leaflet-right .leaflet-draw-actions{right:32px;left:auto}.leaflet-draw-actions li{display:inline-block}.leaflet-draw-actions li:first-child a{border-left:0}.leaflet-draw-actions li:last-child a{-webkit-border-radius:0 4px 4px 0;border-radius:0 4px 4px 0}.leaflet-right .leaflet-draw-actions li:last-child a{-webkit-border-radius:0;border-radius:0}.leaflet-right .leaflet-draw-actions li:first-child a{-webkit-border-radius:4px 0 0 4px;border-radius:4px 0 0 4px}.leaflet-draw-actions a{background-color:#919187;border-left:1px solid #aaa;color:#fff;font:11px/19px \"Helvetica Neue\",Arial,Helvetica,sans-serif;line-height:28px;text-decoration:none;padding-left:10px;padding-right:10px;height:28px}.leaflet-touch .leaflet-draw-actions a{font-size:12px;line-height:30px;height:30px}.leaflet-draw-actions-bottom{margin-top:0}.leaflet-draw-actions-top{margin-top:1px}.leaflet-draw-actions-bottom a,.leaflet-draw-actions-top a{height:27px;line-height:27px}.leaflet-draw-actions a:hover{background-color:#a0a098}.leaflet-draw-actions-top.leaflet-draw-actions-bottom a{height:26px;line-height:26px}.leaflet-draw-toolbar .leaflet-draw-draw-polyline{background-position:-2px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-polyline{background-position:0 -1px}.leaflet-draw-toolbar .leaflet-draw-draw-polygon{background-position:-31px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-polygon{background-position:-29px -1px}.leaflet-draw-toolbar .leaflet-draw-draw-rectangle{background-position:-62px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-rectangle{background-position:-60px -1px}.leaflet-draw-toolbar .leaflet-draw-draw-circle{background-position:-92px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-circle{background-position:-90px -1px}.leaflet-draw-toolbar .leaflet-draw-draw-marker{background-position:-122px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-marker{background-position:-120px -1px}.leaflet-draw-toolbar .leaflet-draw-draw-circlemarker{background-position:-273px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-draw-circlemarker{background-position:-271px -1px}.leaflet-draw-toolbar .leaflet-draw-edit-edit{background-position:-152px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-edit-edit{background-position:-150px -1px}.leaflet-draw-toolbar .leaflet-draw-edit-remove{background-position:-182px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-edit-remove{background-position:-180px -1px}.leaflet-draw-toolbar .leaflet-draw-edit-edit.leaflet-disabled{background-position:-212px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-edit-edit.leaflet-disabled{background-position:-210px -1px}.leaflet-draw-toolbar .leaflet-draw-edit-remove.leaflet-disabled{background-position:-242px -2px}.leaflet-touch .leaflet-draw-toolbar .leaflet-draw-edit-remove.leaflet-disabled{background-position:-240px -2px}.leaflet-mouse-marker{background-color:#fff;cursor:crosshair}.leaflet-draw-tooltip{background:#363636;background:rgba(0,0,0,.5);border:1px solid transparent;-webkit-border-radius:4px;border-radius:4px;color:#fff;font:12px/18px \"Helvetica Neue\",Arial,Helvetica,sans-serif;margin-left:20px;margin-top:-21px;padding:4px 8px;position:absolute;visibility:hidden;white-space:nowrap;z-index:6}.leaflet-draw-tooltip:before{border-right:6px solid #000;border-right-color:rgba(0,0,0,.5);border-top:6px solid transparent;border-bottom:6px solid transparent;content:\"\";position:absolute;top:7px;left:-7px}.leaflet-error-draw-tooltip{background-color:#f2dede;border:1px solid #e6b6bd;color:#b94a48}.leaflet-error-draw-tooltip:before{border-right-color:#e6b6bd}.leaflet-draw-tooltip-single{margin-top:-12px}.leaflet-draw-tooltip-subtext{color:#f8d5e4}.leaflet-draw-guide-dash{font-size:1%;opacity:.6;position:absolute;width:5px;height:5px}.leaflet-edit-marker-selected{background-color:rgba(254,87,161,.1);border:4px dashed rgba(254,87,161,.6);-webkit-border-radius:4px;border-radius:4px;box-sizing:content-box}.leaflet-edit-move{cursor:move}.leaflet-edit-resize{cursor:pointer}.leaflet-oldie .leaflet-draw-toolbar{border:1px solid #999}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-draw/dist/leaflet.draw.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],52:[function(require,module,exports){
+},{"browserify-css":7}],54:[function(require,module,exports){
 /*
  Leaflet.draw 1.0.2, a plugin that adds drawing and editing tools to Leaflet powered maps.
  (c) 2012-2017, Jacob Toye, Jon West, Smartrak, Leaflet
@@ -25647,9 +25764,9 @@ var css = ".leaflet-draw-section{position:relative}.leaflet-draw-toolbar{margin-
 !function(t,e,i){function o(t,e){for(;(t=t.parentElement)&&!t.classList.contains(e););return t}L.drawVersion="1.0.2",L.Draw={},L.drawLocal={draw:{toolbar:{actions:{title:"Cancel drawing",text:"Cancel"},finish:{title:"Finish drawing",text:"Finish"},undo:{title:"Delete last point drawn",text:"Delete last point"},buttons:{polyline:"Draw a polyline",polygon:"Draw a polygon",rectangle:"Draw a rectangle",circle:"Draw a circle",marker:"Draw a marker",circlemarker:"Draw a circlemarker"}},handlers:{circle:{tooltip:{start:"Click and drag to draw circle."},radius:"Radius"},circlemarker:{tooltip:{start:"Click map to place circle marker."}},marker:{tooltip:{start:"Click map to place marker."}},polygon:{tooltip:{start:"Click to start drawing shape.",cont:"Click to continue drawing shape.",end:"Click first point to close this shape."}},polyline:{error:"<strong>Error:</strong> shape edges cannot cross!",tooltip:{start:"Click to start drawing line.",cont:"Click to continue drawing line.",end:"Click last point to finish line."}},rectangle:{tooltip:{start:"Click and drag to draw rectangle."}},simpleshape:{tooltip:{end:"Release mouse to finish drawing."}}}},edit:{toolbar:{actions:{save:{title:"Save changes",text:"Save"},cancel:{title:"Cancel editing, discards all changes",text:"Cancel"},clearAll:{title:"Clear all layers",text:"Clear All"}},buttons:{edit:"Edit layers",editDisabled:"No layers to edit",remove:"Delete layers",removeDisabled:"No layers to delete"}},handlers:{edit:{tooltip:{text:"Drag handles or markers to edit features.",subtext:"Click cancel to undo changes."}},remove:{tooltip:{text:"Click on a feature to remove."}}}}},L.Draw.Event={},L.Draw.Event.CREATED="draw:created",L.Draw.Event.EDITED="draw:edited",L.Draw.Event.DELETED="draw:deleted",L.Draw.Event.DRAWSTART="draw:drawstart",L.Draw.Event.DRAWSTOP="draw:drawstop",L.Draw.Event.DRAWVERTEX="draw:drawvertex",L.Draw.Event.EDITSTART="draw:editstart",L.Draw.Event.EDITMOVE="draw:editmove",L.Draw.Event.EDITRESIZE="draw:editresize",L.Draw.Event.EDITVERTEX="draw:editvertex",L.Draw.Event.EDITSTOP="draw:editstop",L.Draw.Event.DELETESTART="draw:deletestart",L.Draw.Event.DELETESTOP="draw:deletestop",L.Draw.Event.TOOLBAROPENED="draw:toolbaropened",L.Draw.Event.TOOLBARCLOSED="draw:toolbarclosed",L.Draw.Event.MARKERCONTEXT="draw:markercontext",L.Draw=L.Draw||{},L.Draw.Feature=L.Handler.extend({initialize:function(t,e){this._map=t,this._container=t._container,this._overlayPane=t._panes.overlayPane,this._popupPane=t._panes.popupPane,e&&e.shapeOptions&&(e.shapeOptions=L.Util.extend({},this.options.shapeOptions,e.shapeOptions)),L.setOptions(this,e);var i=L.version.split(".");1===parseInt(i[0],10)&&parseInt(i[1],10)>=2?L.Draw.Feature.include(L.Evented.prototype):L.Draw.Feature.include(L.Mixin.Events)},enable:function(){this._enabled||(L.Handler.prototype.enable.call(this),this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.DRAWSTART,{layerType:this.type}))},disable:function(){this._enabled&&(L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.DRAWSTOP,{layerType:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(L.DomUtil.disableTextSelection(),t.getContainer().focus(),this._tooltip=new L.Draw.Tooltip(this._map),L.DomEvent.on(this._container,"keyup",this._cancelDrawing,this))},removeHooks:function(){this._map&&(L.DomUtil.enableTextSelection(),this._tooltip.dispose(),this._tooltip=null,L.DomEvent.off(this._container,"keyup",this._cancelDrawing,this))},setOptions:function(t){L.setOptions(this,t)},_fireCreatedEvent:function(t){this._map.fire(L.Draw.Event.CREATED,{layer:t,layerType:this.type})},_cancelDrawing:function(t){27===t.keyCode&&(this._map.fire("draw:canceled",{layerType:this.type}),this.disable())}}),L.Draw.Polyline=L.Draw.Feature.extend({statics:{TYPE:"polyline"},Poly:L.Polyline,options:{allowIntersection:!0,repeatMode:!1,drawError:{color:"#b00b00",timeout:2500},icon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon"}),touchIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-touch-icon"}),guidelineDistance:20,maxGuideLineLength:4e3,shapeOptions:{stroke:!0,color:"#3388ff",weight:4,opacity:.5,fill:!1,clickable:!0},metric:!0,feet:!0,nautic:!1,showLength:!0,zIndexOffset:2e3,factor:1,maxPoints:0},initialize:function(t,e){L.Browser.touch&&(this.options.icon=this.options.touchIcon),this.options.drawError.message=L.drawLocal.draw.handlers.polyline.error,e&&e.drawError&&(e.drawError=L.Util.extend({},this.options.drawError,e.drawError)),this.type=L.Draw.Polyline.TYPE,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._markers=[],this._markerGroup=new L.LayerGroup,this._map.addLayer(this._markerGroup),this._poly=new L.Polyline([],this.options.shapeOptions),this._tooltip.updateContent(this._getTooltipText()),this._mouseMarker||(this._mouseMarker=L.marker(this._map.getCenter(),{icon:L.divIcon({className:"leaflet-mouse-marker",iconAnchor:[20,20],iconSize:[40,40]}),opacity:0,zIndexOffset:this.options.zIndexOffset})),this._mouseMarker.on("mouseout",this._onMouseOut,this).on("mousemove",this._onMouseMove,this).on("mousedown",this._onMouseDown,this).on("mouseup",this._onMouseUp,this).addTo(this._map),this._map.on("mouseup",this._onMouseUp,this).on("mousemove",this._onMouseMove,this).on("zoomlevelschange",this._onZoomEnd,this).on("touchstart",this._onTouch,this).on("zoomend",this._onZoomEnd,this))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._clearHideErrorTimeout(),this._cleanUpShape(),this._map.removeLayer(this._markerGroup),delete this._markerGroup,delete this._markers,this._map.removeLayer(this._poly),delete this._poly,this._mouseMarker.off("mousedown",this._onMouseDown,this).off("mouseout",this._onMouseOut,this).off("mouseup",this._onMouseUp,this).off("mousemove",this._onMouseMove,this),this._map.removeLayer(this._mouseMarker),delete this._mouseMarker,this._clearGuides(),this._map.off("mouseup",this._onMouseUp,this).off("mousemove",this._onMouseMove,this).off("zoomlevelschange",this._onZoomEnd,this).off("zoomend",this._onZoomEnd,this).off("touchstart",this._onTouch,this).off("click",this._onTouch,this)},deleteLastVertex:function(){if(!(this._markers.length<=1)){var t=this._markers.pop(),e=this._poly,i=e.getLatLngs(),o=i.splice(-1,1)[0];this._poly.setLatLngs(i),this._markerGroup.removeLayer(t),e.getLatLngs().length<2&&this._map.removeLayer(e),this._vertexChanged(o,!1)}},addVertex:function(t){if(this._markers.length>=2&&!this.options.allowIntersection&&this._poly.newLatLngIntersects(t))return void this._showErrorTooltip();this._errorShown&&this._hideErrorTooltip(),this._markers.push(this._createMarker(t)),this._poly.addLatLng(t),2===this._poly.getLatLngs().length&&this._map.addLayer(this._poly),this._vertexChanged(t,!0)},completeShape:function(){this._markers.length<=1||(this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable())},_finishShape:function(){var t=this._poly._defaultShape?this._poly._defaultShape():this._poly.getLatLngs(),e=this._poly.newLatLngIntersects(t[t.length-1]);if(!this.options.allowIntersection&&e||!this._shapeIsValid())return void this._showErrorTooltip();this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable()},_shapeIsValid:function(){return!0},_onZoomEnd:function(){null!==this._markers&&this._updateGuide()},_onMouseMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent),i=this._map.layerPointToLatLng(e);this._currentLatLng=i,this._updateTooltip(i),this._updateGuide(e),this._mouseMarker.setLatLng(i),L.DomEvent.preventDefault(t.originalEvent)},_vertexChanged:function(t,e){this._map.fire(L.Draw.Event.DRAWVERTEX,{layers:this._markerGroup}),this._updateFinishHandler(),this._updateRunningMeasure(t,e),this._clearGuides(),this._updateTooltip()},_onMouseDown:function(t){if(!this._clickHandled&&!this._touchHandled&&!this._disableMarkers){this._onMouseMove(t),this._clickHandled=!0,this._disableNewMarkers();var e=t.originalEvent,i=e.clientX,o=e.clientY;this._startPoint.call(this,i,o)}},_startPoint:function(t,e){this._mouseDownOrigin=L.point(t,e)},_onMouseUp:function(t){var e=t.originalEvent,i=e.clientX,o=e.clientY;this._endPoint.call(this,i,o,t),this._clickHandled=null},_endPoint:function(e,i,o){if(this._mouseDownOrigin){var a=L.point(e,i).distanceTo(this._mouseDownOrigin),n=this._calculateFinishDistance(o.latlng);this.options.maxPoints>1&&this.options.maxPoints==this._markers.length+1?(this.addVertex(o.latlng),this._finishShape()):n<10&&L.Browser.touch?this._finishShape():Math.abs(a)<9*(t.devicePixelRatio||1)&&this.addVertex(o.latlng),this._enableNewMarkers()}this._mouseDownOrigin=null},_onTouch:function(t){var e,i,o=t.originalEvent;!o.touches||!o.touches[0]||this._clickHandled||this._touchHandled||this._disableMarkers||(e=o.touches[0].clientX,i=o.touches[0].clientY,this._disableNewMarkers(),this._touchHandled=!0,this._startPoint.call(this,e,i),this._endPoint.call(this,e,i,t),this._touchHandled=null),this._clickHandled=null},_onMouseOut:function(){this._tooltip&&this._tooltip._onMouseOut.call(this._tooltip)},_calculateFinishDistance:function(t){var e;if(this._markers.length>0){var i;if(this.type===L.Draw.Polyline.TYPE)i=this._markers[this._markers.length-1];else{if(this.type!==L.Draw.Polygon.TYPE)return 1/0;i=this._markers[0]}var o=this._map.latLngToContainerPoint(i.getLatLng()),a=new L.Marker(t,{icon:this.options.icon,zIndexOffset:2*this.options.zIndexOffset}),n=this._map.latLngToContainerPoint(a.getLatLng());e=o.distanceTo(n)}else e=1/0;return e},_updateFinishHandler:function(){var t=this._markers.length;t>1&&this._markers[t-1].on("click",this._finishShape,this),t>2&&this._markers[t-2].off("click",this._finishShape,this)},_createMarker:function(t){var e=new L.Marker(t,{icon:this.options.icon,zIndexOffset:2*this.options.zIndexOffset});return this._markerGroup.addLayer(e),e},_updateGuide:function(t){var e=this._markers?this._markers.length:0;e>0&&(t=t||this._map.latLngToLayerPoint(this._currentLatLng),this._clearGuides(),this._drawGuide(this._map.latLngToLayerPoint(this._markers[e-1].getLatLng()),t))},_updateTooltip:function(t){var e=this._getTooltipText();t&&this._tooltip.updatePosition(t),this._errorShown||this._tooltip.updateContent(e)},_drawGuide:function(t,e){var i,o,a,n=Math.floor(Math.sqrt(Math.pow(e.x-t.x,2)+Math.pow(e.y-t.y,2))),s=this.options.guidelineDistance,r=this.options.maxGuideLineLength,l=n>r?n-r:s;for(this._guidesContainer||(this._guidesContainer=L.DomUtil.create("div","leaflet-draw-guides",this._overlayPane));l<n;l+=this.options.guidelineDistance)i=l/n,o={x:Math.floor(t.x*(1-i)+i*e.x),y:Math.floor(t.y*(1-i)+i*e.y)},a=L.DomUtil.create("div","leaflet-draw-guide-dash",this._guidesContainer),a.style.backgroundColor=this._errorShown?this.options.drawError.color:this.options.shapeOptions.color,L.DomUtil.setPosition(a,o)},_updateGuideColor:function(t){if(this._guidesContainer)for(var e=0,i=this._guidesContainer.childNodes.length;e<i;e++)this._guidesContainer.childNodes[e].style.backgroundColor=t},_clearGuides:function(){if(this._guidesContainer)for(;this._guidesContainer.firstChild;)this._guidesContainer.removeChild(this._guidesContainer.firstChild)},_getTooltipText:function(){var t,e,i=this.options.showLength;return 0===this._markers.length?t={text:L.drawLocal.draw.handlers.polyline.tooltip.start}:(e=i?this._getMeasurementString():"",t=1===this._markers.length?{text:L.drawLocal.draw.handlers.polyline.tooltip.cont,subtext:e}:{text:L.drawLocal.draw.handlers.polyline.tooltip.end,subtext:e}),t},_updateRunningMeasure:function(t,e){var i,o,a=this._markers.length;1===this._markers.length?this._measurementRunningTotal=0:(i=a-(e?2:1),o=L.GeometryUtil.isVersion07x()?t.distanceTo(this._markers[i].getLatLng())*(this.options.factor||1):this._map.distance(t,this._markers[i].getLatLng())*(this.options.factor||1),this._measurementRunningTotal+=o*(e?1:-1))},_getMeasurementString:function(){var t,e=this._currentLatLng,i=this._markers[this._markers.length-1].getLatLng();return t=L.GeometryUtil.isVersion07x()?i&&e&&e.distanceTo?this._measurementRunningTotal+e.distanceTo(i)*(this.options.factor||1):this._measurementRunningTotal||0:i&&e?this._measurementRunningTotal+this._map.distance(e,i)*(this.options.factor||1):this._measurementRunningTotal||0,L.GeometryUtil.readableDistance(t,this.options.metric,this.options.feet,this.options.nautic,this.options.precision)},_showErrorTooltip:function(){this._errorShown=!0,this._tooltip.showAsError().updateContent({text:this.options.drawError.message}),this._updateGuideColor(this.options.drawError.color),this._poly.setStyle({color:this.options.drawError.color}),this._clearHideErrorTimeout(),this._hideErrorTimeout=setTimeout(L.Util.bind(this._hideErrorTooltip,this),this.options.drawError.timeout)},_hideErrorTooltip:function(){this._errorShown=!1,this._clearHideErrorTimeout(),this._tooltip.removeError().updateContent(this._getTooltipText()),this._updateGuideColor(this.options.shapeOptions.color),this._poly.setStyle({color:this.options.shapeOptions.color})},_clearHideErrorTimeout:function(){this._hideErrorTimeout&&(clearTimeout(this._hideErrorTimeout),this._hideErrorTimeout=null)},_disableNewMarkers:function(){this._disableMarkers=!0},_enableNewMarkers:function(){setTimeout(function(){this._disableMarkers=!1}.bind(this),50)},_cleanUpShape:function(){this._markers.length>1&&this._markers[this._markers.length-1].off("click",this._finishShape,this)},_fireCreatedEvent:function(){var t=new this.Poly(this._poly.getLatLngs(),this.options.shapeOptions);L.Draw.Feature.prototype._fireCreatedEvent.call(this,t)}}),L.Draw.Polygon=L.Draw.Polyline.extend({statics:{TYPE:"polygon"},Poly:L.Polygon,options:{showArea:!1,showLength:!1,shapeOptions:{stroke:!0,color:"#3388ff",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,clickable:!0},metric:!0,feet:!0,nautic:!1,precision:{}},initialize:function(t,e){L.Draw.Polyline.prototype.initialize.call(this,t,e),this.type=L.Draw.Polygon.TYPE},_updateFinishHandler:function(){var t=this._markers.length;1===t&&this._markers[0].on("click",this._finishShape,this),t>2&&(this._markers[t-1].on("dblclick",this._finishShape,this),t>3&&this._markers[t-2].off("dblclick",this._finishShape,this))},_getTooltipText:function(){var t,e;return 0===this._markers.length?t=L.drawLocal.draw.handlers.polygon.tooltip.start:this._markers.length<3?(t=L.drawLocal.draw.handlers.polygon.tooltip.cont,e=this._getMeasurementString()):(t=L.drawLocal.draw.handlers.polygon.tooltip.end,e=this._getMeasurementString()),{text:t,subtext:e}},_getMeasurementString:function(){var t=this._area,e="";return t||this.options.showLength?(this.options.showLength&&(e=L.Draw.Polyline.prototype._getMeasurementString.call(this)),t&&(e+="<br>"+L.GeometryUtil.readableArea(t,this.options.metric,this.options.precision)),e):null},_shapeIsValid:function(){return this._markers.length>=3},_vertexChanged:function(t,e){var i;!this.options.allowIntersection&&this.options.showArea&&(i=this._poly.getLatLngs(),this._area=L.GeometryUtil.geodesicArea(i)),L.Draw.Polyline.prototype._vertexChanged.call(this,t,e)},_cleanUpShape:function(){var t=this._markers.length;t>0&&(this._markers[0].off("click",this._finishShape,this),t>2&&this._markers[t-1].off("dblclick",this._finishShape,this))}}),L.SimpleShape={},L.Draw.SimpleShape=L.Draw.Feature.extend({options:{repeatMode:!1},initialize:function(t,e){this._endLabelText=L.drawLocal.draw.handlers.simpleshape.tooltip.end,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._mapDraggable=this._map.dragging.enabled(),this._mapDraggable&&this._map.dragging.disable(),this._container.style.cursor="crosshair",this._tooltip.updateContent({text:this._initialLabelText}),this._map.on("mousedown",this._onMouseDown,this).on("mousemove",this._onMouseMove,this).on("touchstart",this._onMouseDown,this).on("touchmove",this._onMouseMove,this),e.addEventListener("touchstart",L.DomEvent.preventDefault,{passive:!1}))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._map&&(this._mapDraggable&&this._map.dragging.enable(),this._container.style.cursor="",this._map.off("mousedown",this._onMouseDown,this).off("mousemove",this._onMouseMove,this).off("touchstart",this._onMouseDown,this).off("touchmove",this._onMouseMove,this),L.DomEvent.off(e,"mouseup",this._onMouseUp,this),L.DomEvent.off(e,"touchend",this._onMouseUp,this),e.removeEventListener("touchstart",L.DomEvent.preventDefault),this._shape&&(this._map.removeLayer(this._shape),delete this._shape)),this._isDrawing=!1},_getTooltipText:function(){return{text:this._endLabelText}},_onMouseDown:function(t){this._isDrawing=!0,this._startLatLng=t.latlng,L.DomEvent.on(e,"mouseup",this._onMouseUp,this).on(e,"touchend",this._onMouseUp,this).preventDefault(t.originalEvent)},_onMouseMove:function(t){var e=t.latlng;this._tooltip.updatePosition(e),this._isDrawing&&(this._tooltip.updateContent(this._getTooltipText()),this._drawShape(e))},_onMouseUp:function(){this._shape&&this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable()}}),L.Draw.Rectangle=L.Draw.SimpleShape.extend({statics:{TYPE:"rectangle"},options:{shapeOptions:{stroke:!0,color:"#3388ff",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,showArea:!0,clickable:!0},metric:!0},initialize:function(t,e){this.type=L.Draw.Rectangle.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.rectangle.tooltip.start,L.Draw.SimpleShape.prototype.initialize.call(this,t,e)},disable:function(){this._enabled&&(this._isCurrentlyTwoClickDrawing=!1,L.Draw.SimpleShape.prototype.disable.call(this))},_onMouseUp:function(t){if(!this._shape&&!this._isCurrentlyTwoClickDrawing)return void(this._isCurrentlyTwoClickDrawing=!0);this._isCurrentlyTwoClickDrawing&&!o(t.target,"leaflet-pane")||L.Draw.SimpleShape.prototype._onMouseUp.call(this)},_drawShape:function(t){this._shape?this._shape.setBounds(new L.LatLngBounds(this._startLatLng,t)):(this._shape=new L.Rectangle(new L.LatLngBounds(this._startLatLng,t),this.options.shapeOptions),this._map.addLayer(this._shape))},_fireCreatedEvent:function(){var t=new L.Rectangle(this._shape.getBounds(),this.options.shapeOptions);L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this,t)},_getTooltipText:function(){var t,e,i,o=L.Draw.SimpleShape.prototype._getTooltipText.call(this),a=this._shape,n=this.options.showArea;return a&&(t=this._shape._defaultShape?this._shape._defaultShape():this._shape.getLatLngs(),e=L.GeometryUtil.geodesicArea(t),i=n?L.GeometryUtil.readableArea(e,this.options.metric):""),{text:o.text,subtext:i}}}),L.Draw.Marker=L.Draw.Feature.extend({statics:{TYPE:"marker"},options:{icon:new L.Icon.Default,repeatMode:!1,zIndexOffset:2e3},initialize:function(t,e){this.type=L.Draw.Marker.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.marker.tooltip.start,L.Draw.Feature.prototype.initialize.call(this,t,e)},addHooks:function(){L.Draw.Feature.prototype.addHooks.call(this),this._map&&(this._tooltip.updateContent({text:this._initialLabelText}),this._mouseMarker||(this._mouseMarker=L.marker(this._map.getCenter(),{icon:L.divIcon({className:"leaflet-mouse-marker",iconAnchor:[20,20],iconSize:[40,40]}),opacity:0,zIndexOffset:this.options.zIndexOffset})),this._mouseMarker.on("click",this._onClick,this).addTo(this._map),this._map.on("mousemove",this._onMouseMove,this),this._map.on("click",this._onTouch,this))},removeHooks:function(){L.Draw.Feature.prototype.removeHooks.call(this),this._map&&(this._map.off("click",this._onClick,this).off("click",this._onTouch,this),this._marker&&(this._marker.off("click",this._onClick,this),this._map.removeLayer(this._marker),delete this._marker),this._mouseMarker.off("click",this._onClick,this),this._map.removeLayer(this._mouseMarker),delete this._mouseMarker,this._map.off("mousemove",this._onMouseMove,this))},_onMouseMove:function(t){var e=t.latlng;this._tooltip.updatePosition(e),this._mouseMarker.setLatLng(e),this._marker?(e=this._mouseMarker.getLatLng(),this._marker.setLatLng(e)):(this._marker=this._createMarker(e),this._marker.on("click",this._onClick,this),this._map.on("click",this._onClick,this).addLayer(this._marker))},_createMarker:function(t){return new L.Marker(t,{icon:this.options.icon,zIndexOffset:this.options.zIndexOffset})},_onClick:function(){this._fireCreatedEvent(),this.disable(),this.options.repeatMode&&this.enable()},_onTouch:function(t){this._onMouseMove(t),this._onClick()},_fireCreatedEvent:function(){var t=new L.Marker.Touch(this._marker.getLatLng(),{icon:this.options.icon});L.Draw.Feature.prototype._fireCreatedEvent.call(this,t)}}),L.Draw.CircleMarker=L.Draw.Marker.extend({statics:{TYPE:"circlemarker"},options:{stroke:!0,color:"#3388ff",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,clickable:!0,zIndexOffset:2e3},initialize:function(t,e){this.type=L.Draw.CircleMarker.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.circlemarker.tooltip.start,L.Draw.Feature.prototype.initialize.call(this,t,e)},_fireCreatedEvent:function(){var t=new L.CircleMarker(this._marker.getLatLng(),this.options);L.Draw.Feature.prototype._fireCreatedEvent.call(this,t)},_createMarker:function(t){return new L.CircleMarker(t,this.options)}}),L.Draw.Circle=L.Draw.SimpleShape.extend({statics:{TYPE:"circle"},options:{shapeOptions:{stroke:!0,color:"#3388ff",weight:4,opacity:.5,fill:!0,fillColor:null,fillOpacity:.2,clickable:!0},showRadius:!0,metric:!0,feet:!0,nautic:!1},initialize:function(t,e){this.type=L.Draw.Circle.TYPE,this._initialLabelText=L.drawLocal.draw.handlers.circle.tooltip.start,L.Draw.SimpleShape.prototype.initialize.call(this,t,e)},_drawShape:function(t){if(L.GeometryUtil.isVersion07x())var e=this._startLatLng.distanceTo(t);else var e=this._map.distance(this._startLatLng,t);this._shape?this._shape.setRadius(e):(this._shape=new L.Circle(this._startLatLng,e,this.options.shapeOptions),this._map.addLayer(this._shape))},_fireCreatedEvent:function(){var t=new L.Circle(this._startLatLng,this._shape.getRadius(),this.options.shapeOptions);L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this,t)},_onMouseMove:function(t){var e,i=t.latlng,o=this.options.showRadius,a=this.options.metric;if(this._tooltip.updatePosition(i),this._isDrawing){this._drawShape(i),e=this._shape.getRadius().toFixed(1);var n="";o&&(n=L.drawLocal.draw.handlers.circle.radius+": "+L.GeometryUtil.readableDistance(e,a,this.options.feet,this.options.nautic)),this._tooltip.updateContent({text:this._endLabelText,subtext:n})}}}),L.Edit=L.Edit||{},L.Edit.Marker=L.Handler.extend({initialize:function(t,e){this._marker=t,L.setOptions(this,e)},addHooks:function(){var t=this._marker;t.dragging.enable(),t.on("dragend",this._onDragEnd,t),this._toggleMarkerHighlight()},removeHooks:function(){var t=this._marker;t.dragging.disable(),t.off("dragend",this._onDragEnd,t),this._toggleMarkerHighlight()},_onDragEnd:function(t){var e=t.target;e.edited=!0,this._map.fire(L.Draw.Event.EDITMOVE,{layer:e})},_toggleMarkerHighlight:function(){var t=this._marker._icon;t&&(t.style.display="none",L.DomUtil.hasClass(t,"leaflet-edit-marker-selected")?(L.DomUtil.removeClass(t,"leaflet-edit-marker-selected"),this._offsetMarker(t,-4)):(L.DomUtil.addClass(t,"leaflet-edit-marker-selected"),this._offsetMarker(t,4)),t.style.display="")},_offsetMarker:function(t,e){var i=parseInt(t.style.marginTop,10)-e,o=parseInt(t.style.marginLeft,10)-e;t.style.marginTop=i+"px",t.style.marginLeft=o+"px"}}),L.Marker.addInitHook(function(){L.Edit.Marker&&(this.editing=new L.Edit.Marker(this),this.options.editable&&this.editing.enable())}),L.Edit=L.Edit||{},L.Edit.Poly=L.Handler.extend({initialize:function(t){this.latlngs=[t._latlngs],t._holes&&(this.latlngs=this.latlngs.concat(t._holes)),this._poly=t,this._poly.on("revert-edited",this._updateLatLngs,this)},_defaultShape:function(){return L.Polyline._flat?L.Polyline._flat(this._poly._latlngs)?this._poly._latlngs:this._poly._latlngs[0]:this._poly._latlngs},_eachVertexHandler:function(t){for(var e=0;e<this._verticesHandlers.length;e++)t(this._verticesHandlers[e])},addHooks:function(){this._initHandlers(),this._eachVertexHandler(function(t){t.addHooks()})},removeHooks:function(){this._eachVertexHandler(function(t){t.removeHooks()})},updateMarkers:function(){this._eachVertexHandler(function(t){t.updateMarkers()})},_initHandlers:function(){this._verticesHandlers=[];for(var t=0;t<this.latlngs.length;t++)this._verticesHandlers.push(new L.Edit.PolyVerticesEdit(this._poly,this.latlngs[t],this._poly.options.poly))},_updateLatLngs:function(t){this.latlngs=[t.layer._latlngs],t.layer._holes&&(this.latlngs=this.latlngs.concat(t.layer._holes))}}),L.Edit.PolyVerticesEdit=L.Handler.extend({options:{icon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon"}),touchIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-touch-icon"}),drawError:{color:"#b00b00",timeout:1e3}},initialize:function(t,e,i){L.Browser.touch&&(this.options.icon=this.options.touchIcon),this._poly=t,i&&i.drawError&&(i.drawError=L.Util.extend({},this.options.drawError,i.drawError)),this._latlngs=e,L.setOptions(this,i)},_defaultShape:function(){return L.Polyline._flat?L.Polyline._flat(this._latlngs)?this._latlngs:this._latlngs[0]:this._latlngs},addHooks:function(){var t=this._poly,e=t._path;t instanceof L.Polygon||(t.options.fill=!1,t.options.editing&&(t.options.editing.fill=!1)),e&&t.options.editing.className&&(t.options.original.className&&t.options.original.className.split(" ").forEach(function(t){L.DomUtil.removeClass(e,t)}),t.options.editing.className.split(" ").forEach(function(t){L.DomUtil.addClass(e,t)})),t.setStyle(t.options.editing),this._poly._map&&(this._map=this._poly._map,this._markerGroup||this._initMarkers(),this._poly._map.addLayer(this._markerGroup))},removeHooks:function(){var t=this._poly,e=t._path;e&&t.options.editing.className&&(t.options.editing.className.split(" ").forEach(function(t){L.DomUtil.removeClass(e,t)}),t.options.original.className&&t.options.original.className.split(" ").forEach(function(t){L.DomUtil.addClass(e,t)})),t.setStyle(t.options.original),t._map&&(t._map.removeLayer(this._markerGroup),delete this._markerGroup,delete this._markers)},updateMarkers:function(){this._markerGroup.clearLayers(),this._initMarkers()},_initMarkers:function(){this._markerGroup||(this._markerGroup=new L.LayerGroup),this._markers=[];var t,e,i,o,a=this._defaultShape();for(t=0,i=a.length;t<i;t++)o=this._createMarker(a[t],t),o.on("click",this._onMarkerClick,this),o.on("contextmenu",this._onContextMenu,this),this._markers.push(o);var n,s;for(t=0,e=i-1;t<i;e=t++)(0!==t||L.Polygon&&this._poly instanceof L.Polygon)&&(n=this._markers[e],s=this._markers[t],this._createMiddleMarker(n,s),this._updatePrevNext(n,s))},_createMarker:function(t,e){var i=new L.Marker.Touch(t,{draggable:!0,icon:this.options.icon});return i._origLatLng=t,i._index=e,i.on("dragstart",this._onMarkerDragStart,this).on("drag",this._onMarkerDrag,this).on("dragend",this._fireEdit,this).on("touchmove",this._onTouchMove,this).on("touchend",this._fireEdit,this).on("MSPointerMove",this._onTouchMove,this).on("MSPointerUp",this._fireEdit,this),this._markerGroup.addLayer(i),i},_onMarkerDragStart:function(){this._poly.fire("editstart")},_spliceLatLngs:function(){var t=this._defaultShape(),e=[].splice.apply(t,arguments);return this._poly._convertLatLngs(t,!0),this._poly.redraw(),e},_removeMarker:function(t){var e=t._index;this._markerGroup.removeLayer(t),this._markers.splice(e,1),this._spliceLatLngs(e,1),this._updateIndexes(e,-1),t.off("dragstart",this._onMarkerDragStart,this).off("drag",this._onMarkerDrag,this).off("dragend",this._fireEdit,this).off("touchmove",this._onMarkerDrag,this).off("touchend",this._fireEdit,this).off("click",this._onMarkerClick,this).off("MSPointerMove",this._onTouchMove,this).off("MSPointerUp",this._fireEdit,this)},_fireEdit:function(){this._poly.edited=!0,this._poly.fire("edit"),this._poly._map.fire(L.Draw.Event.EDITVERTEX,{layers:this._markerGroup,poly:this._poly})},_onMarkerDrag:function(t){var e=t.target,i=this._poly;if(L.extend(e._origLatLng,e._latlng),e._middleLeft&&e._middleLeft.setLatLng(this._getMiddleLatLng(e._prev,e)),e._middleRight&&e._middleRight.setLatLng(this._getMiddleLatLng(e,e._next)),i.options.poly){var o=i._map._editTooltip;if(!i.options.poly.allowIntersection&&i.intersects()){var a=i.options.color;i.setStyle({color:this.options.drawError.color}),0!==L.version.indexOf("0.7")&&e.dragging._draggable._onUp(t),this._onMarkerClick(t),o&&o.updateContent({text:L.drawLocal.draw.handlers.polyline.error}),setTimeout(function(){i.setStyle({color:a}),o&&o.updateContent({text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext})},1e3)}}this._poly._bounds._southWest=L.latLng(1/0,1/0),this._poly._bounds._northEast=L.latLng(-1/0,-1/0);var n=this._poly.getLatLngs();this._poly._convertLatLngs(n,!0),this._poly.redraw(),this._poly.fire("editdrag")},_onMarkerClick:function(t){var e=L.Polygon&&this._poly instanceof L.Polygon?4:3,i=t.target;this._defaultShape().length<e||(this._removeMarker(i),this._updatePrevNext(i._prev,i._next),i._middleLeft&&this._markerGroup.removeLayer(i._middleLeft),i._middleRight&&this._markerGroup.removeLayer(i._middleRight),i._prev&&i._next?this._createMiddleMarker(i._prev,i._next):i._prev?i._next||(i._prev._middleRight=null):i._next._middleLeft=null,this._fireEdit())},_onContextMenu:function(t){var e=t.target;this._poly;this._poly._map.fire(L.Draw.Event.MARKERCONTEXT,{marker:e,layers:this._markerGroup,poly:this._poly}),L.DomEvent.stopPropagation},_onTouchMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent.touches[0]),i=this._map.layerPointToLatLng(e),o=t.target;L.extend(o._origLatLng,i),o._middleLeft&&o._middleLeft.setLatLng(this._getMiddleLatLng(o._prev,o)),o._middleRight&&o._middleRight.setLatLng(this._getMiddleLatLng(o,o._next)),this._poly.redraw(),this.updateMarkers()},_updateIndexes:function(t,e){this._markerGroup.eachLayer(function(i){i._index>t&&(i._index+=e)})},_createMiddleMarker:function(t,e){var i,o,a,n=this._getMiddleLatLng(t,e),s=this._createMarker(n);s.setOpacity(.6),t._middleRight=e._middleLeft=s,o=function(){s.off("touchmove",o,this);var a=e._index;s._index=a,s.off("click",i,this).on("click",this._onMarkerClick,this),n.lat=s.getLatLng().lat,n.lng=s.getLatLng().lng,this._spliceLatLngs(a,0,n),this._markers.splice(a,0,s),s.setOpacity(1),this._updateIndexes(a,1),e._index++,this._updatePrevNext(t,s),this._updatePrevNext(s,e),this._poly.fire("editstart")},a=function(){s.off("dragstart",o,this),s.off("dragend",a,this),s.off("touchmove",o,this),this._createMiddleMarker(t,s),this._createMiddleMarker(s,e)},i=function(){o.call(this),a.call(this),this._fireEdit()},s.on("click",i,this).on("dragstart",o,this).on("dragend",a,this).on("touchmove",o,this),this._markerGroup.addLayer(s)},_updatePrevNext:function(t,e){t&&(t._next=e),e&&(e._prev=t)},_getMiddleLatLng:function(t,e){var i=this._poly._map,o=i.project(t.getLatLng()),a=i.project(e.getLatLng());return i.unproject(o._add(a)._divideBy(2))}}),L.Polyline.addInitHook(function(){this.editing||(L.Edit.Poly&&(this.editing=new L.Edit.Poly(this),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()}))}),L.Edit=L.Edit||{},L.Edit.SimpleShape=L.Handler.extend({options:{moveIcon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-move"}),resizeIcon:new L.DivIcon({iconSize:new L.Point(8,8),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-resize"}),touchMoveIcon:new L.DivIcon({
 iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-move leaflet-touch-icon"}),touchResizeIcon:new L.DivIcon({iconSize:new L.Point(20,20),className:"leaflet-div-icon leaflet-editing-icon leaflet-edit-resize leaflet-touch-icon"})},initialize:function(t,e){L.Browser.touch&&(this.options.moveIcon=this.options.touchMoveIcon,this.options.resizeIcon=this.options.touchResizeIcon),this._shape=t,L.Util.setOptions(this,e)},addHooks:function(){var t=this._shape;this._shape._map&&(this._map=this._shape._map,t.setStyle(t.options.editing),t._map&&(this._map=t._map,this._markerGroup||this._initMarkers(),this._map.addLayer(this._markerGroup)))},removeHooks:function(){var t=this._shape;if(t.setStyle(t.options.original),t._map){this._unbindMarker(this._moveMarker);for(var e=0,i=this._resizeMarkers.length;e<i;e++)this._unbindMarker(this._resizeMarkers[e]);this._resizeMarkers=null,this._map.removeLayer(this._markerGroup),delete this._markerGroup}this._map=null},updateMarkers:function(){this._markerGroup.clearLayers(),this._initMarkers()},_initMarkers:function(){this._markerGroup||(this._markerGroup=new L.LayerGroup),this._createMoveMarker(),this._createResizeMarker()},_createMoveMarker:function(){},_createResizeMarker:function(){},_createMarker:function(t,e){var i=new L.Marker.Touch(t,{draggable:!0,icon:e,zIndexOffset:10});return this._bindMarker(i),this._markerGroup.addLayer(i),i},_bindMarker:function(t){t.on("dragstart",this._onMarkerDragStart,this).on("drag",this._onMarkerDrag,this).on("dragend",this._onMarkerDragEnd,this).on("touchstart",this._onTouchStart,this).on("touchmove",this._onTouchMove,this).on("MSPointerMove",this._onTouchMove,this).on("touchend",this._onTouchEnd,this).on("MSPointerUp",this._onTouchEnd,this)},_unbindMarker:function(t){t.off("dragstart",this._onMarkerDragStart,this).off("drag",this._onMarkerDrag,this).off("dragend",this._onMarkerDragEnd,this).off("touchstart",this._onTouchStart,this).off("touchmove",this._onTouchMove,this).off("MSPointerMove",this._onTouchMove,this).off("touchend",this._onTouchEnd,this).off("MSPointerUp",this._onTouchEnd,this)},_onMarkerDragStart:function(t){t.target.setOpacity(0),this._shape.fire("editstart")},_fireEdit:function(){this._shape.edited=!0,this._shape.fire("edit")},_onMarkerDrag:function(t){var e=t.target,i=e.getLatLng();e===this._moveMarker?this._move(i):this._resize(i),this._shape.redraw(),this._shape.fire("editdrag")},_onMarkerDragEnd:function(t){t.target.setOpacity(1),this._fireEdit()},_onTouchStart:function(t){if(L.Edit.SimpleShape.prototype._onMarkerDragStart.call(this,t),"function"==typeof this._getCorners){var e=this._getCorners(),i=t.target,o=i._cornerIndex;i.setOpacity(0),this._oppositeCorner=e[(o+2)%4],this._toggleCornerMarkers(0,o)}this._shape.fire("editstart")},_onTouchMove:function(t){var e=this._map.mouseEventToLayerPoint(t.originalEvent.touches[0]),i=this._map.layerPointToLatLng(e);return t.target===this._moveMarker?this._move(i):this._resize(i),this._shape.redraw(),!1},_onTouchEnd:function(t){t.target.setOpacity(1),this.updateMarkers(),this._fireEdit()},_move:function(){},_resize:function(){}}),L.Edit=L.Edit||{},L.Edit.Rectangle=L.Edit.SimpleShape.extend({_createMoveMarker:function(){var t=this._shape.getBounds(),e=t.getCenter();this._moveMarker=this._createMarker(e,this.options.moveIcon)},_createResizeMarker:function(){var t=this._getCorners();this._resizeMarkers=[];for(var e=0,i=t.length;e<i;e++)this._resizeMarkers.push(this._createMarker(t[e],this.options.resizeIcon)),this._resizeMarkers[e]._cornerIndex=e},_onMarkerDragStart:function(t){L.Edit.SimpleShape.prototype._onMarkerDragStart.call(this,t);var e=this._getCorners(),i=t.target,o=i._cornerIndex;this._oppositeCorner=e[(o+2)%4],this._toggleCornerMarkers(0,o)},_onMarkerDragEnd:function(t){var e,i,o=t.target;o===this._moveMarker&&(e=this._shape.getBounds(),i=e.getCenter(),o.setLatLng(i)),this._toggleCornerMarkers(1),this._repositionCornerMarkers(),L.Edit.SimpleShape.prototype._onMarkerDragEnd.call(this,t)},_move:function(t){for(var e,i=this._shape._defaultShape?this._shape._defaultShape():this._shape.getLatLngs(),o=this._shape.getBounds(),a=o.getCenter(),n=[],s=0,r=i.length;s<r;s++)e=[i[s].lat-a.lat,i[s].lng-a.lng],n.push([t.lat+e[0],t.lng+e[1]]);this._shape.setLatLngs(n),this._repositionCornerMarkers(),this._map.fire(L.Draw.Event.EDITMOVE,{layer:this._shape})},_resize:function(t){var e;this._shape.setBounds(L.latLngBounds(t,this._oppositeCorner)),e=this._shape.getBounds(),this._moveMarker.setLatLng(e.getCenter()),this._map.fire(L.Draw.Event.EDITRESIZE,{layer:this._shape})},_getCorners:function(){var t=this._shape.getBounds();return[t.getNorthWest(),t.getNorthEast(),t.getSouthEast(),t.getSouthWest()]},_toggleCornerMarkers:function(t){for(var e=0,i=this._resizeMarkers.length;e<i;e++)this._resizeMarkers[e].setOpacity(t)},_repositionCornerMarkers:function(){for(var t=this._getCorners(),e=0,i=this._resizeMarkers.length;e<i;e++)this._resizeMarkers[e].setLatLng(t[e])}}),L.Rectangle.addInitHook(function(){L.Edit.Rectangle&&(this.editing=new L.Edit.Rectangle(this),this.options.editable&&this.editing.enable())}),L.Edit=L.Edit||{},L.Edit.CircleMarker=L.Edit.SimpleShape.extend({_createMoveMarker:function(){var t=this._shape.getLatLng();this._moveMarker=this._createMarker(t,this.options.moveIcon)},_createResizeMarker:function(){this._resizeMarkers=[]},_move:function(t){if(this._resizeMarkers.length){var e=this._getResizeMarkerPoint(t);this._resizeMarkers[0].setLatLng(e)}this._shape.setLatLng(t),this._map.fire(L.Draw.Event.EDITMOVE,{layer:this._shape})}}),L.CircleMarker.addInitHook(function(){L.Edit.CircleMarker&&(this.editing=new L.Edit.CircleMarker(this),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()})}),L.Edit=L.Edit||{},L.Edit.Circle=L.Edit.CircleMarker.extend({_createResizeMarker:function(){var t=this._shape.getLatLng(),e=this._getResizeMarkerPoint(t);this._resizeMarkers=[],this._resizeMarkers.push(this._createMarker(e,this.options.resizeIcon))},_getResizeMarkerPoint:function(t){var e=this._shape._radius*Math.cos(Math.PI/4),i=this._map.project(t);return this._map.unproject([i.x+e,i.y-e])},_resize:function(t){var e=this._moveMarker.getLatLng();L.GeometryUtil.isVersion07x()?radius=e.distanceTo(t):radius=this._map.distance(e,t),this._shape.setRadius(radius),this._map.editTooltip&&this._map._editTooltip.updateContent({text:L.drawLocal.edit.handlers.edit.tooltip.subtext+"<br />"+L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.draw.handlers.circle.radius+": "+L.GeometryUtil.readableDistance(radius,!0,this.options.feet,this.options.nautic)}),this._shape.setRadius(radius),this._map.fire(L.Draw.Event.EDITRESIZE,{layer:this._shape})}}),L.Circle.addInitHook(function(){L.Edit.Circle&&(this.editing=new L.Edit.Circle(this),this.options.editable&&this.editing.enable()),this.on("add",function(){this.editing&&this.editing.enabled()&&this.editing.addHooks()}),this.on("remove",function(){this.editing&&this.editing.enabled()&&this.editing.removeHooks()})}),L.Map.mergeOptions({touchExtend:!0}),L.Map.TouchExtend=L.Handler.extend({initialize:function(t){this._map=t,this._container=t._container,this._pane=t._panes.overlayPane},addHooks:function(){L.DomEvent.on(this._container,"touchstart",this._onTouchStart,this),L.DomEvent.on(this._container,"touchend",this._onTouchEnd,this),L.DomEvent.on(this._container,"touchmove",this._onTouchMove,this),this._detectIE()?(L.DomEvent.on(this._container,"MSPointerDown",this._onTouchStart,this),L.DomEvent.on(this._container,"MSPointerUp",this._onTouchEnd,this),L.DomEvent.on(this._container,"MSPointerMove",this._onTouchMove,this),L.DomEvent.on(this._container,"MSPointerCancel",this._onTouchCancel,this)):(L.DomEvent.on(this._container,"touchcancel",this._onTouchCancel,this),L.DomEvent.on(this._container,"touchleave",this._onTouchLeave,this))},removeHooks:function(){L.DomEvent.off(this._container,"touchstart",this._onTouchStart),L.DomEvent.off(this._container,"touchend",this._onTouchEnd),L.DomEvent.off(this._container,"touchmove",this._onTouchMove),this._detectIE()?(L.DomEvent.off(this._container,"MSPointerDowm",this._onTouchStart),L.DomEvent.off(this._container,"MSPointerUp",this._onTouchEnd),L.DomEvent.off(this._container,"MSPointerMove",this._onTouchMove),L.DomEvent.off(this._container,"MSPointerCancel",this._onTouchCancel)):(L.DomEvent.off(this._container,"touchcancel",this._onTouchCancel),L.DomEvent.off(this._container,"touchleave",this._onTouchLeave))},_touchEvent:function(t,e){var i={};if(void 0!==t.touches){if(!t.touches.length)return;i=t.touches[0]}else{if("touch"!==t.pointerType)return;if(i=t,!this._filterClick(t))return}var o=this._map.mouseEventToContainerPoint(i),a=this._map.mouseEventToLayerPoint(i),n=this._map.layerPointToLatLng(a);this._map.fire(e,{latlng:n,layerPoint:a,containerPoint:o,pageX:i.pageX,pageY:i.pageY,originalEvent:t})},_filterClick:function(t){var e=t.timeStamp||t.originalEvent.timeStamp,i=L.DomEvent._lastClick&&e-L.DomEvent._lastClick;return i&&i>100&&i<500||t.target._simulatedClick&&!t._simulated?(L.DomEvent.stop(t),!1):(L.DomEvent._lastClick=e,!0)},_onTouchStart:function(t){if(this._map._loaded){this._touchEvent(t,"touchstart")}},_onTouchEnd:function(t){if(this._map._loaded){this._touchEvent(t,"touchend")}},_onTouchCancel:function(t){if(this._map._loaded){var e="touchcancel";this._detectIE()&&(e="pointercancel"),this._touchEvent(t,e)}},_onTouchLeave:function(t){if(this._map._loaded){this._touchEvent(t,"touchleave")}},_onTouchMove:function(t){if(this._map._loaded){this._touchEvent(t,"touchmove")}},_detectIE:function(){var e=t.navigator.userAgent,i=e.indexOf("MSIE ");if(i>0)return parseInt(e.substring(i+5,e.indexOf(".",i)),10);if(e.indexOf("Trident/")>0){var o=e.indexOf("rv:");return parseInt(e.substring(o+3,e.indexOf(".",o)),10)}var a=e.indexOf("Edge/");return a>0&&parseInt(e.substring(a+5,e.indexOf(".",a)),10)}}),L.Map.addInitHook("addHandler","touchExtend",L.Map.TouchExtend),L.Marker.Touch=L.Marker.extend({_initInteraction:function(){return this.addInteractiveTarget?L.Marker.prototype._initInteraction.apply(this):this._initInteractionLegacy()},_initInteractionLegacy:function(){if(this.options.clickable){var t=this._icon,e=["dblclick","mousedown","mouseover","mouseout","contextmenu","touchstart","touchend","touchmove"];this._detectIE?e.concat(["MSPointerDown","MSPointerUp","MSPointerMove","MSPointerCancel"]):e.concat(["touchcancel"]),L.DomUtil.addClass(t,"leaflet-clickable"),L.DomEvent.on(t,"click",this._onMouseClick,this),L.DomEvent.on(t,"keypress",this._onKeyPress,this);for(var i=0;i<e.length;i++)L.DomEvent.on(t,e[i],this._fireMouseEvent,this);L.Handler.MarkerDrag&&(this.dragging=new L.Handler.MarkerDrag(this),this.options.draggable&&this.dragging.enable())}},_detectIE:function(){var e=t.navigator.userAgent,i=e.indexOf("MSIE ");if(i>0)return parseInt(e.substring(i+5,e.indexOf(".",i)),10);if(e.indexOf("Trident/")>0){var o=e.indexOf("rv:");return parseInt(e.substring(o+3,e.indexOf(".",o)),10)}var a=e.indexOf("Edge/");return a>0&&parseInt(e.substring(a+5,e.indexOf(".",a)),10)}}),L.LatLngUtil={cloneLatLngs:function(t){for(var e=[],i=0,o=t.length;i<o;i++)Array.isArray(t[i])?e.push(L.LatLngUtil.cloneLatLngs(t[i])):e.push(this.cloneLatLng(t[i]));return e},cloneLatLng:function(t){return L.latLng(t.lat,t.lng)}},function(){var t={km:2,ha:2,m:0,mi:2,ac:2,yd:0,ft:0,nm:2};L.GeometryUtil=L.extend(L.GeometryUtil||{},{geodesicArea:function(t){var e,i,o=t.length,a=0,n=Math.PI/180;if(o>2){for(var s=0;s<o;s++)e=t[s],i=t[(s+1)%o],a+=(i.lng-e.lng)*n*(2+Math.sin(e.lat*n)+Math.sin(i.lat*n));a=6378137*a*6378137/2}return Math.abs(a)},formattedNumber:function(t,e){var i=parseFloat(t).toFixed(e),o=L.drawLocal.format&&L.drawLocal.format.numeric,a=o&&o.delimiters,n=a&&a.thousands,s=a&&a.decimal;if(n||s){var r=i.split(".");i=n?r[0].replace(/(\d)(?=(\d{3})+(?!\d))/g,"$1"+n):r[0],s=s||".",r.length>1&&(i=i+s+r[1])}return i},readableArea:function(e,i,o){var a,n,o=L.Util.extend({},t,o);return i?(n=["ha","m"],type=typeof i,"string"===type?n=[i]:"boolean"!==type&&(n=i),a=e>=1e6&&-1!==n.indexOf("km")?L.GeometryUtil.formattedNumber(1e-6*e,o.km)+" km²":e>=1e4&&-1!==n.indexOf("ha")?L.GeometryUtil.formattedNumber(1e-4*e,o.ha)+" ha":L.GeometryUtil.formattedNumber(e,o.m)+" m²"):(e/=.836127,a=e>=3097600?L.GeometryUtil.formattedNumber(e/3097600,o.mi)+" mi²":e>=4840?L.GeometryUtil.formattedNumber(e/4840,o.ac)+" acres":L.GeometryUtil.formattedNumber(e,o.yd)+" yd²"),a},readableDistance:function(e,i,o,a,n){var s,n=L.Util.extend({},t,n);switch(i?"string"==typeof i?i:"metric":o?"feet":a?"nauticalMile":"yards"){case"metric":s=e>1e3?L.GeometryUtil.formattedNumber(e/1e3,n.km)+" km":L.GeometryUtil.formattedNumber(e,n.m)+" m";break;case"feet":e*=3.28083,s=L.GeometryUtil.formattedNumber(e,n.ft)+" ft";break;case"nauticalMile":e*=.53996,s=L.GeometryUtil.formattedNumber(e/1e3,n.nm)+" nm";break;case"yards":default:e*=1.09361,s=e>1760?L.GeometryUtil.formattedNumber(e/1760,n.mi)+" miles":L.GeometryUtil.formattedNumber(e,n.yd)+" yd"}return s},isVersion07x:function(){var t=L.version.split(".");return 0===parseInt(t[0],10)&&7===parseInt(t[1],10)}})}(),L.Util.extend(L.LineUtil,{segmentsIntersect:function(t,e,i,o){return this._checkCounterclockwise(t,i,o)!==this._checkCounterclockwise(e,i,o)&&this._checkCounterclockwise(t,e,i)!==this._checkCounterclockwise(t,e,o)},_checkCounterclockwise:function(t,e,i){return(i.y-t.y)*(e.x-t.x)>(e.y-t.y)*(i.x-t.x)}}),L.Polyline.include({intersects:function(){var t,e,i,o=this._getProjectedPoints(),a=o?o.length:0;if(this._tooFewPointsForIntersection())return!1;for(t=a-1;t>=3;t--)if(e=o[t-1],i=o[t],this._lineSegmentsIntersectsRange(e,i,t-2))return!0;return!1},newLatLngIntersects:function(t,e){return!!this._map&&this.newPointIntersects(this._map.latLngToLayerPoint(t),e)},newPointIntersects:function(t,e){var i=this._getProjectedPoints(),o=i?i.length:0,a=i?i[o-1]:null,n=o-2;return!this._tooFewPointsForIntersection(1)&&this._lineSegmentsIntersectsRange(a,t,n,e?1:0)},_tooFewPointsForIntersection:function(t){var e=this._getProjectedPoints(),i=e?e.length:0;return i+=t||0,!e||i<=3},_lineSegmentsIntersectsRange:function(t,e,i,o){var a,n,s=this._getProjectedPoints();o=o||0;for(var r=i;r>o;r--)if(a=s[r-1],n=s[r],L.LineUtil.segmentsIntersect(t,e,a,n))return!0;return!1},_getProjectedPoints:function(){if(!this._defaultShape)return this._originalPoints;for(var t=[],e=this._defaultShape(),i=0;i<e.length;i++)t.push(this._map.latLngToLayerPoint(e[i]));return t}}),L.Polygon.include({intersects:function(){var t,e,i,o,a=this._getProjectedPoints();return!this._tooFewPointsForIntersection()&&(!!L.Polyline.prototype.intersects.call(this)||(t=a.length,e=a[0],i=a[t-1],o=t-2,this._lineSegmentsIntersectsRange(i,e,o,1)))}}),L.Control.Draw=L.Control.extend({options:{position:"topleft",draw:{},edit:!1},initialize:function(t){if(L.version<"0.7")throw new Error("Leaflet.draw 0.2.3+ requires Leaflet 0.7.0+. Download latest from https://github.com/Leaflet/Leaflet/");L.Control.prototype.initialize.call(this,t);var e;this._toolbars={},L.DrawToolbar&&this.options.draw&&(e=new L.DrawToolbar(this.options.draw),this._toolbars[L.DrawToolbar.TYPE]=e,this._toolbars[L.DrawToolbar.TYPE].on("enable",this._toolbarEnabled,this)),L.EditToolbar&&this.options.edit&&(e=new L.EditToolbar(this.options.edit),this._toolbars[L.EditToolbar.TYPE]=e,this._toolbars[L.EditToolbar.TYPE].on("enable",this._toolbarEnabled,this)),L.toolbar=this},onAdd:function(t){var e,i=L.DomUtil.create("div","leaflet-draw"),o=!1;for(var a in this._toolbars)this._toolbars.hasOwnProperty(a)&&(e=this._toolbars[a].addToolbar(t))&&(o||(L.DomUtil.hasClass(e,"leaflet-draw-toolbar-top")||L.DomUtil.addClass(e.childNodes[0],"leaflet-draw-toolbar-top"),o=!0),i.appendChild(e));return i},onRemove:function(){for(var t in this._toolbars)this._toolbars.hasOwnProperty(t)&&this._toolbars[t].removeToolbar()},setDrawingOptions:function(t){for(var e in this._toolbars)this._toolbars[e]instanceof L.DrawToolbar&&this._toolbars[e].setOptions(t)},_toolbarEnabled:function(t){var e=t.target;for(var i in this._toolbars)this._toolbars[i]!==e&&this._toolbars[i].disable()}}),L.Map.mergeOptions({drawControlTooltips:!0,drawControl:!1}),L.Map.addInitHook(function(){this.options.drawControl&&(this.drawControl=new L.Control.Draw,this.addControl(this.drawControl))}),L.Toolbar=L.Class.extend({initialize:function(t){L.setOptions(this,t),this._modes={},this._actionButtons=[],this._activeMode=null;var e=L.version.split(".");1===parseInt(e[0],10)&&parseInt(e[1],10)>=2?L.Toolbar.include(L.Evented.prototype):L.Toolbar.include(L.Mixin.Events)},enabled:function(){return null!==this._activeMode},disable:function(){this.enabled()&&this._activeMode.handler.disable()},addToolbar:function(t){var e,i=L.DomUtil.create("div","leaflet-draw-section"),o=0,a=this._toolbarClass||"",n=this.getModeHandlers(t);for(this._toolbarContainer=L.DomUtil.create("div","leaflet-draw-toolbar leaflet-bar"),this._map=t,e=0;e<n.length;e++)n[e].enabled&&this._initModeHandler(n[e].handler,this._toolbarContainer,o++,a,n[e].title);if(o)return this._lastButtonIndex=--o,this._actionsContainer=L.DomUtil.create("ul","leaflet-draw-actions"),i.appendChild(this._toolbarContainer),i.appendChild(this._actionsContainer),i},removeToolbar:function(){for(var t in this._modes)this._modes.hasOwnProperty(t)&&(this._disposeButton(this._modes[t].button,this._modes[t].handler.enable,this._modes[t].handler),this._modes[t].handler.disable(),this._modes[t].handler.off("enabled",this._handlerActivated,this).off("disabled",this._handlerDeactivated,this));this._modes={};for(var e=0,i=this._actionButtons.length;e<i;e++)this._disposeButton(this._actionButtons[e].button,this._actionButtons[e].callback,this);this._actionButtons=[],this._actionsContainer=null},_initModeHandler:function(t,e,i,o,a){var n=t.type;this._modes[n]={},this._modes[n].handler=t,this._modes[n].button=this._createButton({type:n,title:a,className:o+"-"+n,container:e,callback:this._modes[n].handler.enable,context:this._modes[n].handler}),this._modes[n].buttonIndex=i,this._modes[n].handler.on("enabled",this._handlerActivated,this).on("disabled",this._handlerDeactivated,this)},_detectIOS:function(){return/iPad|iPhone|iPod/.test(navigator.userAgent)&&!t.MSStream},_createButton:function(t){var e=L.DomUtil.create("a",t.className||"",t.container),i=L.DomUtil.create("span","sr-only",t.container);e.href="#",e.appendChild(i),t.title&&(e.title=t.title,i.innerHTML=t.title),t.text&&(e.innerHTML=t.text,i.innerHTML=t.text);var o=this._detectIOS()?"touchstart":"click";return L.DomEvent.on(e,"click",L.DomEvent.stopPropagation).on(e,"mousedown",L.DomEvent.stopPropagation).on(e,"dblclick",L.DomEvent.stopPropagation).on(e,"touchstart",L.DomEvent.stopPropagation).on(e,"click",L.DomEvent.preventDefault).on(e,o,t.callback,t.context),e},_disposeButton:function(t,e){var i=this._detectIOS()?"touchstart":"click";L.DomEvent.off(t,"click",L.DomEvent.stopPropagation).off(t,"mousedown",L.DomEvent.stopPropagation).off(t,"dblclick",L.DomEvent.stopPropagation).off(t,"touchstart",L.DomEvent.stopPropagation).off(t,"click",L.DomEvent.preventDefault).off(t,i,e)},_handlerActivated:function(t){this.disable(),this._activeMode=this._modes[t.handler],L.DomUtil.addClass(this._activeMode.button,"leaflet-draw-toolbar-button-enabled"),this._showActionsToolbar(),this.fire("enable")},_handlerDeactivated:function(){this._hideActionsToolbar(),L.DomUtil.removeClass(this._activeMode.button,"leaflet-draw-toolbar-button-enabled"),this._activeMode=null,this.fire("disable")},_createActions:function(t){var e,i,o,a,n=this._actionsContainer,s=this.getActions(t),r=s.length;for(i=0,o=this._actionButtons.length;i<o;i++)this._disposeButton(this._actionButtons[i].button,this._actionButtons[i].callback);for(this._actionButtons=[];n.firstChild;)n.removeChild(n.firstChild);for(var l=0;l<r;l++)"enabled"in s[l]&&!s[l].enabled||(e=L.DomUtil.create("li","",n),a=this._createButton({title:s[l].title,text:s[l].text,container:e,callback:s[l].callback,context:s[l].context}),this._actionButtons.push({button:a,callback:s[l].callback}))},_showActionsToolbar:function(){var t=this._activeMode.buttonIndex,e=this._lastButtonIndex,i=this._activeMode.button.offsetTop-1;this._createActions(this._activeMode.handler),this._actionsContainer.style.top=i+"px",0===t&&(L.DomUtil.addClass(this._toolbarContainer,"leaflet-draw-toolbar-notop"),L.DomUtil.addClass(this._actionsContainer,"leaflet-draw-actions-top")),t===e&&(L.DomUtil.addClass(this._toolbarContainer,"leaflet-draw-toolbar-nobottom"),L.DomUtil.addClass(this._actionsContainer,"leaflet-draw-actions-bottom")),this._actionsContainer.style.display="block",this._map.fire(L.Draw.Event.TOOLBAROPENED)},_hideActionsToolbar:function(){this._actionsContainer.style.display="none",L.DomUtil.removeClass(this._toolbarContainer,"leaflet-draw-toolbar-notop"),L.DomUtil.removeClass(this._toolbarContainer,"leaflet-draw-toolbar-nobottom"),L.DomUtil.removeClass(this._actionsContainer,"leaflet-draw-actions-top"),L.DomUtil.removeClass(this._actionsContainer,"leaflet-draw-actions-bottom"),this._map.fire(L.Draw.Event.TOOLBARCLOSED)}}),L.Draw=L.Draw||{},L.Draw.Tooltip=L.Class.extend({initialize:function(t){this._map=t,this._popupPane=t._panes.popupPane,this._visible=!1,this._container=t.options.drawControlTooltips?L.DomUtil.create("div","leaflet-draw-tooltip",this._popupPane):null,this._singleLineLabel=!1,this._map.on("mouseout",this._onMouseOut,this)},dispose:function(){this._map.off("mouseout",this._onMouseOut,this),this._container&&(this._popupPane.removeChild(this._container),this._container=null)},updateContent:function(t){return this._container?(t.subtext=t.subtext||"",0!==t.subtext.length||this._singleLineLabel?t.subtext.length>0&&this._singleLineLabel&&(L.DomUtil.removeClass(this._container,"leaflet-draw-tooltip-single"),this._singleLineLabel=!1):(L.DomUtil.addClass(this._container,"leaflet-draw-tooltip-single"),this._singleLineLabel=!0),this._container.innerHTML=(t.subtext.length>0?'<span class="leaflet-draw-tooltip-subtext">'+t.subtext+"</span><br />":"")+"<span>"+t.text+"</span>",t.text||t.subtext?(this._visible=!0,this._container.style.visibility="inherit"):(this._visible=!1,this._container.style.visibility="hidden"),this):this},updatePosition:function(t){var e=this._map.latLngToLayerPoint(t),i=this._container;return this._container&&(this._visible&&(i.style.visibility="inherit"),L.DomUtil.setPosition(i,e)),this},showAsError:function(){return this._container&&L.DomUtil.addClass(this._container,"leaflet-error-draw-tooltip"),this},removeError:function(){return this._container&&L.DomUtil.removeClass(this._container,"leaflet-error-draw-tooltip"),this},_onMouseOut:function(){this._container&&(this._container.style.visibility="hidden")}}),L.DrawToolbar=L.Toolbar.extend({statics:{TYPE:"draw"},options:{polyline:{},polygon:{},rectangle:{},circle:{},marker:{},circlemarker:{}},initialize:function(t){for(var e in this.options)this.options.hasOwnProperty(e)&&t[e]&&(t[e]=L.extend({},this.options[e],t[e]));this._toolbarClass="leaflet-draw-draw",L.Toolbar.prototype.initialize.call(this,t)},getModeHandlers:function(t){return[{enabled:this.options.polyline,handler:new L.Draw.Polyline(t,this.options.polyline),title:L.drawLocal.draw.toolbar.buttons.polyline},{enabled:this.options.polygon,handler:new L.Draw.Polygon(t,this.options.polygon),title:L.drawLocal.draw.toolbar.buttons.polygon},{enabled:this.options.rectangle,handler:new L.Draw.Rectangle(t,this.options.rectangle),title:L.drawLocal.draw.toolbar.buttons.rectangle},{enabled:this.options.circle,handler:new L.Draw.Circle(t,this.options.circle),title:L.drawLocal.draw.toolbar.buttons.circle},{enabled:this.options.marker,handler:new L.Draw.Marker(t,this.options.marker),title:L.drawLocal.draw.toolbar.buttons.marker},{enabled:this.options.circlemarker,handler:new L.Draw.CircleMarker(t,this.options.circlemarker),title:L.drawLocal.draw.toolbar.buttons.circlemarker}]},getActions:function(t){return[{enabled:t.completeShape,title:L.drawLocal.draw.toolbar.finish.title,text:L.drawLocal.draw.toolbar.finish.text,callback:t.completeShape,context:t},{enabled:t.deleteLastVertex,title:L.drawLocal.draw.toolbar.undo.title,text:L.drawLocal.draw.toolbar.undo.text,callback:t.deleteLastVertex,context:t},{title:L.drawLocal.draw.toolbar.actions.title,text:L.drawLocal.draw.toolbar.actions.text,callback:this.disable,context:this}]},setOptions:function(t){L.setOptions(this,t);for(var e in this._modes)this._modes.hasOwnProperty(e)&&t.hasOwnProperty(e)&&this._modes[e].handler.setOptions(t[e])}}),L.EditToolbar=L.Toolbar.extend({statics:{TYPE:"edit"},options:{edit:{selectedPathOptions:{dashArray:"10, 10",fill:!0,fillColor:"#fe57a1",fillOpacity:.1,maintainColor:!1}},remove:{},poly:null,featureGroup:null},initialize:function(t){t.edit&&(void 0===t.edit.selectedPathOptions&&(t.edit.selectedPathOptions=this.options.edit.selectedPathOptions),t.edit.selectedPathOptions=L.extend({},this.options.edit.selectedPathOptions,t.edit.selectedPathOptions)),t.remove&&(t.remove=L.extend({},this.options.remove,t.remove)),t.poly&&(t.poly=L.extend({},this.options.poly,t.poly)),this._toolbarClass="leaflet-draw-edit",L.Toolbar.prototype.initialize.call(this,t),this._selectedFeatureCount=0},getModeHandlers:function(t){var e=this.options.featureGroup;return[{enabled:this.options.edit,handler:new L.EditToolbar.Edit(t,{featureGroup:e,selectedPathOptions:this.options.edit.selectedPathOptions,poly:this.options.poly}),title:L.drawLocal.edit.toolbar.buttons.edit},{enabled:this.options.remove,handler:new L.EditToolbar.Delete(t,{featureGroup:e}),title:L.drawLocal.edit.toolbar.buttons.remove}]},getActions:function(t){var e=[{title:L.drawLocal.edit.toolbar.actions.save.title,text:L.drawLocal.edit.toolbar.actions.save.text,callback:this._save,context:this},{title:L.drawLocal.edit.toolbar.actions.cancel.title,text:L.drawLocal.edit.toolbar.actions.cancel.text,callback:this.disable,context:this}];return t.removeAllLayers&&e.push({title:L.drawLocal.edit.toolbar.actions.clearAll.title,text:L.drawLocal.edit.toolbar.actions.clearAll.text,callback:this._clearAllLayers,context:this}),e},addToolbar:function(t){var e=L.Toolbar.prototype.addToolbar.call(this,t);return this._checkDisabled(),this.options.featureGroup.on("layeradd layerremove",this._checkDisabled,this),e},removeToolbar:function(){this.options.featureGroup.off("layeradd layerremove",this._checkDisabled,this),L.Toolbar.prototype.removeToolbar.call(this)},disable:function(){this.enabled()&&(this._activeMode.handler.revertLayers(),L.Toolbar.prototype.disable.call(this))},_save:function(){this._activeMode.handler.save(),this._activeMode&&this._activeMode.handler.disable()},_clearAllLayers:function(){this._activeMode.handler.removeAllLayers(),this._activeMode&&this._activeMode.handler.disable()},_checkDisabled:function(){var t,e=this.options.featureGroup,i=0!==e.getLayers().length;this.options.edit&&(t=this._modes[L.EditToolbar.Edit.TYPE].button,i?L.DomUtil.removeClass(t,"leaflet-disabled"):L.DomUtil.addClass(t,"leaflet-disabled"),t.setAttribute("title",i?L.drawLocal.edit.toolbar.buttons.edit:L.drawLocal.edit.toolbar.buttons.editDisabled)),this.options.remove&&(t=this._modes[L.EditToolbar.Delete.TYPE].button,i?L.DomUtil.removeClass(t,"leaflet-disabled"):L.DomUtil.addClass(t,"leaflet-disabled"),t.setAttribute("title",i?L.drawLocal.edit.toolbar.buttons.remove:L.drawLocal.edit.toolbar.buttons.removeDisabled))}}),L.EditToolbar.Edit=L.Handler.extend({statics:{TYPE:"edit"},initialize:function(t,e){if(L.Handler.prototype.initialize.call(this,t),L.setOptions(this,e),this._featureGroup=e.featureGroup,!(this._featureGroup instanceof L.FeatureGroup))throw new Error("options.featureGroup must be a L.FeatureGroup");this._uneditedLayerProps={},this.type=L.EditToolbar.Edit.TYPE;var i=L.version.split(".");1===parseInt(i[0],10)&&parseInt(i[1],10)>=2?L.EditToolbar.Edit.include(L.Evented.prototype):L.EditToolbar.Edit.include(L.Mixin.Events)},enable:function(){!this._enabled&&this._hasAvailableLayers()&&(this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.EDITSTART,{handler:this.type}),L.Handler.prototype.enable.call(this),this._featureGroup.on("layeradd",this._enableLayerEdit,this).on("layerremove",this._disableLayerEdit,this))},disable:function(){this._enabled&&(this._featureGroup.off("layeradd",this._enableLayerEdit,this).off("layerremove",this._disableLayerEdit,this),L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.EDITSTOP,{handler:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(t.getContainer().focus(),this._featureGroup.eachLayer(this._enableLayerEdit,this),this._tooltip=new L.Draw.Tooltip(this._map),this._tooltip.updateContent({text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext}),t._editTooltip=this._tooltip,this._updateTooltip(),this._map.on("mousemove",this._onMouseMove,this).on("touchmove",this._onMouseMove,this).on("MSPointerMove",this._onMouseMove,this).on(L.Draw.Event.EDITVERTEX,this._updateTooltip,this))},removeHooks:function(){this._map&&(this._featureGroup.eachLayer(this._disableLayerEdit,this),this._uneditedLayerProps={},this._tooltip.dispose(),this._tooltip=null,this._map.off("mousemove",this._onMouseMove,this).off("touchmove",this._onMouseMove,this).off("MSPointerMove",this._onMouseMove,this).off(L.Draw.Event.EDITVERTEX,this._updateTooltip,this))},revertLayers:function(){this._featureGroup.eachLayer(function(t){this._revertLayer(t)},this)},save:function(){var t=new L.LayerGroup;this._featureGroup.eachLayer(function(e){e.edited&&(t.addLayer(e),e.edited=!1)}),this._map.fire(L.Draw.Event.EDITED,{layers:t})},_backupLayer:function(t){var e=L.Util.stamp(t);this._uneditedLayerProps[e]||(t instanceof L.Polyline||t instanceof L.Polygon||t instanceof L.Rectangle?this._uneditedLayerProps[e]={latlngs:L.LatLngUtil.cloneLatLngs(t.getLatLngs())}:t instanceof L.Circle?this._uneditedLayerProps[e]={latlng:L.LatLngUtil.cloneLatLng(t.getLatLng()),radius:t.getRadius()}:(t instanceof L.Marker||t instanceof L.CircleMarker)&&(this._uneditedLayerProps[e]={latlng:L.LatLngUtil.cloneLatLng(t.getLatLng())}))},_getTooltipText:function(){return{text:L.drawLocal.edit.handlers.edit.tooltip.text,subtext:L.drawLocal.edit.handlers.edit.tooltip.subtext}},_updateTooltip:function(){this._tooltip.updateContent(this._getTooltipText())},_revertLayer:function(t){var e=L.Util.stamp(t);t.edited=!1,this._uneditedLayerProps.hasOwnProperty(e)&&(t instanceof L.Polyline||t instanceof L.Polygon||t instanceof L.Rectangle?t.setLatLngs(this._uneditedLayerProps[e].latlngs):t instanceof L.Circle?(t.setLatLng(this._uneditedLayerProps[e].latlng),t.setRadius(this._uneditedLayerProps[e].radius)):(t instanceof L.Marker||t instanceof L.CircleMarker)&&t.setLatLng(this._uneditedLayerProps[e].latlng),t.fire("revert-edited",{layer:t}))},_enableLayerEdit:function(t){var e,i,o=t.layer||t.target||t;this._backupLayer(o),this.options.poly&&(i=L.Util.extend({},this.options.poly),o.options.poly=i),this.options.selectedPathOptions&&(e=L.Util.extend({},this.options.selectedPathOptions),e.maintainColor&&(e.color=o.options.color,e.fillColor=o.options.fillColor),o.options.original=L.extend({},o.options),o.options.editing=e),o instanceof L.Marker?(o.editing&&o.editing.enable(),o.dragging.enable(),o.on("dragend",this._onMarkerDragEnd).on("touchmove",this._onTouchMove,this).on("MSPointerMove",this._onTouchMove,this).on("touchend",this._onMarkerDragEnd,this).on("MSPointerUp",this._onMarkerDragEnd,this)):o.editing.enable()},_disableLayerEdit:function(t){var e=t.layer||t.target||t;e.edited=!1,e.editing&&e.editing.disable(),delete e.options.editing,delete e.options.original,
 this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e):(e.setStyle(e.options.previousOptions),delete e.options.previousOptions)),e instanceof L.Marker?(e.dragging.disable(),e.off("dragend",this._onMarkerDragEnd,this).off("touchmove",this._onTouchMove,this).off("MSPointerMove",this._onTouchMove,this).off("touchend",this._onMarkerDragEnd,this).off("MSPointerUp",this._onMarkerDragEnd,this)):e.editing.disable()},_onMouseMove:function(t){this._tooltip.updatePosition(t.latlng)},_onMarkerDragEnd:function(t){var e=t.target;e.edited=!0,this._map.fire(L.Draw.Event.EDITMOVE,{layer:e})},_onTouchMove:function(t){var e=t.originalEvent.changedTouches[0],i=this._map.mouseEventToLayerPoint(e),o=this._map.layerPointToLatLng(i);t.target.setLatLng(o)},_hasAvailableLayers:function(){return 0!==this._featureGroup.getLayers().length}}),L.EditToolbar.Delete=L.Handler.extend({statics:{TYPE:"remove"},initialize:function(t,e){if(L.Handler.prototype.initialize.call(this,t),L.Util.setOptions(this,e),this._deletableLayers=this.options.featureGroup,!(this._deletableLayers instanceof L.FeatureGroup))throw new Error("options.featureGroup must be a L.FeatureGroup");this.type=L.EditToolbar.Delete.TYPE;var i=L.version.split(".");1===parseInt(i[0],10)&&parseInt(i[1],10)>=2?L.EditToolbar.Delete.include(L.Evented.prototype):L.EditToolbar.Delete.include(L.Mixin.Events)},enable:function(){!this._enabled&&this._hasAvailableLayers()&&(this.fire("enabled",{handler:this.type}),this._map.fire(L.Draw.Event.DELETESTART,{handler:this.type}),L.Handler.prototype.enable.call(this),this._deletableLayers.on("layeradd",this._enableLayerDelete,this).on("layerremove",this._disableLayerDelete,this))},disable:function(){this._enabled&&(this._deletableLayers.off("layeradd",this._enableLayerDelete,this).off("layerremove",this._disableLayerDelete,this),L.Handler.prototype.disable.call(this),this._map.fire(L.Draw.Event.DELETESTOP,{handler:this.type}),this.fire("disabled",{handler:this.type}))},addHooks:function(){var t=this._map;t&&(t.getContainer().focus(),this._deletableLayers.eachLayer(this._enableLayerDelete,this),this._deletedLayers=new L.LayerGroup,this._tooltip=new L.Draw.Tooltip(this._map),this._tooltip.updateContent({text:L.drawLocal.edit.handlers.remove.tooltip.text}),this._map.on("mousemove",this._onMouseMove,this))},removeHooks:function(){this._map&&(this._deletableLayers.eachLayer(this._disableLayerDelete,this),this._deletedLayers=null,this._tooltip.dispose(),this._tooltip=null,this._map.off("mousemove",this._onMouseMove,this))},revertLayers:function(){this._deletedLayers.eachLayer(function(t){this._deletableLayers.addLayer(t),t.fire("revert-deleted",{layer:t})},this)},save:function(){this._map.fire(L.Draw.Event.DELETED,{layers:this._deletedLayers})},removeAllLayers:function(){this._deletableLayers.eachLayer(function(t){this._removeLayer({layer:t})},this),this.save()},_enableLayerDelete:function(t){(t.layer||t.target||t).on("click",this._removeLayer,this)},_disableLayerDelete:function(t){var e=t.layer||t.target||t;e.off("click",this._removeLayer,this),this._deletedLayers.removeLayer(e)},_removeLayer:function(t){var e=t.layer||t.target||t;this._deletableLayers.removeLayer(e),this._deletedLayers.addLayer(e),e.fire("deleted")},_onMouseMove:function(t){this._tooltip.updatePosition(t.latlng)},_hasAvailableLayers:function(){return 0!==this._deletableLayers.getLayers().length}})}(window,document);
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],54:[function(require,module,exports){
+},{"browserify-css":7}],56:[function(require,module,exports){
 /* 
  * Leaflet GeoJSON Selector v0.4.1 - 2018-05-09 
  * 
@@ -26070,9 +26187,9 @@ L.control.geoJsonSelector = function (layer, options) {
 
 }).call(this);
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var css = ".leaflet-container .leaflet-control-gps{position:relative;float:left;background:#fff;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;margin-left:10px;margin-top:10px}.leaflet-control-gps .gps-button{display:block;float:left;width:22px;height:22px;background-image:url(node_modules/leaflet-gps/images/gps-icon.svg);background-repeat:no-repeat;background-position:1px 1px;background-color:#fff;border-radius:4px;padding:2px;margin:2px}.leaflet-control-gps .gps-button.active:hover,.leaflet-control-gps .gps-button:hover{background-color:#f4f4f4}.leaflet-control-gps .gps-button.loading,.leaflet-control-gps .gps-button.loading:hover{background-position:1px -28px}.leaflet-control-gps .gps-button.active{background-position:1px -52px}.leaflet-control-gps .gps-button.disabled{background-position:1px -24px}.leaflet-control-gps .gps-alert{position:absolute;left:34px;bottom:-1px;width:220px;padding:2px;line-height:1em;color:#e00;border:2px solid rgba(0,0,0,.2);background-color:rgba(255,255,255,.75);border-radius:4px}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-gps/dist/leaflet-gps.min.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],56:[function(require,module,exports){
+},{"browserify-css":7}],58:[function(require,module,exports){
 /* 
  * Leaflet Control GPS v1.7.3 - 2018-05-18 
  * 
@@ -26329,9 +26446,9 @@ return L.Control.Gps;
 });
 
 
-},{"leaflet":59}],57:[function(require,module,exports){
+},{"leaflet":61}],59:[function(require,module,exports){
 var css = ".leaflet-container .leaflet-control-search{position:relative;float:left;background:#fff;color:#1978cf;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;margin-left:10px;margin-top:10px}.leaflet-control-search.search-exp{background:#fff;border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-control-search .search-input{display:block;float:left;background:#fff;border:1px solid #666;border-radius:2px;height:22px;padding:0 20px 0 2px;margin:4px 0 4px 4px}.leaflet-control-search.search-load .search-input{background:url(node_modules/leaflet-search/images/loader.gif) no-repeat center right #fff}.leaflet-control-search.search-load .search-cancel{visibility:hidden}.leaflet-control-search .search-cancel{display:block;width:22px;height:22px;position:absolute;right:28px;margin:6px 0;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 0 -46px;text-decoration:none;opacity:.8}.leaflet-control-search .search-cancel:hover{opacity:1}.leaflet-control-search .search-cancel span{display:none;font-size:18px;line-height:20px;color:#ccc;font-weight:700}.leaflet-control-search .search-cancel:hover span{color:#aaa}.leaflet-control-search .search-button{display:block;float:left;width:30px;height:30px;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px 4px #fff;border-radius:4px}.leaflet-control-search .search-button:hover{background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px -20px #fafafa}.leaflet-control-search .search-tooltip{position:absolute;top:100%;left:0;float:left;list-style:none;padding-left:0;min-width:120px;max-height:122px;box-shadow:1px 1px 6px rgba(0,0,0,.4);background-color:rgba(0,0,0,.25);z-index:1010;overflow-y:auto;overflow-x:hidden;cursor:pointer}.leaflet-control-search .search-tip{margin:2px;padding:2px 4px;display:block;color:#000;background:#eee;border-radius:.25em;text-decoration:none;white-space:nowrap;vertical-align:center}.leaflet-control-search .search-button:hover{background-color:#f4f4f4}.leaflet-control-search .search-tip-select,.leaflet-control-search .search-tip:hover{background-color:#fff}.leaflet-control-search .search-alert{cursor:pointer;clear:both;font-size:.75em;margin-bottom:5px;padding:0 .25em;color:#e00;font-weight:700;border-radius:.25em}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-search/dist/leaflet-search.min.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],58:[function(require,module,exports){
+},{"browserify-css":7}],60:[function(require,module,exports){
 /* 
  * Leaflet Control Search v2.9.0 - 2018-05-16 
  * 
@@ -27345,7 +27462,7 @@ return L.Control.Search;
 
 
 
-},{"leaflet":59}],59:[function(require,module,exports){
+},{"leaflet":61}],61:[function(require,module,exports){
 /* @preserve
  * Leaflet 1.3.1, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2017 Vladimir Agafonkin, (c) 2010-2011 CloudMade
@@ -41149,9 +41266,4945 @@ exports.map = createMap;
 })));
 
 
-},{}],60:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 var css = ".leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-overlay-pane svg,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-tile{will-change:opacity}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;-o-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}.leaflet-zoom-anim .leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);-o-transition:-o-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline:0}.leaflet-container a{color:#0078a8}.leaflet-container a.leaflet-active{outline:2px solid orange}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font:12px/1.5 \"Helvetica Neue\",Arial,Helvetica,sans-serif}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a,.leaflet-bar a:hover{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(node_modules/leaflet/dist/images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.7);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-container .leaflet-control-attribution,.leaflet-container .leaflet-control-scale{font-size:11px}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;font-size:11px;white-space:nowrap;overflow:hidden;-moz-box-sizing:border-box;box-sizing:border-box;background:#fff;background:rgba(255,255,255,.5)}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 19px;line-height:1.4}.leaflet-popup-content p{margin:18px 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);-o-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;padding:4px 4px 0 0;border:none;text-align:center;width:18px;height:14px;font:16px/14px Tahoma,Verdana,sans-serif;color:#c3c3c3;text-decoration:none;font-weight:700;background:0 0}.leaflet-container a.leaflet-popup-close-button:hover{color:#999}.leaflet-popup-scrolled{overflow:auto;border-bottom:1px solid #ddd;border-top:1px solid #ddd}.leaflet-oldie .leaflet-popup-content-wrapper{zoom:1}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto}.leaflet-oldie .leaflet-popup-tip-container{margin-top:-1px}.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-clickable{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:\"\"}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet/dist/leaflet.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],61:[function(require,module,exports){
+},{"browserify-css":7}],63:[function(require,module,exports){
+module.exports = require('./polygon-features.json')
+
+},{"./polygon-features.json":64}],64:[function(require,module,exports){
+module.exports=[
+    {
+        "key": "building",
+        "polygon": "all"
+    },
+    {
+        "key": "highway",
+        "polygon": "whitelist",
+        "values": [
+            "services",
+            "rest_area",
+            "escape",
+            "elevator"
+        ]
+    },
+    {
+        "key": "natural",
+        "polygon": "blacklist",
+        "values": [
+            "coastline",
+            "cliff",
+            "ridge",
+            "arete",
+            "tree_row"
+        ]
+    },
+    {
+        "key": "landuse",
+        "polygon": "all"
+    },
+    {
+        "key": "waterway",
+        "polygon": "whitelist",
+        "values": [
+            "riverbank",
+            "dock",
+            "boatyard",
+            "dam"
+        ]
+    },
+    {
+        "key": "amenity",
+        "polygon": "all"
+    },
+    {
+        "key": "leisure",
+        "polygon": "all"
+    },
+    {
+        "key": "barrier",
+        "polygon": "whitelist",
+        "values": [
+            "city_wall",
+            "ditch",
+            "hedge",
+            "retaining_wall",
+            "wall",
+            "spikes"
+        ]
+    },
+    {
+        "key": "railway",
+        "polygon": "whitelist",
+        "values": [
+            "station",
+            "turntable",
+            "roundhouse",
+            "platform"
+        ]
+    },
+    {
+        "key": "area",
+        "polygon": "all"
+    },
+    {
+        "key": "boundary",
+        "polygon": "all"
+    },
+    {
+        "key": "man_made",
+        "polygon": "blacklist",
+        "values": [
+            "cutline",
+            "embankment",
+            "pipeline"
+        ]
+    },
+    {
+        "key": "power",
+        "polygon": "whitelist",
+        "values": [
+            "plant",
+            "substation",
+            "generator",
+            "transformer"
+        ]
+    },
+    {
+        "key": "place",
+        "polygon": "all"
+    },
+    {
+        "key": "shop",
+        "polygon": "all"
+    },
+    {
+        "key": "aeroway",
+        "polygon": "blacklist",
+        "values": [
+            "taxiway"
+        ]
+    },
+    {
+        "key": "tourism",
+        "polygon": "all"
+    },
+    {
+        "key": "historic",
+        "polygon": "all"
+    },
+    {
+        "key": "public_transport",
+        "polygon": "all"
+    },
+    {
+        "key": "office",
+        "polygon": "all"
+    },
+    {
+        "key": "building:part",
+        "polygon": "all"
+    },
+    {
+        "key": "military",
+        "polygon": "all"
+    },
+    {
+        "key": "ruins",
+        "polygon": "all"
+    },
+    {
+        "key": "area:highway",
+        "polygon": "all"
+    },
+    {
+        "key": "craft",
+        "polygon": "all"
+    },
+    {
+        "key": "golf",
+        "polygon": "all"
+    },
+    {
+        "key": "indoor",
+        "polygon": "all"
+    }
+]
+
+},{}],65:[function(require,module,exports){
+var _ = require("./lodash.custom.js");
+var rewind = require("geojson-rewind");
+
+// see https://wiki.openstreetmap.org/wiki/Overpass_turbo/Polygon_Features
+var polygonFeatures = {};
+require("osm-polygon-features").forEach(function(tags) {
+  if (tags.polygon === "all")
+    polygonFeatures[tags.key] = true;
+  else {
+    var list = (tags.polygon === "whitelist") ? "included_values" : "excluded_values",
+        tagValuesObj = {};
+    tags.values.forEach(function(value) { tagValuesObj[value] = true; });
+    polygonFeatures[tags.key] = {};
+    polygonFeatures[tags.key][list] = tagValuesObj;
+  }
+});
+
+// default deduplication helper function
+function default_deduplicator(objectA, objectB) {
+  // default deduplication handler:
+  // if object versions differ, use highest available version
+  if ((objectA.version || objectB.version) &&
+      (objectA.version !== objectB.version)) {
+    return (+objectA.version || 0) > (+objectB.version || 0)
+      ? objectA
+      : objectB;
+  }
+  // otherwise: return merged obj properties
+  return _.merge(objectA, objectB);
+}
+
+var osmtogeojson = {};
+
+osmtogeojson = function( data, options, featureCallback ) {
+
+  options = _.merge(
+    {
+      verbose: false,
+      flatProperties: true,
+      uninterestingTags: {
+        "source": true,
+        "source_ref": true,
+        "source:ref": true,
+        "history": true,
+        "attribution": true,
+        "created_by": true,
+        "tiger:county": true,
+        "tiger:tlid": true,
+        "tiger:upload_uuid": true
+      },
+      polygonFeatures: polygonFeatures,
+      deduplicator: default_deduplicator
+    },
+    options
+  );
+
+  var result;
+  if ( ((typeof XMLDocument !== "undefined") && data instanceof XMLDocument ||
+        (typeof XMLDocument === "undefined") && data.childNodes) )
+    result = _osmXML2geoJSON(data);
+  else
+    result = _overpassJSON2geoJSON(data);
+  return result;
+
+  function _overpassJSON2geoJSON(json) {
+    // sort elements
+    var nodes = new Array();
+    var ways  = new Array();
+    var rels  = new Array();
+    // helper functions
+    function centerGeometry(object) {
+      var pseudoNode = _.clone(object);
+      pseudoNode.lat = object.center.lat;
+      pseudoNode.lon = object.center.lon;
+      pseudoNode.__is_center_placeholder = true;
+      nodes.push(pseudoNode);
+    }
+    function boundsGeometry(object) {
+      var pseudoWay = _.clone(object);
+      pseudoWay.nodes = [];
+      function addPseudoNode(lat,lon,i) {
+        var pseudoNode = {
+          type:"node",
+          id:  "_"+pseudoWay.type+"/"+pseudoWay.id+"bounds"+i,
+          lat: lat,
+          lon: lon
+        }
+        pseudoWay.nodes.push(pseudoNode.id);
+        nodes.push(pseudoNode);
+      }
+      addPseudoNode(pseudoWay.bounds.minlat,pseudoWay.bounds.minlon,1);
+      addPseudoNode(pseudoWay.bounds.maxlat,pseudoWay.bounds.minlon,2);
+      addPseudoNode(pseudoWay.bounds.maxlat,pseudoWay.bounds.maxlon,3);
+      addPseudoNode(pseudoWay.bounds.minlat,pseudoWay.bounds.maxlon,4);
+      pseudoWay.nodes.push(pseudoWay.nodes[0]);
+      pseudoWay.__is_bounds_placeholder = true;
+      ways.push(pseudoWay);
+    }
+    function fullGeometryWay(way) {
+      function addFullGeometryNode(lat,lon,id) {
+        var geometryNode = {
+          type:"node",
+          id:  id,
+          lat: lat,
+          lon: lon
+        }
+        nodes.push(geometryNode);
+      }
+      if (!_.isArray(way.nodes)) {
+        way.nodes = way.geometry.map(function(nd) {
+          if (nd !== null) // have to skip ref-less nodes
+            return "_anonymous@"+nd.lat+"/"+nd.lon;
+          else
+            return "_anonymous@unknown_location";
+        });
+      }
+      way.geometry.forEach(function(nd, i) {
+        if (nd) {
+          addFullGeometryNode(
+            nd.lat,
+            nd.lon,
+            way.nodes[i]
+          );
+        }
+      });
+    }
+    function fullGeometryRelation(rel) {
+      function addFullGeometryNode(lat,lon,id) {
+        var geometryNode = {
+          type:"node",
+          id:  id,
+          lat: lat,
+          lon: lon
+        }
+        nodes.push(geometryNode);
+      }
+      function addFullGeometryWay(geometry,id) {
+        // shared multipolygon ways cannot be defined multiple times with the same id.
+        if (ways.some(function (way) { // todo: this is slow :(
+          return way.type == "way" && way.id == id;
+        })) return;
+        var geometryWay = {
+          type: "way",
+          id:   id,
+          nodes:[]
+        }
+        function addFullGeometryWayPseudoNode(lat,lon) {
+          // todo? do not save the same pseudo node multiple times
+          var geometryPseudoNode = {
+            type:"node",
+            id:  "_anonymous@"+lat+"/"+lon,
+            lat: lat,
+            lon: lon
+          }
+          geometryWay.nodes.push(geometryPseudoNode.id);
+          nodes.push(geometryPseudoNode);
+        }
+        geometry.forEach(function(nd) {
+          if (nd) {
+            addFullGeometryWayPseudoNode(
+              nd.lat,
+              nd.lon
+            );
+          } else {
+            geometryWay.nodes.push(undefined);
+          }
+        });
+        ways.push(geometryWay);
+      }
+      rel.members.forEach(function(member, i) {
+        if (member.type == "node") {
+          if (member.lat) {
+            addFullGeometryNode(
+              member.lat,
+              member.lon,
+              member.ref
+            );
+          }
+        } else if (member.type == "way") {
+          if (member.geometry) {
+            member.ref = "_fullGeom"+member.ref;
+            addFullGeometryWay(
+              member.geometry,
+              member.ref
+            );
+          }
+        }
+      });
+    }
+    // create copies of individual json objects to make sure the original data doesn't get altered
+    // todo: cloning is slow: see if this can be done differently!
+    for (var i=0;i<json.elements.length;i++) {
+      switch (json.elements[i].type) {
+      case "node":
+        var node = json.elements[i];
+        nodes.push(node);
+      break;
+      case "way":
+        var way = _.clone(json.elements[i]);
+        way.nodes = _.clone(way.nodes);
+        ways.push(way);
+        if (way.center)
+          centerGeometry(way);
+        if (way.geometry)
+          fullGeometryWay(way);
+        else if (way.bounds)
+          boundsGeometry(way);
+      break;
+      case "relation":
+        var rel = _.clone(json.elements[i]);
+        rel.members = _.clone(rel.members);
+        rels.push(rel);
+        var has_full_geometry = rel.members && rel.members.some(function (member) {
+          return member.type == "node" && member.lat ||
+                 member.type == "way"  && member.geometry && member.geometry.length > 0
+        });
+        if (rel.center)
+          centerGeometry(rel);
+        if (has_full_geometry)
+          fullGeometryRelation(rel);
+        else if (rel.bounds)
+          boundsGeometry(rel);
+      break;
+      default:
+      // type=area (from coord-query) is an example for this case.
+      }
+    }
+    return _convert2geoJSON(nodes,ways,rels);
+  }
+  function _osmXML2geoJSON(xml) {
+    // sort elements
+    var nodes = new Array();
+    var ways  = new Array();
+    var rels  = new Array();
+    // helper function
+    function copy_attribute( x, o, attr ) {
+      if (x.hasAttribute(attr))
+        o[attr] = x.getAttribute(attr);
+    }
+    function centerGeometry(object, centroid) {
+      var pseudoNode = _.clone(object);
+      copy_attribute(centroid, pseudoNode, 'lat');
+      copy_attribute(centroid, pseudoNode, 'lon');
+      pseudoNode.__is_center_placeholder = true;
+      nodes.push(pseudoNode);
+    }
+    function boundsGeometry(object, bounds) {
+      var pseudoWay = _.clone(object);
+      pseudoWay.nodes = [];
+      function addPseudoNode(lat,lon,i) {
+        var pseudoNode = {
+          type:"node",
+          id:  "_"+pseudoWay.type+"/"+pseudoWay.id+"bounds"+i,
+          lat: lat,
+          lon: lon
+        }
+        pseudoWay.nodes.push(pseudoNode.id);
+        nodes.push(pseudoNode);
+      }
+      addPseudoNode(bounds.getAttribute('minlat'),bounds.getAttribute('minlon'),1);
+      addPseudoNode(bounds.getAttribute('maxlat'),bounds.getAttribute('minlon'),2);
+      addPseudoNode(bounds.getAttribute('maxlat'),bounds.getAttribute('maxlon'),3);
+      addPseudoNode(bounds.getAttribute('minlat'),bounds.getAttribute('maxlon'),4);
+      pseudoWay.nodes.push(pseudoWay.nodes[0]);
+      pseudoWay.__is_bounds_placeholder = true;
+      ways.push(pseudoWay);
+    }
+    function fullGeometryWay(way, nds) {
+      function addFullGeometryNode(lat,lon,id) {
+        var geometryNode = {
+          type:"node",
+          id:  id,
+          lat: lat,
+          lon: lon
+        }
+        nodes.push(geometryNode);
+        return geometryNode.id;
+      }
+      if (!_.isArray(way.nodes)) {
+        way.nodes = [];
+        _.each( nds, function( nd, i ) {
+          way.nodes.push("_anonymous@"+nd.getAttribute('lat')+"/"+nd.getAttribute('lon'));
+        });
+      }
+      _.each( nds, function( nd, i ) {
+        if (nd.getAttribute('lat')) {
+          addFullGeometryNode(
+            nd.getAttribute('lat'),
+            nd.getAttribute('lon'),
+            way.nodes[i]
+          );
+        }
+      });
+    }
+    function fullGeometryRelation(rel, members) {
+      function addFullGeometryNode(lat,lon,id) {
+        var geometryNode = {
+          type:"node",
+          id:  id,
+          lat: lat,
+          lon: lon
+        }
+        nodes.push(geometryNode);
+      }
+      function addFullGeometryWay(nds,id) {
+        // shared multipolygon ways cannot be defined multiple times with the same id.
+        if (ways.some(function (way) { // todo: this is slow :(
+          return way.type == "way" && way.id == id;
+        })) return;
+        var geometryWay = {
+          type: "way",
+          id:   id,
+          nodes:[]
+        }
+        function addFullGeometryWayPseudoNode(lat,lon) {
+          // todo? do not save the same pseudo node multiple times
+          var geometryPseudoNode = {
+            type:"node",
+            id:  "_anonymous@"+lat+"/"+lon,
+            lat: lat,
+            lon: lon
+          }
+          geometryWay.nodes.push(geometryPseudoNode.id);
+          nodes.push(geometryPseudoNode);
+        }
+        _.each(nds, function(nd) {
+          if (nd.getAttribute('lat')) {
+            addFullGeometryWayPseudoNode(
+              nd.getAttribute('lat'),
+              nd.getAttribute('lon')
+            );
+          } else {
+            geometryWay.nodes.push(undefined);
+          }
+        });
+        ways.push(geometryWay);
+      }
+      _.each( members, function( member, i ) {
+        if (rel.members[i].type == "node") {
+          if (member.getAttribute('lat')) {
+            addFullGeometryNode(
+              member.getAttribute('lat'),
+              member.getAttribute('lon'),
+              rel.members[i].ref
+            );
+          }
+        } else if (rel.members[i].type == "way") {
+          if (member.getElementsByTagName('nd').length > 0) {
+            rel.members[i].ref = "_fullGeom"+rel.members[i].ref;
+            addFullGeometryWay(
+              member.getElementsByTagName('nd'),
+              rel.members[i].ref
+            );
+          }
+        }
+      });
+    }
+    // nodes
+    _.each( xml.getElementsByTagName('node'), function( node, i ) {
+      var tags = {};
+      _.each( node.getElementsByTagName('tag'), function( tag ) {
+        tags[tag.getAttribute('k')] = tag.getAttribute('v');
+      });
+      var nodeObject = {
+        'type': 'node'
+      };
+      copy_attribute( node, nodeObject, 'id' );
+      copy_attribute( node, nodeObject, 'lat' );
+      copy_attribute( node, nodeObject, 'lon' );
+      copy_attribute( node, nodeObject, 'version' );
+      copy_attribute( node, nodeObject, 'timestamp' );
+      copy_attribute( node, nodeObject, 'changeset' );
+      copy_attribute( node, nodeObject, 'uid' );
+      copy_attribute( node, nodeObject, 'user' );
+      if (!_.isEmpty(tags))
+        nodeObject.tags = tags;
+      nodes.push(nodeObject);
+    });
+    // ways
+    var centroid,bounds;
+    _.each( xml.getElementsByTagName('way'), function( way, i ) {
+      var tags = {};
+      var wnodes = [];
+      _.each( way.getElementsByTagName('tag'), function( tag ) {
+        tags[tag.getAttribute('k')] = tag.getAttribute('v');
+      });
+      var has_full_geometry = false;
+      _.each( way.getElementsByTagName('nd'), function( nd, i ) {
+        var id;
+        if (id = nd.getAttribute('ref'))
+          wnodes[i] = id;
+        if (!has_full_geometry && nd.getAttribute('lat'))
+          has_full_geometry = true;
+      });
+      var wayObject = {
+        "type": "way"
+      };
+      copy_attribute( way, wayObject, 'id' );
+      copy_attribute( way, wayObject, 'version' );
+      copy_attribute( way, wayObject, 'timestamp' );
+      copy_attribute( way, wayObject, 'changeset' );
+      copy_attribute( way, wayObject, 'uid' );
+      copy_attribute( way, wayObject, 'user' );
+      if (wnodes.length > 0)
+        wayObject.nodes = wnodes;
+      if (!_.isEmpty(tags))
+        wayObject.tags = tags;
+      if (centroid = way.getElementsByTagName('center')[0])
+        centerGeometry(wayObject,centroid);
+      if (has_full_geometry)
+        fullGeometryWay(wayObject, way.getElementsByTagName('nd'));
+      else if (bounds = way.getElementsByTagName('bounds')[0])
+        boundsGeometry(wayObject,bounds);
+      ways.push(wayObject);
+    });
+    // relations
+    _.each( xml.getElementsByTagName('relation'), function( relation, i ) {
+      var tags = {};
+      var members = [];
+      _.each( relation.getElementsByTagName('tag'), function( tag ) {
+        tags[tag.getAttribute('k')] = tag.getAttribute('v');
+      });
+      var has_full_geometry = false;
+      _.each( relation.getElementsByTagName('member'), function( member, i ) {
+        members[i] = {};
+        copy_attribute( member, members[i], 'ref' );
+        copy_attribute( member, members[i], 'role' );
+        copy_attribute( member, members[i], 'type' );
+        if (!has_full_geometry &&
+             (members[i].type == 'node' && member.getAttribute('lat')) ||
+             (members[i].type == 'way'  && member.getElementsByTagName('nd').length>0) )
+          has_full_geometry = true;
+      });
+      var relObject = {
+        "type": "relation"
+      }
+      copy_attribute( relation, relObject, 'id' );
+      copy_attribute( relation, relObject, 'version' );
+      copy_attribute( relation, relObject, 'timestamp' );
+      copy_attribute( relation, relObject, 'changeset' );
+      copy_attribute( relation, relObject, 'uid' );
+      copy_attribute( relation, relObject, 'user' );
+      if (members.length > 0)
+        relObject.members = members;
+      if (!_.isEmpty(tags))
+        relObject.tags = tags;
+      if (centroid = relation.getElementsByTagName('center')[0])
+        centerGeometry(relObject,centroid);
+      if (has_full_geometry)
+        fullGeometryRelation(relObject, relation.getElementsByTagName('member'));
+      else if (bounds = relation.getElementsByTagName('bounds')[0])
+        boundsGeometry(relObject,bounds);
+      rels.push(relObject);
+    });
+    return _convert2geoJSON(nodes,ways,rels);
+  }
+  function _convert2geoJSON(nodes,ways,rels) {
+
+    // helper function that checks if there are any tags other than "created_by", "source", etc. or any tag provided in ignore_tags
+    function has_interesting_tags(t, ignore_tags) {
+      if (typeof ignore_tags !== "object")
+        ignore_tags={};
+      if (typeof options.uninterestingTags === "function")
+        return !options.uninterestingTags(t, ignore_tags);
+      for (var k in t)
+        if (!(options.uninterestingTags[k]===true) &&
+            !(ignore_tags[k]===true || ignore_tags[k]===t[k]))
+          return true;
+      return false;
+    };
+    // helper function to extract meta information
+    function build_meta_information(object) {
+      var res = {
+        "timestamp": object.timestamp,
+        "version": object.version,
+        "changeset": object.changeset,
+        "user": object.user,
+        "uid": object.uid
+      };
+      for (var k in res)
+        if (res[k] === undefined)
+          delete res[k];
+      return res;
+    }
+
+    // some data processing (e.g. filter nodes only used for ways)
+    var nodeids = new Object();
+    var poinids = new Object();
+    for (var i=0;i<nodes.length;i++) {
+      var node = nodes[i];
+      if (nodeids[node.id] !== undefined) {
+        // handle input data duplication
+        node = options.deduplicator(node, nodeids[node.id]);
+      }
+      nodeids[node.id] = node;
+      if (typeof node.tags != 'undefined' &&
+          has_interesting_tags(node.tags)) // this checks if the node has any tags other than "created_by"
+        poinids[node.id] = true;
+    }
+    // todo -> after deduplication of relations??
+    for (var i=0;i<rels.length;i++) {
+      if (_.isArray(rels[i].members)) {
+        for (var j=0;j<rels[i].members.length;j++) {
+          if (rels[i].members[j].type == "node")
+            poinids[rels[i].members[j].ref] = true;
+        }
+      }
+    }
+    var wayids = new Object();
+    var waynids = new Object();
+    for (var i=0;i<ways.length;i++) {
+      var way = ways[i];
+      if (wayids[way.id]) {
+        // handle input data duplication
+        way = options.deduplicator(way, wayids[way.id]);
+      }
+      wayids[way.id] = way;
+      if (_.isArray(way.nodes)) {
+        for (var j=0;j<way.nodes.length;j++) {
+          if (typeof way.nodes[j] === "object") continue; // ignore already replaced way node objects
+          waynids[way.nodes[j]] = true;
+          way.nodes[j] = nodeids[way.nodes[j]];
+        }
+      }
+    }
+    var pois = new Array();
+    for (var id in nodeids) {
+      var node = nodeids[id];
+      if (!waynids[id] || poinids[id])
+        pois.push(node);
+    }
+    var relids = new Array();
+    for (var i=0;i<rels.length;i++) {
+      var rel = rels[i];
+      if (relids[rel.id]) {
+        // handle input data duplication
+        rel = options.deduplicator(rel, relids[rel.id]);
+      }
+      relids[rel.id] = rel;
+    }
+    var relsmap = {node: {}, way: {}, relation: {}};
+    for (var id in relids) {
+      var rel = relids[id];
+      if (!_.isArray(rel.members)) {
+        if (options.verbose) console.warn('Relation',rel.type+'/'+rel.id,'ignored because it has no members');
+        continue; // ignore relations without members (e.g. returned by an ids_only query)
+      }
+      for (var j=0;j<rel.members.length;j++) {
+        var m_type = rel.members[j].type;
+        var m_ref = rel.members[j].ref;
+        if (typeof m_ref !== "number") {
+          // de-namespace full geometry content
+          m_ref = m_ref.replace("_fullGeom", "");
+        }
+        if (!relsmap[m_type]) {
+          if (options.verbose) console.warn('Relation',rel.type+'/'+rel.id,'member',m_type+'/'+m_ref,'ignored because it has an invalid type');
+          continue;
+        }
+        if (typeof relsmap[m_type][m_ref] === "undefined")
+          relsmap[m_type][m_ref] = [];
+        relsmap[m_type][m_ref].push({
+          "role" : rel.members[j].role,
+          "rel" : rel.id,
+          "reltags" : rel.tags,
+        });
+      }
+    }
+    // construct geojson
+    var geojson;
+    var geojsonnodes = [];
+    for (i=0;i<pois.length;i++) {
+      if (typeof pois[i].lon == "undefined" || typeof pois[i].lat == "undefined") {
+        if (options.verbose) console.warn('POI',pois[i].type+'/'+pois[i].id,'ignored because it lacks coordinates');
+        continue; // lon and lat are required for showing a point
+      }
+      var feature = {
+        "type"       : "Feature",
+        "id"         : pois[i].type+"/"+pois[i].id,
+        "properties" : {
+          "type" : pois[i].type,
+          "id"   : pois[i].id,
+          "tags" : pois[i].tags || {},
+          "relations" : relsmap["node"][pois[i].id] || [],
+          "meta": build_meta_information(pois[i])
+        },
+        "geometry"   : {
+          "type" : "Point",
+          "coordinates" : [+pois[i].lon, +pois[i].lat],
+        }
+      };
+      if (pois[i].__is_center_placeholder)
+        feature.properties["geometry"] = "center";
+      if (!featureCallback)
+        geojsonnodes.push(feature);
+      else
+        featureCallback(feature);
+    }
+    var geojsonlines = [];
+    var geojsonpolygons = [];
+    // process multipolygons
+    for (var i=0;i<rels.length;i++) {
+      // todo: refactor such that this loops over relids instead of rels?
+      if (relids[rels[i].id] !== rels[i]) {
+        // skip relation because it's a deduplication artifact
+        continue;
+      }
+      if ((typeof rels[i].tags != "undefined") &&
+          (rels[i].tags["type"] == "route" || rels[i].tags["type"] == "waterway")) {
+        if (!_.isArray(rels[i].members)) {
+          if (options.verbose) console.warn('Route',rels[i].type+'/'+rels[i].id,'ignored because it has no members');
+          continue; // ignore relations without members (e.g. returned by an ids_only query)
+        }
+        rels[i].members.forEach(function(m) {
+          if (wayids[m.ref] && !has_interesting_tags(wayids[m.ref].tags))
+              wayids[m.ref].is_skippablerelationmember = true;
+        });
+        feature = construct_multilinestring(rels[i]);
+        if (feature === false) {
+          if (options.verbose) console.warn('Route relation',rels[i].type+'/'+rels[i].id,'ignored because it has invalid geometry');
+          continue; // abort if feature could not be constructed
+        }
+        if (!featureCallback)
+          geojsonpolygons.push(feature);
+        else
+          featureCallback(rewind(feature));
+
+        function construct_multilinestring(rel) {
+          var is_tainted = false;
+          // prepare route members
+          var members;
+          members = rel.members.filter(function(m) {return m.type === "way";});
+          members = members.map(function(m) {
+            var way = wayids[m.ref];
+            if (way === undefined || way.nodes === undefined) { // check for missing ways
+              if (options.verbose) console.warn('Route '+rel.type+'/'+rel.id, 'tainted by a missing or incomplete  way', m.type+'/'+m.ref);
+              is_tainted = true;
+              return;
+            }
+            return { // TODO: this is slow! :(
+              id: m.ref,
+              role: m.role,
+              way: way,
+              nodes: way.nodes.filter(function(n) {
+                if (n !== undefined)
+                  return true;
+                is_tainted = true;
+                if (options.verbose) console.warn('Route', rel.type+'/'+rel.id,  'tainted by a way', m.type+'/'+m.ref, 'with a missing node');
+                return false;
+              })
+            };
+          });
+          members = _.compact(members);
+          // construct connected linestrings
+          var linestrings;
+          linestrings = join(members);
+
+          // sanitize mp-coordinates (remove empty clusters or rings, {lat,lon,...} to [lon,lat]
+          var coords = [];
+          coords = _.compact(linestrings.map(function(linestring) {
+            return _.compact(linestring.map(function(node) {
+              return [+node.lon,+node.lat];
+            }));
+          }));
+
+          if (coords.length == 0) {
+            if (options.verbose) console.warn('Route', rel.type+'/'+rel.id, 'contains no coordinates');
+            return false; // ignore routes without coordinates
+          }
+
+          // mp parsed, now construct the geoJSON
+          var feature = {
+            "type"       : "Feature",
+            "id"         : rel.type+"/"+rel.id,
+            "properties" : {
+              "type" : rel.type,
+              "id"   : rel.id,
+              "tags" : rel.tags || {},
+              "relations" :  relsmap[rel.type][rel.id] || [],
+              "meta": build_meta_information(rel)
+            },
+            "geometry"   : {
+              "type" : coords.length === 1 ? "LineString" : "MultiLineString",
+              "coordinates" : coords.length === 1 ? coords[0] : coords,
+            }
+          }
+          if (is_tainted) {
+            if (options.verbose) console.warn('Route', rel.type+'/'+rel.id, 'is tainted');
+            feature.properties["tainted"] = true;
+          }
+          return feature;
+        }
+      } // end construct multilinestring for route relations
+      if ((typeof rels[i].tags != "undefined") &&
+          (rels[i].tags["type"] == "multipolygon" || rels[i].tags["type"] == "boundary")) {
+        if (!_.isArray(rels[i].members)) {
+          if (options.verbose) console.warn('Multipolygon',rels[i].type+'/'+rels[i].id,'ignored because it has no members');
+          continue; // ignore relations without members (e.g. returned by an ids_only query)
+        }
+        var outer_count = 0;
+        for (var j=0;j<rels[i].members.length;j++)
+          if (rels[i].members[j].role == "outer")
+            outer_count++;
+          else if (options.verbose && rels[i].members[j].role != "inner")
+            console.warn('Multipolygon',rels[i].type+'/'+rels[i].id,'member',rels[i].members[j].type+'/'+rels[i].members[j].ref,'ignored because it has an invalid role: "' + rels[i].members[j].role + '"');
+        rels[i].members.forEach(function(m) {
+          if (wayids[m.ref]) {
+            // this even works in the following corner case:
+            // a multipolygon amenity=xxx with outer line tagged amenity=yyy
+            // see https://github.com/tyrasd/osmtogeojson/issues/7
+            if (m.role==="outer" && !has_interesting_tags(wayids[m.ref].tags,rels[i].tags))
+              wayids[m.ref].is_skippablerelationmember = true;
+            if (m.role==="inner" && !has_interesting_tags(wayids[m.ref].tags))
+              wayids[m.ref].is_skippablerelationmember = true;
+          }
+        });
+        if (outer_count == 0) {
+          if (options.verbose) console.warn('Multipolygon relation',rels[i].type+'/'+rels[i].id,'ignored because it has no outer ways');
+          continue; // ignore multipolygons without outer ways
+        }
+        var simple_mp = false;
+        if (outer_count == 1 && !has_interesting_tags(rels[i].tags, {"type":true}))
+          simple_mp = true;
+        var feature = null;
+        if (!simple_mp) {
+          feature = construct_multipolygon(rels[i], rels[i]);
+        } else {
+          // simple multipolygon
+          var outer_way = rels[i].members.filter(function(m) {return m.role === "outer";})[0];
+          outer_way = wayids[outer_way.ref];
+          if (outer_way === undefined) {
+            if (options.verbose) console.warn('Multipolygon relation',rels[i].type+'/'+rels[i].id,'ignored because outer way', outer_way.type+'/'+outer_way.ref,'is missing');
+            continue; // abort if outer way object is not present
+          }
+          outer_way.is_skippablerelationmember = true;
+          feature = construct_multipolygon(outer_way, rels[i]);
+        }
+        if (feature === false) {
+          if (options.verbose) console.warn('Multipolygon relation',rels[i].type+'/'+rels[i].id,'ignored because it has invalid geometry');
+          continue; // abort if feature could not be constructed
+        }
+        if (!featureCallback)
+          geojsonpolygons.push(feature);
+        else
+          featureCallback(rewind(feature));
+
+        function construct_multipolygon(tag_object, rel) {
+          var is_tainted = false;
+          var mp_geometry = simple_mp ? 'way' : 'relation',
+              mp_id = typeof tag_object.id === "number" ? tag_object.id : +(tag_object.id.replace("_fullGeom", ""));
+          // prepare mp members
+          var members;
+          members = rel.members.filter(function(m) {return m.type === "way";});
+          members = members.map(function(m) {
+            var way = wayids[m.ref];
+            if (way === undefined || way.nodes === undefined) { // check for missing ways
+              if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'tainted by a missing or incomplete way', m.type+'/'+m.ref);
+              is_tainted = true;
+              return;
+            }
+            return { // TODO: this is slow! :(
+              id: m.ref,
+              role: m.role || "outer",
+              way: way,
+              nodes: way.nodes.filter(function(n) {
+                if (n !== undefined)
+                  return true;
+                is_tainted = true;
+                if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id,  'tainted by a way', m.type+'/'+m.ref, 'with a missing node');
+                return false;
+              })
+            };
+          });
+          members = _.compact(members);
+          // construct outer and inner rings
+          var outers, inners;
+          outers = join(members.filter(function(m) {return m.role==="outer";}));
+          inners = join(members.filter(function(m) {return m.role==="inner";}));
+          // sort rings
+          var mp;
+          function findOuter(inner) {
+            var polygonIntersectsPolygon = function(outer, inner) {
+              for (var i=0; i<inner.length; i++)
+                if (pointInPolygon(inner[i], outer))
+                  return true;
+              return false;
+            }
+            var mapCoordinates = function(from) {
+              return from.map(function(n) {
+                return [+n.lat,+n.lon];
+              });
+            }
+            // stolen from iD/geo.js,
+            // based on https://github.com/substack/point-in-polygon,
+            // ray-casting algorithm based on http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+            var pointInPolygon = function(point, polygon) {
+              var x = point[0], y = point[1], inside = false;
+              for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                var xi = polygon[i][0], yi = polygon[i][1];
+                var xj = polygon[j][0], yj = polygon[j][1];
+                var intersect = ((yi > y) != (yj > y)) &&
+                  (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+              }
+              return inside;
+            };
+            // stolen from iD/relation.js
+            var o, outer;
+            // todo: all this coordinate mapping makes this unneccesarily slow.
+            // see the "todo: this is slow! :(" above.
+            inner = mapCoordinates(inner);
+            /*for (o = 0; o < outers.length; o++) {
+              outer = mapCoordinates(outers[o]);
+              if (polygonContainsPolygon(outer, inner))
+                return o;
+            }*/
+            for (o = 0; o < outers.length; o++) {
+              outer = mapCoordinates(outers[o]);
+              if (polygonIntersectsPolygon(outer, inner))
+                return o;
+            }
+          }
+          mp = outers.map(function(o) {return [o];});
+          for (var j=0; j<inners.length; j++) {
+            var o = findOuter(inners[j]);
+            if (o !== undefined)
+              mp[o].push(inners[j]);
+            else
+              if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'contains an inner ring with no containing outer');
+              // so, no outer ring for this inner ring is found.
+              // We're going to ignore holes in empty space.
+              ;
+          }
+          // sanitize mp-coordinates (remove empty clusters or rings, {lat,lon,...} to [lon,lat]
+          var mp_coords = [];
+          mp_coords = _.compact(mp.map(function(cluster) {
+            var cl = _.compact(cluster.map(function(ring) {
+              if (ring.length < 4) { // todo: is this correct: ring.length < 4 ?
+                if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'contains a ring with less than four nodes');
+                return;
+              }
+              return _.compact(ring.map(function(node) {
+                return [+node.lon,+node.lat];
+              }));
+            }));
+            if (cl.length == 0) {
+              if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'contains an empty ring cluster');
+              return;
+            }
+            return cl;
+          }));
+
+          if (mp_coords.length == 0) {
+            if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'contains no coordinates');
+            return false; // ignore multipolygons without coordinates
+          }
+          var mp_type = "MultiPolygon";
+          if (mp_coords.length === 1) {
+            mp_type = "Polygon";
+            mp_coords = mp_coords[0];
+          }
+          // mp parsed, now construct the geoJSON
+          var feature = {
+            "type"       : "Feature",
+            "id"         : tag_object.type+"/"+mp_id,
+            "properties" : {
+              "type" : tag_object.type,
+              "id"   : mp_id,
+              "tags" : tag_object.tags || {},
+              "relations" :  relsmap[tag_object.type][tag_object.id] || [],
+              "meta": build_meta_information(tag_object)
+            },
+            "geometry"   : {
+              "type" : mp_type,
+              "coordinates" : mp_coords,
+            }
+          }
+          if (is_tainted) {
+            if (options.verbose) console.warn('Multipolygon', mp_geometry+'/'+mp_id, 'is tainted');
+            feature.properties["tainted"] = true;
+          }
+          return feature;
+        }
+      }
+    }
+    // process lines and polygons
+    for (var i=0;i<ways.length;i++) {
+      // todo: refactor such that this loops over wayids instead of ways?
+      if (wayids[ways[i].id] !== ways[i]) {
+        // skip way because it's a deduplication artifact
+        continue;
+      }
+      if (!_.isArray(ways[i].nodes)) {
+        if (options.verbose) console.warn('Way',ways[i].type+'/'+ways[i].id,'ignored because it has no nodes');
+        continue; // ignore ways without nodes (e.g. returned by an ids_only query)
+      }
+      if (ways[i].is_skippablerelationmember)
+        continue; // ignore ways which are already rendered as (part of) a multipolygon
+      if (typeof ways[i].id !== "number") {
+        // remove full geometry namespace for output
+        ways[i].id = +ways[i].id.replace("_fullGeom", "");
+      }
+      ways[i].tainted = false;
+      ways[i].hidden = false;
+      var coords = new Array();
+      for (j=0;j<ways[i].nodes.length;j++) {
+        if (typeof ways[i].nodes[j] == "object")
+          coords.push([+ways[i].nodes[j].lon, +ways[i].nodes[j].lat]);
+        else {
+          if (options.verbose) console.warn('Way',ways[i].type+'/'+ways[i].id,'is tainted by an invalid node');
+          ways[i].tainted = true;
+        }
+      }
+      if (coords.length <= 1) { // invalid way geometry
+        if (options.verbose) console.warn('Way',ways[i].type+'/'+ways[i].id,'ignored because it contains too few nodes');
+        continue;
+      }
+      var way_type = "LineString"; // default
+      if (typeof ways[i].nodes[0] != "undefined" && typeof ways[i].nodes[ways[i].nodes.length-1] != "undefined" && // way has its start/end nodes loaded
+        ways[i].nodes[0].id === ways[i].nodes[ways[i].nodes.length-1].id && // ... and forms a closed ring
+        (
+          typeof ways[i].tags != "undefined" && // ... and has tags
+          _isPolygonFeature(ways[i].tags) // ... and tags say it is a polygon
+          || // or is a placeholder for a bounds geometry
+          ways[i].__is_bounds_placeholder
+        )
+      ) {
+        way_type = "Polygon";
+        coords = [coords];
+      }
+      var feature = {
+        "type"       : "Feature",
+        "id"         : ways[i].type+"/"+ways[i].id,
+        "properties" : {
+          "type" : ways[i].type,
+          "id"   : ways[i].id,
+          "tags" : ways[i].tags || {},
+          "relations" : relsmap["way"][ways[i].id] || [],
+          "meta": build_meta_information(ways[i])
+        },
+        "geometry"   : {
+          "type" : way_type,
+          "coordinates" : coords,
+        }
+      }
+      if (ways[i].tainted) {
+        if (options.verbose) console.warn('Way',ways[i].type+'/'+ways[i].id,'is tainted');
+        feature.properties["tainted"] = true;
+      }
+      if (ways[i].__is_bounds_placeholder)
+        feature.properties["geometry"] = "bounds";
+      if (!featureCallback) {
+        if (way_type == "LineString")
+          geojsonlines.push(feature);
+        else
+          geojsonpolygons.push(feature);
+      } else {
+        featureCallback(rewind(feature));
+      }
+    }
+
+    if (featureCallback)
+      return true;
+
+    geojson = {
+      "type": "FeatureCollection",
+      "features": []
+    };
+    geojson.features = geojson.features.concat(geojsonpolygons);
+    geojson.features = geojson.features.concat(geojsonlines);
+    geojson.features = geojson.features.concat(geojsonnodes);
+    // optionally, flatten properties
+    if (options.flatProperties) {
+      geojson.features.forEach(function(f) {
+        f.properties = _.merge(
+          f.properties.meta,
+          f.properties.tags,
+          {id: f.properties.type+"/"+f.properties.id}
+        );
+      });
+    }
+    // fix polygon winding
+    geojson = rewind(geojson);
+    return geojson;
+  }
+  function _isPolygonFeature( tags ) {
+    var polygonFeatures = options.polygonFeatures;
+    if (typeof polygonFeatures === "function")
+      return polygonFeatures(tags);
+    // explicitely tagged non-areas
+    if ( tags['area'] === 'no' )
+      return false;
+    // assuming that a typical OSM way has in average less tags than
+    // the polygonFeatures list, this way around should be faster
+    for ( var key in tags ) {
+      var val = tags[key];
+      var pfk = polygonFeatures[key];
+      // continue with next if tag is unknown or not "categorizing"
+      if ( typeof pfk === 'undefined' )
+        continue;
+      // continue with next if tag is explicitely un-set ("building=no")
+      if ( val === 'no' )
+        continue;
+      // check polygon features for: general acceptance, included or excluded values
+      if ( pfk === true )
+        return true;
+      if ( pfk.included_values && pfk.included_values[val] === true )
+        return true;
+      if ( pfk.excluded_values && pfk.excluded_values[val] !== true )
+        return true;
+    }
+    // if no tags matched, this ain't no area.
+    return false;
+  }
+};
+
+// helper that joins adjacent osm ways into linestrings or linear rings
+function join(ways) {
+  var _first = function(arr) {return arr[0]};
+  var _last  = function(arr) {return arr[arr.length-1]};
+  var _fitTogether = function(n1, n2) {
+    return n1 !== undefined && n2 !== undefined && n1.id === n2.id;
+  }
+  // stolen from iD/relation.js
+  var joined = [], current, first, last, i, how, what;
+  while (ways.length) {
+    current = ways.pop().nodes.slice();
+    joined.push(current);
+    while (ways.length && !_fitTogether(_first(current), _last(current))) {
+      first = _first(current);
+      last  = _last(current);
+      for (i = 0; i < ways.length; i++) {
+        what = ways[i].nodes;
+        if (_fitTogether(last, _first(what))) {
+          how  = current.push;
+          what = what.slice(1);
+          break;
+        } else if (_fitTogether(last, _last(what))) {
+          how  = current.push;
+          what = what.slice(0, -1).reverse();
+          break;
+        } else if (_fitTogether(first, _last(what))) {
+          how  = current.unshift;
+          what = what.slice(0, -1);
+          break;
+        } else if (_fitTogether(first, _first(what))) {
+          how  = current.unshift;
+          what = what.slice(1).reverse();
+          break;
+        } else {
+          what = how = null;
+        }
+      }
+      if (!what)
+        break; // Invalid geometry (dangling way, unclosed ring)
+      ways.splice(i, 1);
+      how.apply(current, what);
+    }
+  }
+  return joined;
+}
+
+// for backwards compatibility
+osmtogeojson.toGeojson = osmtogeojson;
+
+module.exports = osmtogeojson;
+
+},{"./lodash.custom.js":66,"geojson-rewind":10,"osm-polygon-features":63}],66:[function(require,module,exports){
+(function (global){
+/**
+ * @license
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash exports="node" include="clone,merge,isEmpty,isArray,compact,each" -d`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+;(function() {
+
+  /** Used as a safe reference for `undefined` in pre-ES5 environments. */
+  var undefined;
+
+  /** Used as the semantic version number. */
+  var VERSION = '4.15.0';
+
+  /** Used as the size to enable large array optimizations. */
+  var LARGE_ARRAY_SIZE = 200;
+
+  /** Used as the `TypeError` message for "Functions" methods. */
+  var FUNC_ERROR_TEXT = 'Expected a function';
+
+  /** Used to stand-in for `undefined` hash values. */
+  var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+  /** Used to compose bitmasks for comparison styles. */
+  var UNORDERED_COMPARE_FLAG = 1,
+      PARTIAL_COMPARE_FLAG = 2;
+
+  /** Used as references for various `Number` constants. */
+  var INFINITY = 1 / 0,
+      MAX_SAFE_INTEGER = 9007199254740991;
+
+  /** `Object#toString` result references. */
+  var argsTag = '[object Arguments]',
+      arrayTag = '[object Array]',
+      boolTag = '[object Boolean]',
+      dateTag = '[object Date]',
+      errorTag = '[object Error]',
+      funcTag = '[object Function]',
+      genTag = '[object GeneratorFunction]',
+      mapTag = '[object Map]',
+      numberTag = '[object Number]',
+      objectTag = '[object Object]',
+      promiseTag = '[object Promise]',
+      regexpTag = '[object RegExp]',
+      setTag = '[object Set]',
+      stringTag = '[object String]',
+      symbolTag = '[object Symbol]',
+      weakMapTag = '[object WeakMap]';
+
+  var arrayBufferTag = '[object ArrayBuffer]',
+      dataViewTag = '[object DataView]',
+      float32Tag = '[object Float32Array]',
+      float64Tag = '[object Float64Array]',
+      int8Tag = '[object Int8Array]',
+      int16Tag = '[object Int16Array]',
+      int32Tag = '[object Int32Array]',
+      uint8Tag = '[object Uint8Array]',
+      uint8ClampedTag = '[object Uint8ClampedArray]',
+      uint16Tag = '[object Uint16Array]',
+      uint32Tag = '[object Uint32Array]';
+
+  /** Used to match property names within property paths. */
+  var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+      reIsPlainProp = /^\w*$/,
+      reLeadingDot = /^\./,
+      rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+
+  /**
+   * Used to match `RegExp`
+   * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+   */
+  var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+
+  /** Used to match backslashes in property paths. */
+  var reEscapeChar = /\\(\\)?/g;
+
+  /** Used to match `RegExp` flags from their coerced string values. */
+  var reFlags = /\w*$/;
+
+  /** Used to detect host constructors (Safari). */
+  var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+  /** Used to detect unsigned integer values. */
+  var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+  /** Used to identify `toStringTag` values of typed arrays. */
+  var typedArrayTags = {};
+  typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+  typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+  typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+  typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+  typedArrayTags[uint32Tag] = true;
+  typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
+  typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
+  typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
+  typedArrayTags[errorTag] = typedArrayTags[funcTag] =
+  typedArrayTags[mapTag] = typedArrayTags[numberTag] =
+  typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
+  typedArrayTags[setTag] = typedArrayTags[stringTag] =
+  typedArrayTags[weakMapTag] = false;
+
+  /** Used to identify `toStringTag` values supported by `_.clone`. */
+  var cloneableTags = {};
+  cloneableTags[argsTag] = cloneableTags[arrayTag] =
+  cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] =
+  cloneableTags[boolTag] = cloneableTags[dateTag] =
+  cloneableTags[float32Tag] = cloneableTags[float64Tag] =
+  cloneableTags[int8Tag] = cloneableTags[int16Tag] =
+  cloneableTags[int32Tag] = cloneableTags[mapTag] =
+  cloneableTags[numberTag] = cloneableTags[objectTag] =
+  cloneableTags[regexpTag] = cloneableTags[setTag] =
+  cloneableTags[stringTag] = cloneableTags[symbolTag] =
+  cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] =
+  cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+  cloneableTags[errorTag] = cloneableTags[funcTag] =
+  cloneableTags[weakMapTag] = false;
+
+  /** Detect free variable `global` from Node.js. */
+  var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+
+  /** Detect free variable `self`. */
+  var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+  /** Used as a reference to the global object. */
+  var root = freeGlobal || freeSelf || Function('return this')();
+
+  /** Detect free variable `exports`. */
+  var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+  /** Detect free variable `module`. */
+  var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+  /** Detect the popular CommonJS extension `module.exports`. */
+  var moduleExports = freeModule && freeModule.exports === freeExports;
+
+  /** Detect free variable `process` from Node.js. */
+  var freeProcess = moduleExports && freeGlobal.process;
+
+  /** Used to access faster Node.js helpers. */
+  var nodeUtil = (function() {
+    try {
+      return freeProcess && freeProcess.binding('util');
+    } catch (e) {}
+  }());
+
+  /* Node.js helper references. */
+  var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+
+  /*--------------------------------------------------------------------------*/
+
+  /**
+   * Adds the key-value `pair` to `map`.
+   *
+   * @private
+   * @param {Object} map The map to modify.
+   * @param {Array} pair The key-value pair to add.
+   * @returns {Object} Returns `map`.
+   */
+  function addMapEntry(map, pair) {
+    // Don't return `map.set` because it's not chainable in IE 11.
+    map.set(pair[0], pair[1]);
+    return map;
+  }
+
+  /**
+   * Adds `value` to `set`.
+   *
+   * @private
+   * @param {Object} set The set to modify.
+   * @param {*} value The value to add.
+   * @returns {Object} Returns `set`.
+   */
+  function addSetEntry(set, value) {
+    // Don't return `set.add` because it's not chainable in IE 11.
+    set.add(value);
+    return set;
+  }
+
+  /**
+   * A faster alternative to `Function#apply`, this function invokes `func`
+   * with the `this` binding of `thisArg` and the arguments of `args`.
+   *
+   * @private
+   * @param {Function} func The function to invoke.
+   * @param {*} thisArg The `this` binding of `func`.
+   * @param {Array} args The arguments to invoke `func` with.
+   * @returns {*} Returns the result of `func`.
+   */
+  function apply(func, thisArg, args) {
+    switch (args.length) {
+      case 0: return func.call(thisArg);
+      case 1: return func.call(thisArg, args[0]);
+      case 2: return func.call(thisArg, args[0], args[1]);
+      case 3: return func.call(thisArg, args[0], args[1], args[2]);
+    }
+    return func.apply(thisArg, args);
+  }
+
+  /**
+   * A specialized version of `_.forEach` for arrays without support for
+   * iteratee shorthands.
+   *
+   * @private
+   * @param {Array} [array] The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array} Returns `array`.
+   */
+  function arrayEach(array, iteratee) {
+    var index = -1,
+        length = array ? array.length : 0;
+
+    while (++index < length) {
+      if (iteratee(array[index], index, array) === false) {
+        break;
+      }
+    }
+    return array;
+  }
+
+  /**
+   * Appends the elements of `values` to `array`.
+   *
+   * @private
+   * @param {Array} array The array to modify.
+   * @param {Array} values The values to append.
+   * @returns {Array} Returns `array`.
+   */
+  function arrayPush(array, values) {
+    var index = -1,
+        length = values.length,
+        offset = array.length;
+
+    while (++index < length) {
+      array[offset + index] = values[index];
+    }
+    return array;
+  }
+
+  /**
+   * A specialized version of `_.reduce` for arrays without support for
+   * iteratee shorthands.
+   *
+   * @private
+   * @param {Array} [array] The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @param {*} [accumulator] The initial value.
+   * @param {boolean} [initAccum] Specify using the first element of `array` as
+   *  the initial value.
+   * @returns {*} Returns the accumulated value.
+   */
+  function arrayReduce(array, iteratee, accumulator, initAccum) {
+    var index = -1,
+        length = array ? array.length : 0;
+
+    if (initAccum && length) {
+      accumulator = array[++index];
+    }
+    while (++index < length) {
+      accumulator = iteratee(accumulator, array[index], index, array);
+    }
+    return accumulator;
+  }
+
+  /**
+   * A specialized version of `_.some` for arrays without support for iteratee
+   * shorthands.
+   *
+   * @private
+   * @param {Array} [array] The array to iterate over.
+   * @param {Function} predicate The function invoked per iteration.
+   * @returns {boolean} Returns `true` if any element passes the predicate check,
+   *  else `false`.
+   */
+  function arraySome(array, predicate) {
+    var index = -1,
+        length = array ? array.length : 0;
+
+    while (++index < length) {
+      if (predicate(array[index], index, array)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * The base implementation of `_.property` without support for deep paths.
+   *
+   * @private
+   * @param {string} key The key of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   */
+  function baseProperty(key) {
+    return function(object) {
+      return object == null ? undefined : object[key];
+    };
+  }
+
+  /**
+   * The base implementation of `_.times` without support for iteratee shorthands
+   * or max array length checks.
+   *
+   * @private
+   * @param {number} n The number of times to invoke `iteratee`.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array} Returns the array of results.
+   */
+  function baseTimes(n, iteratee) {
+    var index = -1,
+        result = Array(n);
+
+    while (++index < n) {
+      result[index] = iteratee(index);
+    }
+    return result;
+  }
+
+  /**
+   * The base implementation of `_.unary` without support for storing metadata.
+   *
+   * @private
+   * @param {Function} func The function to cap arguments for.
+   * @returns {Function} Returns the new capped function.
+   */
+  function baseUnary(func) {
+    return function(value) {
+      return func(value);
+    };
+  }
+
+  /**
+   * Gets the value at `key` of `object`.
+   *
+   * @private
+   * @param {Object} [object] The object to query.
+   * @param {string} key The key of the property to get.
+   * @returns {*} Returns the property value.
+   */
+  function getValue(object, key) {
+    return object == null ? undefined : object[key];
+  }
+
+  /**
+   * Checks if `value` is a host object in IE < 9.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+   */
+  function isHostObject(value) {
+    // Many host objects are `Object` objects that can coerce to strings
+    // despite having improperly defined `toString` methods.
+    var result = false;
+    if (value != null && typeof value.toString != 'function') {
+      try {
+        result = !!(value + '');
+      } catch (e) {}
+    }
+    return result;
+  }
+
+  /**
+   * Converts `map` to its key-value pairs.
+   *
+   * @private
+   * @param {Object} map The map to convert.
+   * @returns {Array} Returns the key-value pairs.
+   */
+  function mapToArray(map) {
+    var index = -1,
+        result = Array(map.size);
+
+    map.forEach(function(value, key) {
+      result[++index] = [key, value];
+    });
+    return result;
+  }
+
+  /**
+   * Creates a unary function that invokes `func` with its argument transformed.
+   *
+   * @private
+   * @param {Function} func The function to wrap.
+   * @param {Function} transform The argument transform.
+   * @returns {Function} Returns the new function.
+   */
+  function overArg(func, transform) {
+    return function(arg) {
+      return func(transform(arg));
+    };
+  }
+
+  /**
+   * Converts `set` to an array of its values.
+   *
+   * @private
+   * @param {Object} set The set to convert.
+   * @returns {Array} Returns the values.
+   */
+  function setToArray(set) {
+    var index = -1,
+        result = Array(set.size);
+
+    set.forEach(function(value) {
+      result[++index] = value;
+    });
+    return result;
+  }
+
+  /*--------------------------------------------------------------------------*/
+
+  /** Used for built-in method references. */
+  var arrayProto = Array.prototype,
+      funcProto = Function.prototype,
+      objectProto = Object.prototype;
+
+  /** Used to detect overreaching core-js shims. */
+  var coreJsData = root['__core-js_shared__'];
+
+  /** Used to detect methods masquerading as native. */
+  var maskSrcKey = (function() {
+    var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+    return uid ? ('Symbol(src)_1.' + uid) : '';
+  }());
+
+  /** Used to resolve the decompiled source of functions. */
+  var funcToString = funcProto.toString;
+
+  /** Used to check objects for own properties. */
+  var hasOwnProperty = objectProto.hasOwnProperty;
+
+  /** Used to infer the `Object` constructor. */
+  var objectCtorString = funcToString.call(Object);
+
+  /**
+   * Used to resolve the
+   * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+   * of values.
+   */
+  var objectToString = objectProto.toString;
+
+  /** Used to detect if a method is native. */
+  var reIsNative = RegExp('^' +
+    funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
+    .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+  );
+
+  /** Built-in value references. */
+  var Buffer = moduleExports ? root.Buffer : undefined,
+      Symbol = root.Symbol,
+      Uint8Array = root.Uint8Array,
+      getPrototype = overArg(Object.getPrototypeOf, Object),
+      objectCreate = Object.create,
+      propertyIsEnumerable = objectProto.propertyIsEnumerable,
+      splice = arrayProto.splice;
+
+  /* Built-in method references for those with the same name as other `lodash` methods. */
+  var nativeGetSymbols = Object.getOwnPropertySymbols,
+      nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
+      nativeKeys = overArg(Object.keys, Object),
+      nativeMax = Math.max;
+
+  /* Built-in method references that are verified to be native. */
+  var DataView = getNative(root, 'DataView'),
+      Map = getNative(root, 'Map'),
+      Promise = getNative(root, 'Promise'),
+      Set = getNative(root, 'Set'),
+      WeakMap = getNative(root, 'WeakMap'),
+      nativeCreate = getNative(Object, 'create');
+
+  /** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+  var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+  /** Used to lookup unminified function names. */
+  var realNames = {};
+
+  /** Used to detect maps, sets, and weakmaps. */
+  var dataViewCtorString = toSource(DataView),
+      mapCtorString = toSource(Map),
+      promiseCtorString = toSource(Promise),
+      setCtorString = toSource(Set),
+      weakMapCtorString = toSource(WeakMap);
+
+  /** Used to convert symbols to primitives and strings. */
+  var symbolProto = Symbol ? Symbol.prototype : undefined,
+      symbolValueOf = symbolProto ? symbolProto.valueOf : undefined,
+      symbolToString = symbolProto ? symbolProto.toString : undefined;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a `lodash` object which wraps `value` to enable implicit method
+   * chain sequences. Methods that operate on and return arrays, collections,
+   * and functions can be chained together. Methods that retrieve a single value
+   * or may return a primitive value will automatically end the chain sequence
+   * and return the unwrapped value. Otherwise, the value must be unwrapped
+   * with `_#value`.
+   *
+   * Explicit chain sequences, which must be unwrapped with `_#value`, may be
+   * enabled using `_.chain`.
+   *
+   * The execution of chained methods is lazy, that is, it's deferred until
+   * `_#value` is implicitly or explicitly called.
+   *
+   * Lazy evaluation allows several methods to support shortcut fusion.
+   * Shortcut fusion is an optimization to merge iteratee calls; this avoids
+   * the creation of intermediate arrays and can greatly reduce the number of
+   * iteratee executions. Sections of a chain sequence qualify for shortcut
+   * fusion if the section is applied to an array of at least `200` elements
+   * and any iteratees accept only one argument. The heuristic for whether a
+   * section qualifies for shortcut fusion is subject to change.
+   *
+   * Chaining is supported in custom builds as long as the `_#value` method is
+   * directly or indirectly included in the build.
+   *
+   * In addition to lodash methods, wrappers have `Array` and `String` methods.
+   *
+   * The wrapper `Array` methods are:
+   * `concat`, `join`, `pop`, `push`, `shift`, `sort`, `splice`, and `unshift`
+   *
+   * The wrapper `String` methods are:
+   * `replace` and `split`
+   *
+   * The wrapper methods that support shortcut fusion are:
+   * `at`, `compact`, `drop`, `dropRight`, `dropWhile`, `filter`, `find`,
+   * `findLast`, `head`, `initial`, `last`, `map`, `reject`, `reverse`, `slice`,
+   * `tail`, `take`, `takeRight`, `takeRightWhile`, `takeWhile`, and `toArray`
+   *
+   * The chainable wrapper methods are:
+   * `after`, `ary`, `assign`, `assignIn`, `assignInWith`, `assignWith`, `at`,
+   * `before`, `bind`, `bindAll`, `bindKey`, `castArray`, `chain`, `chunk`,
+   * `commit`, `compact`, `concat`, `conforms`, `constant`, `countBy`, `create`,
+   * `curry`, `debounce`, `defaults`, `defaultsDeep`, `defer`, `delay`,
+   * `difference`, `differenceBy`, `differenceWith`, `drop`, `dropRight`,
+   * `dropRightWhile`, `dropWhile`, `extend`, `extendWith`, `fill`, `filter`,
+   * `flatMap`, `flatMapDeep`, `flatMapDepth`, `flatten`, `flattenDeep`,
+   * `flattenDepth`, `flip`, `flow`, `flowRight`, `fromPairs`, `functions`,
+   * `functionsIn`, `groupBy`, `initial`, `intersection`, `intersectionBy`,
+   * `intersectionWith`, `invert`, `invertBy`, `invokeMap`, `iteratee`, `keyBy`,
+   * `keys`, `keysIn`, `map`, `mapKeys`, `mapValues`, `matches`, `matchesProperty`,
+   * `memoize`, `merge`, `mergeWith`, `method`, `methodOf`, `mixin`, `negate`,
+   * `nthArg`, `omit`, `omitBy`, `once`, `orderBy`, `over`, `overArgs`,
+   * `overEvery`, `overSome`, `partial`, `partialRight`, `partition`, `pick`,
+   * `pickBy`, `plant`, `property`, `propertyOf`, `pull`, `pullAll`, `pullAllBy`,
+   * `pullAllWith`, `pullAt`, `push`, `range`, `rangeRight`, `rearg`, `reject`,
+   * `remove`, `rest`, `reverse`, `sampleSize`, `set`, `setWith`, `shuffle`,
+   * `slice`, `sort`, `sortBy`, `splice`, `spread`, `tail`, `take`, `takeRight`,
+   * `takeRightWhile`, `takeWhile`, `tap`, `throttle`, `thru`, `toArray`,
+   * `toPairs`, `toPairsIn`, `toPath`, `toPlainObject`, `transform`, `unary`,
+   * `union`, `unionBy`, `unionWith`, `uniq`, `uniqBy`, `uniqWith`, `unset`,
+   * `unshift`, `unzip`, `unzipWith`, `update`, `updateWith`, `values`,
+   * `valuesIn`, `without`, `wrap`, `xor`, `xorBy`, `xorWith`, `zip`,
+   * `zipObject`, `zipObjectDeep`, and `zipWith`
+   *
+   * The wrapper methods that are **not** chainable by default are:
+   * `add`, `attempt`, `camelCase`, `capitalize`, `ceil`, `clamp`, `clone`,
+   * `cloneDeep`, `cloneDeepWith`, `cloneWith`, `conformsTo`, `deburr`,
+   * `defaultTo`, `divide`, `each`, `eachRight`, `endsWith`, `eq`, `escape`,
+   * `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`, `findLast`,
+   * `findLastIndex`, `findLastKey`, `first`, `floor`, `forEach`, `forEachRight`,
+   * `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `get`, `gt`, `gte`, `has`,
+   * `hasIn`, `head`, `identity`, `includes`, `indexOf`, `inRange`, `invoke`,
+   * `isArguments`, `isArray`, `isArrayBuffer`, `isArrayLike`, `isArrayLikeObject`,
+   * `isBoolean`, `isBuffer`, `isDate`, `isElement`, `isEmpty`, `isEqual`,
+   * `isEqualWith`, `isError`, `isFinite`, `isFunction`, `isInteger`, `isLength`,
+   * `isMap`, `isMatch`, `isMatchWith`, `isNaN`, `isNative`, `isNil`, `isNull`,
+   * `isNumber`, `isObject`, `isObjectLike`, `isPlainObject`, `isRegExp`,
+   * `isSafeInteger`, `isSet`, `isString`, `isUndefined`, `isTypedArray`,
+   * `isWeakMap`, `isWeakSet`, `join`, `kebabCase`, `last`, `lastIndexOf`,
+   * `lowerCase`, `lowerFirst`, `lt`, `lte`, `max`, `maxBy`, `mean`, `meanBy`,
+   * `min`, `minBy`, `multiply`, `noConflict`, `noop`, `now`, `nth`, `pad`,
+   * `padEnd`, `padStart`, `parseInt`, `pop`, `random`, `reduce`, `reduceRight`,
+   * `repeat`, `result`, `round`, `runInContext`, `sample`, `shift`, `size`,
+   * `snakeCase`, `some`, `sortedIndex`, `sortedIndexBy`, `sortedLastIndex`,
+   * `sortedLastIndexBy`, `startCase`, `startsWith`, `stubArray`, `stubFalse`,
+   * `stubObject`, `stubString`, `stubTrue`, `subtract`, `sum`, `sumBy`,
+   * `template`, `times`, `toFinite`, `toInteger`, `toJSON`, `toLength`,
+   * `toLower`, `toNumber`, `toSafeInteger`, `toString`, `toUpper`, `trim`,
+   * `trimEnd`, `trimStart`, `truncate`, `unescape`, `uniqueId`, `upperCase`,
+   * `upperFirst`, `value`, and `words`
+   *
+   * @name _
+   * @constructor
+   * @category Seq
+   * @param {*} value The value to wrap in a `lodash` instance.
+   * @returns {Object} Returns the new `lodash` wrapper instance.
+   * @example
+   *
+   * function square(n) {
+   *   return n * n;
+   * }
+   *
+   * var wrapped = _([1, 2, 3]);
+   *
+   * // Returns an unwrapped value.
+   * wrapped.reduce(_.add);
+   * // => 6
+   *
+   * // Returns a wrapped value.
+   * var squares = wrapped.map(square);
+   *
+   * _.isArray(squares);
+   * // => false
+   *
+   * _.isArray(squares.value());
+   * // => true
+   */
+  function lodash() {
+    // No operation performed.
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a hash object.
+   *
+   * @private
+   * @constructor
+   * @param {Array} [entries] The key-value pairs to cache.
+   */
+  function Hash(entries) {
+    var index = -1,
+        length = entries ? entries.length : 0;
+
+    this.clear();
+    while (++index < length) {
+      var entry = entries[index];
+      this.set(entry[0], entry[1]);
+    }
+  }
+
+  /**
+   * Removes all key-value entries from the hash.
+   *
+   * @private
+   * @name clear
+   * @memberOf Hash
+   */
+  function hashClear() {
+    this.__data__ = nativeCreate ? nativeCreate(null) : {};
+  }
+
+  /**
+   * Removes `key` and its value from the hash.
+   *
+   * @private
+   * @name delete
+   * @memberOf Hash
+   * @param {Object} hash The hash to modify.
+   * @param {string} key The key of the value to remove.
+   * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+   */
+  function hashDelete(key) {
+    return this.has(key) && delete this.__data__[key];
+  }
+
+  /**
+   * Gets the hash value for `key`.
+   *
+   * @private
+   * @name get
+   * @memberOf Hash
+   * @param {string} key The key of the value to get.
+   * @returns {*} Returns the entry value.
+   */
+  function hashGet(key) {
+    var data = this.__data__;
+    if (nativeCreate) {
+      var result = data[key];
+      return result === HASH_UNDEFINED ? undefined : result;
+    }
+    return hasOwnProperty.call(data, key) ? data[key] : undefined;
+  }
+
+  /**
+   * Checks if a hash value for `key` exists.
+   *
+   * @private
+   * @name has
+   * @memberOf Hash
+   * @param {string} key The key of the entry to check.
+   * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+   */
+  function hashHas(key) {
+    var data = this.__data__;
+    return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
+  }
+
+  /**
+   * Sets the hash `key` to `value`.
+   *
+   * @private
+   * @name set
+   * @memberOf Hash
+   * @param {string} key The key of the value to set.
+   * @param {*} value The value to set.
+   * @returns {Object} Returns the hash instance.
+   */
+  function hashSet(key, value) {
+    var data = this.__data__;
+    data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
+    return this;
+  }
+
+  // Add methods to `Hash`.
+  Hash.prototype.clear = hashClear;
+  Hash.prototype['delete'] = hashDelete;
+  Hash.prototype.get = hashGet;
+  Hash.prototype.has = hashHas;
+  Hash.prototype.set = hashSet;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates an list cache object.
+   *
+   * @private
+   * @constructor
+   * @param {Array} [entries] The key-value pairs to cache.
+   */
+  function ListCache(entries) {
+    var index = -1,
+        length = entries ? entries.length : 0;
+
+    this.clear();
+    while (++index < length) {
+      var entry = entries[index];
+      this.set(entry[0], entry[1]);
+    }
+  }
+
+  /**
+   * Removes all key-value entries from the list cache.
+   *
+   * @private
+   * @name clear
+   * @memberOf ListCache
+   */
+  function listCacheClear() {
+    this.__data__ = [];
+  }
+
+  /**
+   * Removes `key` and its value from the list cache.
+   *
+   * @private
+   * @name delete
+   * @memberOf ListCache
+   * @param {string} key The key of the value to remove.
+   * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+   */
+  function listCacheDelete(key) {
+    var data = this.__data__,
+        index = assocIndexOf(data, key);
+
+    if (index < 0) {
+      return false;
+    }
+    var lastIndex = data.length - 1;
+    if (index == lastIndex) {
+      data.pop();
+    } else {
+      splice.call(data, index, 1);
+    }
+    return true;
+  }
+
+  /**
+   * Gets the list cache value for `key`.
+   *
+   * @private
+   * @name get
+   * @memberOf ListCache
+   * @param {string} key The key of the value to get.
+   * @returns {*} Returns the entry value.
+   */
+  function listCacheGet(key) {
+    var data = this.__data__,
+        index = assocIndexOf(data, key);
+
+    return index < 0 ? undefined : data[index][1];
+  }
+
+  /**
+   * Checks if a list cache value for `key` exists.
+   *
+   * @private
+   * @name has
+   * @memberOf ListCache
+   * @param {string} key The key of the entry to check.
+   * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+   */
+  function listCacheHas(key) {
+    return assocIndexOf(this.__data__, key) > -1;
+  }
+
+  /**
+   * Sets the list cache `key` to `value`.
+   *
+   * @private
+   * @name set
+   * @memberOf ListCache
+   * @param {string} key The key of the value to set.
+   * @param {*} value The value to set.
+   * @returns {Object} Returns the list cache instance.
+   */
+  function listCacheSet(key, value) {
+    var data = this.__data__,
+        index = assocIndexOf(data, key);
+
+    if (index < 0) {
+      data.push([key, value]);
+    } else {
+      data[index][1] = value;
+    }
+    return this;
+  }
+
+  // Add methods to `ListCache`.
+  ListCache.prototype.clear = listCacheClear;
+  ListCache.prototype['delete'] = listCacheDelete;
+  ListCache.prototype.get = listCacheGet;
+  ListCache.prototype.has = listCacheHas;
+  ListCache.prototype.set = listCacheSet;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a map cache object to store key-value pairs.
+   *
+   * @private
+   * @constructor
+   * @param {Array} [entries] The key-value pairs to cache.
+   */
+  function MapCache(entries) {
+    var index = -1,
+        length = entries ? entries.length : 0;
+
+    this.clear();
+    while (++index < length) {
+      var entry = entries[index];
+      this.set(entry[0], entry[1]);
+    }
+  }
+
+  /**
+   * Removes all key-value entries from the map.
+   *
+   * @private
+   * @name clear
+   * @memberOf MapCache
+   */
+  function mapCacheClear() {
+    this.__data__ = {
+      'hash': new Hash,
+      'map': new (Map || ListCache),
+      'string': new Hash
+    };
+  }
+
+  /**
+   * Removes `key` and its value from the map.
+   *
+   * @private
+   * @name delete
+   * @memberOf MapCache
+   * @param {string} key The key of the value to remove.
+   * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+   */
+  function mapCacheDelete(key) {
+    return getMapData(this, key)['delete'](key);
+  }
+
+  /**
+   * Gets the map value for `key`.
+   *
+   * @private
+   * @name get
+   * @memberOf MapCache
+   * @param {string} key The key of the value to get.
+   * @returns {*} Returns the entry value.
+   */
+  function mapCacheGet(key) {
+    return getMapData(this, key).get(key);
+  }
+
+  /**
+   * Checks if a map value for `key` exists.
+   *
+   * @private
+   * @name has
+   * @memberOf MapCache
+   * @param {string} key The key of the entry to check.
+   * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+   */
+  function mapCacheHas(key) {
+    return getMapData(this, key).has(key);
+  }
+
+  /**
+   * Sets the map `key` to `value`.
+   *
+   * @private
+   * @name set
+   * @memberOf MapCache
+   * @param {string} key The key of the value to set.
+   * @param {*} value The value to set.
+   * @returns {Object} Returns the map cache instance.
+   */
+  function mapCacheSet(key, value) {
+    getMapData(this, key).set(key, value);
+    return this;
+  }
+
+  // Add methods to `MapCache`.
+  MapCache.prototype.clear = mapCacheClear;
+  MapCache.prototype['delete'] = mapCacheDelete;
+  MapCache.prototype.get = mapCacheGet;
+  MapCache.prototype.has = mapCacheHas;
+  MapCache.prototype.set = mapCacheSet;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   *
+   * Creates an array cache object to store unique values.
+   *
+   * @private
+   * @constructor
+   * @param {Array} [values] The values to cache.
+   */
+  function SetCache(values) {
+    var index = -1,
+        length = values ? values.length : 0;
+
+    this.__data__ = new MapCache;
+    while (++index < length) {
+      this.add(values[index]);
+    }
+  }
+
+  /**
+   * Adds `value` to the array cache.
+   *
+   * @private
+   * @name add
+   * @memberOf SetCache
+   * @alias push
+   * @param {*} value The value to cache.
+   * @returns {Object} Returns the cache instance.
+   */
+  function setCacheAdd(value) {
+    this.__data__.set(value, HASH_UNDEFINED);
+    return this;
+  }
+
+  /**
+   * Checks if `value` is in the array cache.
+   *
+   * @private
+   * @name has
+   * @memberOf SetCache
+   * @param {*} value The value to search for.
+   * @returns {number} Returns `true` if `value` is found, else `false`.
+   */
+  function setCacheHas(value) {
+    return this.__data__.has(value);
+  }
+
+  // Add methods to `SetCache`.
+  SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
+  SetCache.prototype.has = setCacheHas;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a stack cache object to store key-value pairs.
+   *
+   * @private
+   * @constructor
+   * @param {Array} [entries] The key-value pairs to cache.
+   */
+  function Stack(entries) {
+    this.__data__ = new ListCache(entries);
+  }
+
+  /**
+   * Removes all key-value entries from the stack.
+   *
+   * @private
+   * @name clear
+   * @memberOf Stack
+   */
+  function stackClear() {
+    this.__data__ = new ListCache;
+  }
+
+  /**
+   * Removes `key` and its value from the stack.
+   *
+   * @private
+   * @name delete
+   * @memberOf Stack
+   * @param {string} key The key of the value to remove.
+   * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+   */
+  function stackDelete(key) {
+    return this.__data__['delete'](key);
+  }
+
+  /**
+   * Gets the stack value for `key`.
+   *
+   * @private
+   * @name get
+   * @memberOf Stack
+   * @param {string} key The key of the value to get.
+   * @returns {*} Returns the entry value.
+   */
+  function stackGet(key) {
+    return this.__data__.get(key);
+  }
+
+  /**
+   * Checks if a stack value for `key` exists.
+   *
+   * @private
+   * @name has
+   * @memberOf Stack
+   * @param {string} key The key of the entry to check.
+   * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+   */
+  function stackHas(key) {
+    return this.__data__.has(key);
+  }
+
+  /**
+   * Sets the stack `key` to `value`.
+   *
+   * @private
+   * @name set
+   * @memberOf Stack
+   * @param {string} key The key of the value to set.
+   * @param {*} value The value to set.
+   * @returns {Object} Returns the stack cache instance.
+   */
+  function stackSet(key, value) {
+    var cache = this.__data__;
+    if (cache instanceof ListCache) {
+      var pairs = cache.__data__;
+      if (!Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
+        pairs.push([key, value]);
+        return this;
+      }
+      cache = this.__data__ = new MapCache(pairs);
+    }
+    cache.set(key, value);
+    return this;
+  }
+
+  // Add methods to `Stack`.
+  Stack.prototype.clear = stackClear;
+  Stack.prototype['delete'] = stackDelete;
+  Stack.prototype.get = stackGet;
+  Stack.prototype.has = stackHas;
+  Stack.prototype.set = stackSet;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates an array of the enumerable property names of the array-like `value`.
+   *
+   * @private
+   * @param {*} value The value to query.
+   * @param {boolean} inherited Specify returning inherited property names.
+   * @returns {Array} Returns the array of property names.
+   */
+  function arrayLikeKeys(value, inherited) {
+    // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+    // Safari 9 makes `arguments.length` enumerable in strict mode.
+    var result = (isArray(value) || isArguments(value))
+      ? baseTimes(value.length, String)
+      : [];
+
+    var length = result.length,
+        skipIndexes = !!length;
+
+    for (var key in value) {
+      if ((inherited || hasOwnProperty.call(value, key)) &&
+          !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * This function is like `assignValue` except that it doesn't assign
+   * `undefined` values.
+   *
+   * @private
+   * @param {Object} object The object to modify.
+   * @param {string} key The key of the property to assign.
+   * @param {*} value The value to assign.
+   */
+  function assignMergeValue(object, key, value) {
+    if ((value !== undefined && !eq(object[key], value)) ||
+        (typeof key == 'number' && value === undefined && !(key in object))) {
+      object[key] = value;
+    }
+  }
+
+  /**
+   * Assigns `value` to `key` of `object` if the existing value is not equivalent
+   * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+   * for equality comparisons.
+   *
+   * @private
+   * @param {Object} object The object to modify.
+   * @param {string} key The key of the property to assign.
+   * @param {*} value The value to assign.
+   */
+  function assignValue(object, key, value) {
+    var objValue = object[key];
+    if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
+        (value === undefined && !(key in object))) {
+      object[key] = value;
+    }
+  }
+
+  /**
+   * Gets the index at which the `key` is found in `array` of key-value pairs.
+   *
+   * @private
+   * @param {Array} array The array to inspect.
+   * @param {*} key The key to search for.
+   * @returns {number} Returns the index of the matched value, else `-1`.
+   */
+  function assocIndexOf(array, key) {
+    var length = array.length;
+    while (length--) {
+      if (eq(array[length][0], key)) {
+        return length;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * The base implementation of `_.assign` without support for multiple sources
+   * or `customizer` functions.
+   *
+   * @private
+   * @param {Object} object The destination object.
+   * @param {Object} source The source object.
+   * @returns {Object} Returns `object`.
+   */
+  function baseAssign(object, source) {
+    return object && copyObject(source, keys(source), object);
+  }
+
+  /**
+   * The base implementation of `_.clone` and `_.cloneDeep` which tracks
+   * traversed objects.
+   *
+   * @private
+   * @param {*} value The value to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @param {boolean} [isFull] Specify a clone including symbols.
+   * @param {Function} [customizer] The function to customize cloning.
+   * @param {string} [key] The key of `value`.
+   * @param {Object} [object] The parent object of `value`.
+   * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
+   * @returns {*} Returns the cloned value.
+   */
+  function baseClone(value, isDeep, isFull, customizer, key, object, stack) {
+    var result;
+    if (customizer) {
+      result = object ? customizer(value, key, object, stack) : customizer(value);
+    }
+    if (result !== undefined) {
+      return result;
+    }
+    if (!isObject(value)) {
+      return value;
+    }
+    var isArr = isArray(value);
+    if (isArr) {
+      result = initCloneArray(value);
+      if (!isDeep) {
+        return copyArray(value, result);
+      }
+    } else {
+      var tag = getTag(value),
+          isFunc = tag == funcTag || tag == genTag;
+
+      if (isBuffer(value)) {
+        return cloneBuffer(value, isDeep);
+      }
+      if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
+        if (isHostObject(value)) {
+          return object ? value : {};
+        }
+        result = initCloneObject(isFunc ? {} : value);
+        if (!isDeep) {
+          return copySymbols(value, baseAssign(result, value));
+        }
+      } else {
+        if (!cloneableTags[tag]) {
+          return object ? value : {};
+        }
+        result = initCloneByTag(value, tag, baseClone, isDeep);
+      }
+    }
+    // Check for circular references and return its corresponding clone.
+    stack || (stack = new Stack);
+    var stacked = stack.get(value);
+    if (stacked) {
+      return stacked;
+    }
+    stack.set(value, result);
+
+    if (!isArr) {
+      var props = isFull ? getAllKeys(value) : keys(value);
+    }
+    arrayEach(props || value, function(subValue, key) {
+      if (props) {
+        key = subValue;
+        subValue = value[key];
+      }
+      // Recursively populate clone (susceptible to call stack limits).
+      assignValue(result, key, baseClone(subValue, isDeep, isFull, customizer, key, value, stack));
+    });
+    return result;
+  }
+
+  /**
+   * The base implementation of `_.create` without support for assigning
+   * properties to the created object.
+   *
+   * @private
+   * @param {Object} prototype The object to inherit from.
+   * @returns {Object} Returns the new object.
+   */
+  function baseCreate(proto) {
+    return isObject(proto) ? objectCreate(proto) : {};
+  }
+
+  /**
+   * The base implementation of `_.forEach` without support for iteratee shorthands.
+   *
+   * @private
+   * @param {Array|Object} collection The collection to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array|Object} Returns `collection`.
+   */
+  var baseEach = createBaseEach(baseForOwn);
+
+  /**
+   * The base implementation of `baseForOwn` which iterates over `object`
+   * properties returned by `keysFunc` and invokes `iteratee` for each property.
+   * Iteratee functions may exit iteration early by explicitly returning `false`.
+   *
+   * @private
+   * @param {Object} object The object to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @param {Function} keysFunc The function to get the keys of `object`.
+   * @returns {Object} Returns `object`.
+   */
+  var baseFor = createBaseFor();
+
+  /**
+   * The base implementation of `_.forOwn` without support for iteratee shorthands.
+   *
+   * @private
+   * @param {Object} object The object to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Object} Returns `object`.
+   */
+  function baseForOwn(object, iteratee) {
+    return object && baseFor(object, iteratee, keys);
+  }
+
+  /**
+   * The base implementation of `_.get` without support for default values.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path of the property to get.
+   * @returns {*} Returns the resolved value.
+   */
+  function baseGet(object, path) {
+    path = isKey(path, object) ? [path] : castPath(path);
+
+    var index = 0,
+        length = path.length;
+
+    while (object != null && index < length) {
+      object = object[toKey(path[index++])];
+    }
+    return (index && index == length) ? object : undefined;
+  }
+
+  /**
+   * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+   * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+   * symbols of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Function} keysFunc The function to get the keys of `object`.
+   * @param {Function} symbolsFunc The function to get the symbols of `object`.
+   * @returns {Array} Returns the array of property names and symbols.
+   */
+  function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+    var result = keysFunc(object);
+    return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
+  }
+
+  /**
+   * The base implementation of `getTag`.
+   *
+   * @private
+   * @param {*} value The value to query.
+   * @returns {string} Returns the `toStringTag`.
+   */
+  function baseGetTag(value) {
+    return objectToString.call(value);
+  }
+
+  /**
+   * The base implementation of `_.hasIn` without support for deep paths.
+   *
+   * @private
+   * @param {Object} [object] The object to query.
+   * @param {Array|string} key The key to check.
+   * @returns {boolean} Returns `true` if `key` exists, else `false`.
+   */
+  function baseHasIn(object, key) {
+    return object != null && key in Object(object);
+  }
+
+  /**
+   * The base implementation of `_.isEqual` which supports partial comparisons
+   * and tracks traversed objects.
+   *
+   * @private
+   * @param {*} value The value to compare.
+   * @param {*} other The other value to compare.
+   * @param {Function} [customizer] The function to customize comparisons.
+   * @param {boolean} [bitmask] The bitmask of comparison flags.
+   *  The bitmask may be composed of the following flags:
+   *     1 - Unordered comparison
+   *     2 - Partial comparison
+   * @param {Object} [stack] Tracks traversed `value` and `other` objects.
+   * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+   */
+  function baseIsEqual(value, other, customizer, bitmask, stack) {
+    if (value === other) {
+      return true;
+    }
+    if (value == null || other == null || (!isObject(value) && !isObjectLike(other))) {
+      return value !== value && other !== other;
+    }
+    return baseIsEqualDeep(value, other, baseIsEqual, customizer, bitmask, stack);
+  }
+
+  /**
+   * A specialized version of `baseIsEqual` for arrays and objects which performs
+   * deep comparisons and tracks traversed objects enabling objects with circular
+   * references to be compared.
+   *
+   * @private
+   * @param {Object} object The object to compare.
+   * @param {Object} other The other object to compare.
+   * @param {Function} equalFunc The function to determine equivalents of values.
+   * @param {Function} [customizer] The function to customize comparisons.
+   * @param {number} [bitmask] The bitmask of comparison flags. See `baseIsEqual`
+   *  for more details.
+   * @param {Object} [stack] Tracks traversed `object` and `other` objects.
+   * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+   */
+  function baseIsEqualDeep(object, other, equalFunc, customizer, bitmask, stack) {
+    var objIsArr = isArray(object),
+        othIsArr = isArray(other),
+        objTag = arrayTag,
+        othTag = arrayTag;
+
+    if (!objIsArr) {
+      objTag = getTag(object);
+      objTag = objTag == argsTag ? objectTag : objTag;
+    }
+    if (!othIsArr) {
+      othTag = getTag(other);
+      othTag = othTag == argsTag ? objectTag : othTag;
+    }
+    var objIsObj = objTag == objectTag && !isHostObject(object),
+        othIsObj = othTag == objectTag && !isHostObject(other),
+        isSameTag = objTag == othTag;
+
+    if (isSameTag && !objIsObj) {
+      stack || (stack = new Stack);
+      return (objIsArr || isTypedArray(object))
+        ? equalArrays(object, other, equalFunc, customizer, bitmask, stack)
+        : equalByTag(object, other, objTag, equalFunc, customizer, bitmask, stack);
+    }
+    if (!(bitmask & PARTIAL_COMPARE_FLAG)) {
+      var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
+          othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
+
+      if (objIsWrapped || othIsWrapped) {
+        var objUnwrapped = objIsWrapped ? object.value() : object,
+            othUnwrapped = othIsWrapped ? other.value() : other;
+
+        stack || (stack = new Stack);
+        return equalFunc(objUnwrapped, othUnwrapped, customizer, bitmask, stack);
+      }
+    }
+    if (!isSameTag) {
+      return false;
+    }
+    stack || (stack = new Stack);
+    return equalObjects(object, other, equalFunc, customizer, bitmask, stack);
+  }
+
+  /**
+   * The base implementation of `_.isMatch` without support for iteratee shorthands.
+   *
+   * @private
+   * @param {Object} object The object to inspect.
+   * @param {Object} source The object of property values to match.
+   * @param {Array} matchData The property names, values, and compare flags to match.
+   * @param {Function} [customizer] The function to customize comparisons.
+   * @returns {boolean} Returns `true` if `object` is a match, else `false`.
+   */
+  function baseIsMatch(object, source, matchData, customizer) {
+    var index = matchData.length,
+        length = index,
+        noCustomizer = !customizer;
+
+    if (object == null) {
+      return !length;
+    }
+    object = Object(object);
+    while (index--) {
+      var data = matchData[index];
+      if ((noCustomizer && data[2])
+            ? data[1] !== object[data[0]]
+            : !(data[0] in object)
+          ) {
+        return false;
+      }
+    }
+    while (++index < length) {
+      data = matchData[index];
+      var key = data[0],
+          objValue = object[key],
+          srcValue = data[1];
+
+      if (noCustomizer && data[2]) {
+        if (objValue === undefined && !(key in object)) {
+          return false;
+        }
+      } else {
+        var stack = new Stack;
+        if (customizer) {
+          var result = customizer(objValue, srcValue, key, object, source, stack);
+        }
+        if (!(result === undefined
+              ? baseIsEqual(srcValue, objValue, customizer, UNORDERED_COMPARE_FLAG | PARTIAL_COMPARE_FLAG, stack)
+              : result
+            )) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * The base implementation of `_.isNative` without bad shim checks.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a native function,
+   *  else `false`.
+   */
+  function baseIsNative(value) {
+    if (!isObject(value) || isMasked(value)) {
+      return false;
+    }
+    var pattern = (isFunction(value) || isHostObject(value)) ? reIsNative : reIsHostCtor;
+    return pattern.test(toSource(value));
+  }
+
+  /**
+   * The base implementation of `_.isTypedArray` without Node.js optimizations.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+   */
+  function baseIsTypedArray(value) {
+    return isObjectLike(value) &&
+      isLength(value.length) && !!typedArrayTags[objectToString.call(value)];
+  }
+
+  /**
+   * The base implementation of `_.iteratee`.
+   *
+   * @private
+   * @param {*} [value=_.identity] The value to convert to an iteratee.
+   * @returns {Function} Returns the iteratee.
+   */
+  function baseIteratee(value) {
+    // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
+    // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
+    if (typeof value == 'function') {
+      return value;
+    }
+    if (value == null) {
+      return identity;
+    }
+    if (typeof value == 'object') {
+      return isArray(value)
+        ? baseMatchesProperty(value[0], value[1])
+        : baseMatches(value);
+    }
+    return property(value);
+  }
+
+  /**
+   * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   */
+  function baseKeys(object) {
+    if (!isPrototype(object)) {
+      return nativeKeys(object);
+    }
+    var result = [];
+    for (var key in Object(object)) {
+      if (hasOwnProperty.call(object, key) && key != 'constructor') {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   */
+  function baseKeysIn(object) {
+    if (!isObject(object)) {
+      return nativeKeysIn(object);
+    }
+    var isProto = isPrototype(object),
+        result = [];
+
+    for (var key in object) {
+      if (!(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * The base implementation of `_.matches` which doesn't clone `source`.
+   *
+   * @private
+   * @param {Object} source The object of property values to match.
+   * @returns {Function} Returns the new spec function.
+   */
+  function baseMatches(source) {
+    var matchData = getMatchData(source);
+    if (matchData.length == 1 && matchData[0][2]) {
+      return matchesStrictComparable(matchData[0][0], matchData[0][1]);
+    }
+    return function(object) {
+      return object === source || baseIsMatch(object, source, matchData);
+    };
+  }
+
+  /**
+   * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
+   *
+   * @private
+   * @param {string} path The path of the property to get.
+   * @param {*} srcValue The value to match.
+   * @returns {Function} Returns the new spec function.
+   */
+  function baseMatchesProperty(path, srcValue) {
+    if (isKey(path) && isStrictComparable(srcValue)) {
+      return matchesStrictComparable(toKey(path), srcValue);
+    }
+    return function(object) {
+      var objValue = get(object, path);
+      return (objValue === undefined && objValue === srcValue)
+        ? hasIn(object, path)
+        : baseIsEqual(srcValue, objValue, undefined, UNORDERED_COMPARE_FLAG | PARTIAL_COMPARE_FLAG);
+    };
+  }
+
+  /**
+   * The base implementation of `_.merge` without support for multiple sources.
+   *
+   * @private
+   * @param {Object} object The destination object.
+   * @param {Object} source The source object.
+   * @param {number} srcIndex The index of `source`.
+   * @param {Function} [customizer] The function to customize merged values.
+   * @param {Object} [stack] Tracks traversed source values and their merged
+   *  counterparts.
+   */
+  function baseMerge(object, source, srcIndex, customizer, stack) {
+    if (object === source) {
+      return;
+    }
+    if (!(isArray(source) || isTypedArray(source))) {
+      var props = baseKeysIn(source);
+    }
+    arrayEach(props || source, function(srcValue, key) {
+      if (props) {
+        key = srcValue;
+        srcValue = source[key];
+      }
+      if (isObject(srcValue)) {
+        stack || (stack = new Stack);
+        baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+      }
+      else {
+        var newValue = customizer
+          ? customizer(object[key], srcValue, (key + ''), object, source, stack)
+          : undefined;
+
+        if (newValue === undefined) {
+          newValue = srcValue;
+        }
+        assignMergeValue(object, key, newValue);
+      }
+    });
+  }
+
+  /**
+   * A specialized version of `baseMerge` for arrays and objects which performs
+   * deep merges and tracks traversed objects enabling objects with circular
+   * references to be merged.
+   *
+   * @private
+   * @param {Object} object The destination object.
+   * @param {Object} source The source object.
+   * @param {string} key The key of the value to merge.
+   * @param {number} srcIndex The index of `source`.
+   * @param {Function} mergeFunc The function to merge values.
+   * @param {Function} [customizer] The function to customize assigned values.
+   * @param {Object} [stack] Tracks traversed source values and their merged
+   *  counterparts.
+   */
+  function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
+    var objValue = object[key],
+        srcValue = source[key],
+        stacked = stack.get(srcValue);
+
+    if (stacked) {
+      assignMergeValue(object, key, stacked);
+      return;
+    }
+    var newValue = customizer
+      ? customizer(objValue, srcValue, (key + ''), object, source, stack)
+      : undefined;
+
+    var isCommon = newValue === undefined;
+
+    if (isCommon) {
+      newValue = srcValue;
+      if (isArray(srcValue) || isTypedArray(srcValue)) {
+        if (isArray(objValue)) {
+          newValue = objValue;
+        }
+        else if (isArrayLikeObject(objValue)) {
+          newValue = copyArray(objValue);
+        }
+        else {
+          isCommon = false;
+          newValue = baseClone(srcValue, true);
+        }
+      }
+      else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+        if (isArguments(objValue)) {
+          newValue = toPlainObject(objValue);
+        }
+        else if (!isObject(objValue) || (srcIndex && isFunction(objValue))) {
+          isCommon = false;
+          newValue = baseClone(srcValue, true);
+        }
+        else {
+          newValue = objValue;
+        }
+      }
+      else {
+        isCommon = false;
+      }
+    }
+    if (isCommon) {
+      // Recursively merge objects and arrays (susceptible to call stack limits).
+      stack.set(srcValue, newValue);
+      mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
+      stack['delete'](srcValue);
+    }
+    assignMergeValue(object, key, newValue);
+  }
+
+  /**
+   * A specialized version of `baseProperty` which supports deep paths.
+   *
+   * @private
+   * @param {Array|string} path The path of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   */
+  function basePropertyDeep(path) {
+    return function(object) {
+      return baseGet(object, path);
+    };
+  }
+
+  /**
+   * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+   *
+   * @private
+   * @param {Function} func The function to apply a rest parameter to.
+   * @param {number} [start=func.length-1] The start position of the rest parameter.
+   * @returns {Function} Returns the new function.
+   */
+  function baseRest(func, start) {
+    start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+    return function() {
+      var args = arguments,
+          index = -1,
+          length = nativeMax(args.length - start, 0),
+          array = Array(length);
+
+      while (++index < length) {
+        array[index] = args[start + index];
+      }
+      index = -1;
+      var otherArgs = Array(start + 1);
+      while (++index < start) {
+        otherArgs[index] = args[index];
+      }
+      otherArgs[start] = array;
+      return apply(func, this, otherArgs);
+    };
+  }
+
+  /**
+   * The base implementation of `_.toString` which doesn't convert nullish
+   * values to empty strings.
+   *
+   * @private
+   * @param {*} value The value to process.
+   * @returns {string} Returns the string.
+   */
+  function baseToString(value) {
+    // Exit early for strings to avoid a performance hit in some environments.
+    if (typeof value == 'string') {
+      return value;
+    }
+    if (isSymbol(value)) {
+      return symbolToString ? symbolToString.call(value) : '';
+    }
+    var result = (value + '');
+    return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+  }
+
+  /**
+   * Casts `value` to a path array if it's not one.
+   *
+   * @private
+   * @param {*} value The value to inspect.
+   * @returns {Array} Returns the cast property path array.
+   */
+  function castPath(value) {
+    return isArray(value) ? value : stringToPath(value);
+  }
+
+  /**
+   * Creates a clone of  `buffer`.
+   *
+   * @private
+   * @param {Buffer} buffer The buffer to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Buffer} Returns the cloned buffer.
+   */
+  function cloneBuffer(buffer, isDeep) {
+    if (isDeep) {
+      return buffer.slice();
+    }
+    var result = new buffer.constructor(buffer.length);
+    buffer.copy(result);
+    return result;
+  }
+
+  /**
+   * Creates a clone of `arrayBuffer`.
+   *
+   * @private
+   * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
+   * @returns {ArrayBuffer} Returns the cloned array buffer.
+   */
+  function cloneArrayBuffer(arrayBuffer) {
+    var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+    new Uint8Array(result).set(new Uint8Array(arrayBuffer));
+    return result;
+  }
+
+  /**
+   * Creates a clone of `dataView`.
+   *
+   * @private
+   * @param {Object} dataView The data view to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the cloned data view.
+   */
+  function cloneDataView(dataView, isDeep) {
+    var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+    return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
+  }
+
+  /**
+   * Creates a clone of `map`.
+   *
+   * @private
+   * @param {Object} map The map to clone.
+   * @param {Function} cloneFunc The function to clone values.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the cloned map.
+   */
+  function cloneMap(map, isDeep, cloneFunc) {
+    var array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
+    return arrayReduce(array, addMapEntry, new map.constructor);
+  }
+
+  /**
+   * Creates a clone of `regexp`.
+   *
+   * @private
+   * @param {Object} regexp The regexp to clone.
+   * @returns {Object} Returns the cloned regexp.
+   */
+  function cloneRegExp(regexp) {
+    var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+    result.lastIndex = regexp.lastIndex;
+    return result;
+  }
+
+  /**
+   * Creates a clone of `set`.
+   *
+   * @private
+   * @param {Object} set The set to clone.
+   * @param {Function} cloneFunc The function to clone values.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the cloned set.
+   */
+  function cloneSet(set, isDeep, cloneFunc) {
+    var array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
+    return arrayReduce(array, addSetEntry, new set.constructor);
+  }
+
+  /**
+   * Creates a clone of the `symbol` object.
+   *
+   * @private
+   * @param {Object} symbol The symbol object to clone.
+   * @returns {Object} Returns the cloned symbol object.
+   */
+  function cloneSymbol(symbol) {
+    return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {};
+  }
+
+  /**
+   * Creates a clone of `typedArray`.
+   *
+   * @private
+   * @param {Object} typedArray The typed array to clone.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the cloned typed array.
+   */
+  function cloneTypedArray(typedArray, isDeep) {
+    var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+    return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+  }
+
+  /**
+   * Copies the values of `source` to `array`.
+   *
+   * @private
+   * @param {Array} source The array to copy values from.
+   * @param {Array} [array=[]] The array to copy values to.
+   * @returns {Array} Returns `array`.
+   */
+  function copyArray(source, array) {
+    var index = -1,
+        length = source.length;
+
+    array || (array = Array(length));
+    while (++index < length) {
+      array[index] = source[index];
+    }
+    return array;
+  }
+
+  /**
+   * Copies properties of `source` to `object`.
+   *
+   * @private
+   * @param {Object} source The object to copy properties from.
+   * @param {Array} props The property identifiers to copy.
+   * @param {Object} [object={}] The object to copy properties to.
+   * @param {Function} [customizer] The function to customize copied values.
+   * @returns {Object} Returns `object`.
+   */
+  function copyObject(source, props, object, customizer) {
+    object || (object = {});
+
+    var index = -1,
+        length = props.length;
+
+    while (++index < length) {
+      var key = props[index];
+
+      var newValue = customizer
+        ? customizer(object[key], source[key], key, object, source)
+        : undefined;
+
+      assignValue(object, key, newValue === undefined ? source[key] : newValue);
+    }
+    return object;
+  }
+
+  /**
+   * Copies own symbol properties of `source` to `object`.
+   *
+   * @private
+   * @param {Object} source The object to copy symbols from.
+   * @param {Object} [object={}] The object to copy symbols to.
+   * @returns {Object} Returns `object`.
+   */
+  function copySymbols(source, object) {
+    return copyObject(source, getSymbols(source), object);
+  }
+
+  /**
+   * Creates a function like `_.assign`.
+   *
+   * @private
+   * @param {Function} assigner The function to assign values.
+   * @returns {Function} Returns the new assigner function.
+   */
+  function createAssigner(assigner) {
+    return baseRest(function(object, sources) {
+      var index = -1,
+          length = sources.length,
+          customizer = length > 1 ? sources[length - 1] : undefined,
+          guard = length > 2 ? sources[2] : undefined;
+
+      customizer = (assigner.length > 3 && typeof customizer == 'function')
+        ? (length--, customizer)
+        : undefined;
+
+      if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+        customizer = length < 3 ? undefined : customizer;
+        length = 1;
+      }
+      object = Object(object);
+      while (++index < length) {
+        var source = sources[index];
+        if (source) {
+          assigner(object, source, index, customizer);
+        }
+      }
+      return object;
+    });
+  }
+
+  /**
+   * Creates a `baseEach` or `baseEachRight` function.
+   *
+   * @private
+   * @param {Function} eachFunc The function to iterate over a collection.
+   * @param {boolean} [fromRight] Specify iterating from right to left.
+   * @returns {Function} Returns the new base function.
+   */
+  function createBaseEach(eachFunc, fromRight) {
+    return function(collection, iteratee) {
+      if (collection == null) {
+        return collection;
+      }
+      if (!isArrayLike(collection)) {
+        return eachFunc(collection, iteratee);
+      }
+      var length = collection.length,
+          index = fromRight ? length : -1,
+          iterable = Object(collection);
+
+      while ((fromRight ? index-- : ++index < length)) {
+        if (iteratee(iterable[index], index, iterable) === false) {
+          break;
+        }
+      }
+      return collection;
+    };
+  }
+
+  /**
+   * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+   *
+   * @private
+   * @param {boolean} [fromRight] Specify iterating from right to left.
+   * @returns {Function} Returns the new base function.
+   */
+  function createBaseFor(fromRight) {
+    return function(object, iteratee, keysFunc) {
+      var index = -1,
+          iterable = Object(object),
+          props = keysFunc(object),
+          length = props.length;
+
+      while (length--) {
+        var key = props[fromRight ? length : ++index];
+        if (iteratee(iterable[key], key, iterable) === false) {
+          break;
+        }
+      }
+      return object;
+    };
+  }
+
+  /**
+   * A specialized version of `baseIsEqualDeep` for arrays with support for
+   * partial deep comparisons.
+   *
+   * @private
+   * @param {Array} array The array to compare.
+   * @param {Array} other The other array to compare.
+   * @param {Function} equalFunc The function to determine equivalents of values.
+   * @param {Function} customizer The function to customize comparisons.
+   * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual`
+   *  for more details.
+   * @param {Object} stack Tracks traversed `array` and `other` objects.
+   * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
+   */
+  function equalArrays(array, other, equalFunc, customizer, bitmask, stack) {
+    var isPartial = bitmask & PARTIAL_COMPARE_FLAG,
+        arrLength = array.length,
+        othLength = other.length;
+
+    if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+      return false;
+    }
+    // Assume cyclic values are equal.
+    var stacked = stack.get(array);
+    if (stacked && stack.get(other)) {
+      return stacked == other;
+    }
+    var index = -1,
+        result = true,
+        seen = (bitmask & UNORDERED_COMPARE_FLAG) ? new SetCache : undefined;
+
+    stack.set(array, other);
+    stack.set(other, array);
+
+    // Ignore non-index properties.
+    while (++index < arrLength) {
+      var arrValue = array[index],
+          othValue = other[index];
+
+      if (customizer) {
+        var compared = isPartial
+          ? customizer(othValue, arrValue, index, other, array, stack)
+          : customizer(arrValue, othValue, index, array, other, stack);
+      }
+      if (compared !== undefined) {
+        if (compared) {
+          continue;
+        }
+        result = false;
+        break;
+      }
+      // Recursively compare arrays (susceptible to call stack limits).
+      if (seen) {
+        if (!arraySome(other, function(othValue, othIndex) {
+              if (!seen.has(othIndex) &&
+                  (arrValue === othValue || equalFunc(arrValue, othValue, customizer, bitmask, stack))) {
+                return seen.add(othIndex);
+              }
+            })) {
+          result = false;
+          break;
+        }
+      } else if (!(
+            arrValue === othValue ||
+              equalFunc(arrValue, othValue, customizer, bitmask, stack)
+          )) {
+        result = false;
+        break;
+      }
+    }
+    stack['delete'](array);
+    stack['delete'](other);
+    return result;
+  }
+
+  /**
+   * A specialized version of `baseIsEqualDeep` for comparing objects of
+   * the same `toStringTag`.
+   *
+   * **Note:** This function only supports comparing values with tags of
+   * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+   *
+   * @private
+   * @param {Object} object The object to compare.
+   * @param {Object} other The other object to compare.
+   * @param {string} tag The `toStringTag` of the objects to compare.
+   * @param {Function} equalFunc The function to determine equivalents of values.
+   * @param {Function} customizer The function to customize comparisons.
+   * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual`
+   *  for more details.
+   * @param {Object} stack Tracks traversed `object` and `other` objects.
+   * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+   */
+  function equalByTag(object, other, tag, equalFunc, customizer, bitmask, stack) {
+    switch (tag) {
+      case dataViewTag:
+        if ((object.byteLength != other.byteLength) ||
+            (object.byteOffset != other.byteOffset)) {
+          return false;
+        }
+        object = object.buffer;
+        other = other.buffer;
+
+      case arrayBufferTag:
+        if ((object.byteLength != other.byteLength) ||
+            !equalFunc(new Uint8Array(object), new Uint8Array(other))) {
+          return false;
+        }
+        return true;
+
+      case boolTag:
+      case dateTag:
+      case numberTag:
+        // Coerce booleans to `1` or `0` and dates to milliseconds.
+        // Invalid dates are coerced to `NaN`.
+        return eq(+object, +other);
+
+      case errorTag:
+        return object.name == other.name && object.message == other.message;
+
+      case regexpTag:
+      case stringTag:
+        // Coerce regexes to strings and treat strings, primitives and objects,
+        // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
+        // for more details.
+        return object == (other + '');
+
+      case mapTag:
+        var convert = mapToArray;
+
+      case setTag:
+        var isPartial = bitmask & PARTIAL_COMPARE_FLAG;
+        convert || (convert = setToArray);
+
+        if (object.size != other.size && !isPartial) {
+          return false;
+        }
+        // Assume cyclic values are equal.
+        var stacked = stack.get(object);
+        if (stacked) {
+          return stacked == other;
+        }
+        bitmask |= UNORDERED_COMPARE_FLAG;
+
+        // Recursively compare objects (susceptible to call stack limits).
+        stack.set(object, other);
+        var result = equalArrays(convert(object), convert(other), equalFunc, customizer, bitmask, stack);
+        stack['delete'](object);
+        return result;
+
+      case symbolTag:
+        if (symbolValueOf) {
+          return symbolValueOf.call(object) == symbolValueOf.call(other);
+        }
+    }
+    return false;
+  }
+
+  /**
+   * A specialized version of `baseIsEqualDeep` for objects with support for
+   * partial deep comparisons.
+   *
+   * @private
+   * @param {Object} object The object to compare.
+   * @param {Object} other The other object to compare.
+   * @param {Function} equalFunc The function to determine equivalents of values.
+   * @param {Function} customizer The function to customize comparisons.
+   * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual`
+   *  for more details.
+   * @param {Object} stack Tracks traversed `object` and `other` objects.
+   * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+   */
+  function equalObjects(object, other, equalFunc, customizer, bitmask, stack) {
+    var isPartial = bitmask & PARTIAL_COMPARE_FLAG,
+        objProps = keys(object),
+        objLength = objProps.length,
+        othProps = keys(other),
+        othLength = othProps.length;
+
+    if (objLength != othLength && !isPartial) {
+      return false;
+    }
+    var index = objLength;
+    while (index--) {
+      var key = objProps[index];
+      if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) {
+        return false;
+      }
+    }
+    // Assume cyclic values are equal.
+    var stacked = stack.get(object);
+    if (stacked && stack.get(other)) {
+      return stacked == other;
+    }
+    var result = true;
+    stack.set(object, other);
+    stack.set(other, object);
+
+    var skipCtor = isPartial;
+    while (++index < objLength) {
+      key = objProps[index];
+      var objValue = object[key],
+          othValue = other[key];
+
+      if (customizer) {
+        var compared = isPartial
+          ? customizer(othValue, objValue, key, other, object, stack)
+          : customizer(objValue, othValue, key, object, other, stack);
+      }
+      // Recursively compare objects (susceptible to call stack limits).
+      if (!(compared === undefined
+            ? (objValue === othValue || equalFunc(objValue, othValue, customizer, bitmask, stack))
+            : compared
+          )) {
+        result = false;
+        break;
+      }
+      skipCtor || (skipCtor = key == 'constructor');
+    }
+    if (result && !skipCtor) {
+      var objCtor = object.constructor,
+          othCtor = other.constructor;
+
+      // Non `Object` object instances with different constructors are not equal.
+      if (objCtor != othCtor &&
+          ('constructor' in object && 'constructor' in other) &&
+          !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
+            typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+        result = false;
+      }
+    }
+    stack['delete'](object);
+    stack['delete'](other);
+    return result;
+  }
+
+  /**
+   * Creates an array of own enumerable property names and symbols of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names and symbols.
+   */
+  function getAllKeys(object) {
+    return baseGetAllKeys(object, keys, getSymbols);
+  }
+
+  /**
+   * Gets the appropriate "iteratee" function. If `_.iteratee` is customized,
+   * this function returns the custom method, otherwise it returns `baseIteratee`.
+   * If arguments are provided, the chosen function is invoked with them and
+   * its result is returned.
+   *
+   * @private
+   * @param {*} [value] The value to convert to an iteratee.
+   * @param {number} [arity] The arity of the created iteratee.
+   * @returns {Function} Returns the chosen function or its result.
+   */
+  function getIteratee() {
+    var result = lodash.iteratee || iteratee;
+    result = result === iteratee ? baseIteratee : result;
+    return arguments.length ? result(arguments[0], arguments[1]) : result;
+  }
+
+  /**
+   * Gets the data for `map`.
+   *
+   * @private
+   * @param {Object} map The map to query.
+   * @param {string} key The reference key.
+   * @returns {*} Returns the map data.
+   */
+  function getMapData(map, key) {
+    var data = map.__data__;
+    return isKeyable(key)
+      ? data[typeof key == 'string' ? 'string' : 'hash']
+      : data.map;
+  }
+
+  /**
+   * Gets the property names, values, and compare flags of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the match data of `object`.
+   */
+  function getMatchData(object) {
+    var result = keys(object),
+        length = result.length;
+
+    while (length--) {
+      var key = result[length],
+          value = object[key];
+
+      result[length] = [key, value, isStrictComparable(value)];
+    }
+    return result;
+  }
+
+  /**
+   * Gets the native function at `key` of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {string} key The key of the method to get.
+   * @returns {*} Returns the function if it's native, else `undefined`.
+   */
+  function getNative(object, key) {
+    var value = getValue(object, key);
+    return baseIsNative(value) ? value : undefined;
+  }
+
+  /**
+   * Creates an array of the own enumerable symbol properties of `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of symbols.
+   */
+  var getSymbols = nativeGetSymbols ? overArg(nativeGetSymbols, Object) : stubArray;
+
+  /**
+   * Gets the `toStringTag` of `value`.
+   *
+   * @private
+   * @param {*} value The value to query.
+   * @returns {string} Returns the `toStringTag`.
+   */
+  var getTag = baseGetTag;
+
+  // Fallback for data views, maps, sets, and weak maps in IE 11,
+  // for data views in Edge < 14, and promises in Node.js.
+  if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
+      (Map && getTag(new Map) != mapTag) ||
+      (Promise && getTag(Promise.resolve()) != promiseTag) ||
+      (Set && getTag(new Set) != setTag) ||
+      (WeakMap && getTag(new WeakMap) != weakMapTag)) {
+    getTag = function(value) {
+      var result = objectToString.call(value),
+          Ctor = result == objectTag ? value.constructor : undefined,
+          ctorString = Ctor ? toSource(Ctor) : undefined;
+
+      if (ctorString) {
+        switch (ctorString) {
+          case dataViewCtorString: return dataViewTag;
+          case mapCtorString: return mapTag;
+          case promiseCtorString: return promiseTag;
+          case setCtorString: return setTag;
+          case weakMapCtorString: return weakMapTag;
+        }
+      }
+      return result;
+    };
+  }
+
+  /**
+   * Checks if `path` exists on `object`.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path to check.
+   * @param {Function} hasFunc The function to check properties.
+   * @returns {boolean} Returns `true` if `path` exists, else `false`.
+   */
+  function hasPath(object, path, hasFunc) {
+    path = isKey(path, object) ? [path] : castPath(path);
+
+    var result,
+        index = -1,
+        length = path.length;
+
+    while (++index < length) {
+      var key = toKey(path[index]);
+      if (!(result = object != null && hasFunc(object, key))) {
+        break;
+      }
+      object = object[key];
+    }
+    if (result) {
+      return result;
+    }
+    var length = object ? object.length : 0;
+    return !!length && isLength(length) && isIndex(key, length) &&
+      (isArray(object) || isArguments(object));
+  }
+
+  /**
+   * Initializes an array clone.
+   *
+   * @private
+   * @param {Array} array The array to clone.
+   * @returns {Array} Returns the initialized clone.
+   */
+  function initCloneArray(array) {
+    var length = array.length,
+        result = array.constructor(length);
+
+    // Add properties assigned by `RegExp#exec`.
+    if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
+      result.index = array.index;
+      result.input = array.input;
+    }
+    return result;
+  }
+
+  /**
+   * Initializes an object clone.
+   *
+   * @private
+   * @param {Object} object The object to clone.
+   * @returns {Object} Returns the initialized clone.
+   */
+  function initCloneObject(object) {
+    return (typeof object.constructor == 'function' && !isPrototype(object))
+      ? baseCreate(getPrototype(object))
+      : {};
+  }
+
+  /**
+   * Initializes an object clone based on its `toStringTag`.
+   *
+   * **Note:** This function only supports cloning values with tags of
+   * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+   *
+   * @private
+   * @param {Object} object The object to clone.
+   * @param {string} tag The `toStringTag` of the object to clone.
+   * @param {Function} cloneFunc The function to clone values.
+   * @param {boolean} [isDeep] Specify a deep clone.
+   * @returns {Object} Returns the initialized clone.
+   */
+  function initCloneByTag(object, tag, cloneFunc, isDeep) {
+    var Ctor = object.constructor;
+    switch (tag) {
+      case arrayBufferTag:
+        return cloneArrayBuffer(object);
+
+      case boolTag:
+      case dateTag:
+        return new Ctor(+object);
+
+      case dataViewTag:
+        return cloneDataView(object, isDeep);
+
+      case float32Tag: case float64Tag:
+      case int8Tag: case int16Tag: case int32Tag:
+      case uint8Tag: case uint8ClampedTag: case uint16Tag: case uint32Tag:
+        return cloneTypedArray(object, isDeep);
+
+      case mapTag:
+        return cloneMap(object, isDeep, cloneFunc);
+
+      case numberTag:
+      case stringTag:
+        return new Ctor(object);
+
+      case regexpTag:
+        return cloneRegExp(object);
+
+      case setTag:
+        return cloneSet(object, isDeep, cloneFunc);
+
+      case symbolTag:
+        return cloneSymbol(object);
+    }
+  }
+
+  /**
+   * Checks if `value` is a valid array-like index.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+   * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+   */
+  function isIndex(value, length) {
+    length = length == null ? MAX_SAFE_INTEGER : length;
+    return !!length &&
+      (typeof value == 'number' || reIsUint.test(value)) &&
+      (value > -1 && value % 1 == 0 && value < length);
+  }
+
+  /**
+   * Checks if the given arguments are from an iteratee call.
+   *
+   * @private
+   * @param {*} value The potential iteratee value argument.
+   * @param {*} index The potential iteratee index or key argument.
+   * @param {*} object The potential iteratee object argument.
+   * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+   *  else `false`.
+   */
+  function isIterateeCall(value, index, object) {
+    if (!isObject(object)) {
+      return false;
+    }
+    var type = typeof index;
+    if (type == 'number'
+          ? (isArrayLike(object) && isIndex(index, object.length))
+          : (type == 'string' && index in object)
+        ) {
+      return eq(object[index], value);
+    }
+    return false;
+  }
+
+  /**
+   * Checks if `value` is a property name and not a property path.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @param {Object} [object] The object to query keys on.
+   * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+   */
+  function isKey(value, object) {
+    if (isArray(value)) {
+      return false;
+    }
+    var type = typeof value;
+    if (type == 'number' || type == 'symbol' || type == 'boolean' ||
+        value == null || isSymbol(value)) {
+      return true;
+    }
+    return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
+      (object != null && value in Object(object));
+  }
+
+  /**
+   * Checks if `value` is suitable for use as unique object key.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+   */
+  function isKeyable(value) {
+    var type = typeof value;
+    return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
+      ? (value !== '__proto__')
+      : (value === null);
+  }
+
+  /**
+   * Checks if `func` has its source masked.
+   *
+   * @private
+   * @param {Function} func The function to check.
+   * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+   */
+  function isMasked(func) {
+    return !!maskSrcKey && (maskSrcKey in func);
+  }
+
+  /**
+   * Checks if `value` is likely a prototype object.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+   */
+  function isPrototype(value) {
+    var Ctor = value && value.constructor,
+        proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+    return value === proto;
+  }
+
+  /**
+   * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
+   *
+   * @private
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` if suitable for strict
+   *  equality comparisons, else `false`.
+   */
+  function isStrictComparable(value) {
+    return value === value && !isObject(value);
+  }
+
+  /**
+   * A specialized version of `matchesProperty` for source values suitable
+   * for strict equality comparisons, i.e. `===`.
+   *
+   * @private
+   * @param {string} key The key of the property to get.
+   * @param {*} srcValue The value to match.
+   * @returns {Function} Returns the new spec function.
+   */
+  function matchesStrictComparable(key, srcValue) {
+    return function(object) {
+      if (object == null) {
+        return false;
+      }
+      return object[key] === srcValue &&
+        (srcValue !== undefined || (key in Object(object)));
+    };
+  }
+
+  /**
+   * This function is like
+   * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+   * except that it includes inherited enumerable properties.
+   *
+   * @private
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   */
+  function nativeKeysIn(object) {
+    var result = [];
+    if (object != null) {
+      for (var key in Object(object)) {
+        result.push(key);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Converts `string` to a property path array.
+   *
+   * @private
+   * @param {string} string The string to convert.
+   * @returns {Array} Returns the property path array.
+   */
+  var stringToPath = memoize(function(string) {
+    string = toString(string);
+
+    var result = [];
+    if (reLeadingDot.test(string)) {
+      result.push('');
+    }
+    string.replace(rePropName, function(match, number, quote, string) {
+      result.push(quote ? string.replace(reEscapeChar, '$1') : (number || match));
+    });
+    return result;
+  });
+
+  /**
+   * Converts `value` to a string key if it's not a string or symbol.
+   *
+   * @private
+   * @param {*} value The value to inspect.
+   * @returns {string|symbol} Returns the key.
+   */
+  function toKey(value) {
+    if (typeof value == 'string' || isSymbol(value)) {
+      return value;
+    }
+    var result = (value + '');
+    return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+  }
+
+  /**
+   * Converts `func` to its source code.
+   *
+   * @private
+   * @param {Function} func The function to process.
+   * @returns {string} Returns the source code.
+   */
+  function toSource(func) {
+    if (func != null) {
+      try {
+        return funcToString.call(func);
+      } catch (e) {}
+      try {
+        return (func + '');
+      } catch (e) {}
+    }
+    return '';
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates an array with all falsey values removed. The values `false`, `null`,
+   * `0`, `""`, `undefined`, and `NaN` are falsey.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Array
+   * @param {Array} array The array to compact.
+   * @returns {Array} Returns the new array of filtered values.
+   * @example
+   *
+   * _.compact([0, 1, false, 2, '', 3]);
+   * // => [1, 2, 3]
+   */
+  function compact(array) {
+    var index = -1,
+        length = array ? array.length : 0,
+        resIndex = 0,
+        result = [];
+
+    while (++index < length) {
+      var value = array[index];
+      if (value) {
+        result[resIndex++] = value;
+      }
+    }
+    return result;
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Iterates over elements of `collection` and invokes `iteratee` for each element.
+   * The iteratee is invoked with three arguments: (value, index|key, collection).
+   * Iteratee functions may exit iteration early by explicitly returning `false`.
+   *
+   * **Note:** As with other "Collections" methods, objects with a "length"
+   * property are iterated like arrays. To avoid this behavior use `_.forIn`
+   * or `_.forOwn` for object iteration.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @alias each
+   * @category Collection
+   * @param {Array|Object} collection The collection to iterate over.
+   * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+   * @returns {Array|Object} Returns `collection`.
+   * @see _.forEachRight
+   * @example
+   *
+   * _([1, 2]).forEach(function(value) {
+   *   console.log(value);
+   * });
+   * // => Logs `1` then `2`.
+   *
+   * _.forEach({ 'a': 1, 'b': 2 }, function(value, key) {
+   *   console.log(key);
+   * });
+   * // => Logs 'a' then 'b' (iteration order is not guaranteed).
+   */
+  function forEach(collection, iteratee) {
+    var func = isArray(collection) ? arrayEach : baseEach;
+    return func(collection, getIteratee(iteratee, 3));
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a function that memoizes the result of `func`. If `resolver` is
+   * provided, it determines the cache key for storing the result based on the
+   * arguments provided to the memoized function. By default, the first argument
+   * provided to the memoized function is used as the map cache key. The `func`
+   * is invoked with the `this` binding of the memoized function.
+   *
+   * **Note:** The cache is exposed as the `cache` property on the memoized
+   * function. Its creation may be customized by replacing the `_.memoize.Cache`
+   * constructor with one whose instances implement the
+   * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+   * method interface of `delete`, `get`, `has`, and `set`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Function
+   * @param {Function} func The function to have its output memoized.
+   * @param {Function} [resolver] The function to resolve the cache key.
+   * @returns {Function} Returns the new memoized function.
+   * @example
+   *
+   * var object = { 'a': 1, 'b': 2 };
+   * var other = { 'c': 3, 'd': 4 };
+   *
+   * var values = _.memoize(_.values);
+   * values(object);
+   * // => [1, 2]
+   *
+   * values(other);
+   * // => [3, 4]
+   *
+   * object.a = 2;
+   * values(object);
+   * // => [1, 2]
+   *
+   * // Modify the result cache.
+   * values.cache.set(object, ['a', 'b']);
+   * values(object);
+   * // => ['a', 'b']
+   *
+   * // Replace `_.memoize.Cache`.
+   * _.memoize.Cache = WeakMap;
+   */
+  function memoize(func, resolver) {
+    if (typeof func != 'function' || (resolver && typeof resolver != 'function')) {
+      throw new TypeError(FUNC_ERROR_TEXT);
+    }
+    var memoized = function() {
+      var args = arguments,
+          key = resolver ? resolver.apply(this, args) : args[0],
+          cache = memoized.cache;
+
+      if (cache.has(key)) {
+        return cache.get(key);
+      }
+      var result = func.apply(this, args);
+      memoized.cache = cache.set(key, result);
+      return result;
+    };
+    memoized.cache = new (memoize.Cache || MapCache);
+    return memoized;
+  }
+
+  // Assign cache to `_.memoize`.
+  memoize.Cache = MapCache;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Creates a shallow clone of `value`.
+   *
+   * **Note:** This method is loosely based on the
+   * [structured clone algorithm](https://mdn.io/Structured_clone_algorithm)
+   * and supports cloning arrays, array buffers, booleans, date objects, maps,
+   * numbers, `Object` objects, regexes, sets, strings, symbols, and typed
+   * arrays. The own enumerable properties of `arguments` objects are cloned
+   * as plain objects. An empty object is returned for uncloneable values such
+   * as error objects, functions, DOM nodes, and WeakMaps.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to clone.
+   * @returns {*} Returns the cloned value.
+   * @see _.cloneDeep
+   * @example
+   *
+   * var objects = [{ 'a': 1 }, { 'b': 2 }];
+   *
+   * var shallow = _.clone(objects);
+   * console.log(shallow[0] === objects[0]);
+   * // => true
+   */
+  function clone(value) {
+    return baseClone(value, false, true);
+  }
+
+  /**
+   * Performs a
+   * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+   * comparison between two values to determine if they are equivalent.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to compare.
+   * @param {*} other The other value to compare.
+   * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+   * @example
+   *
+   * var object = { 'a': 1 };
+   * var other = { 'a': 1 };
+   *
+   * _.eq(object, object);
+   * // => true
+   *
+   * _.eq(object, other);
+   * // => false
+   *
+   * _.eq('a', 'a');
+   * // => true
+   *
+   * _.eq('a', Object('a'));
+   * // => false
+   *
+   * _.eq(NaN, NaN);
+   * // => true
+   */
+  function eq(value, other) {
+    return value === other || (value !== value && other !== other);
+  }
+
+  /**
+   * Checks if `value` is likely an `arguments` object.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+   *  else `false`.
+   * @example
+   *
+   * _.isArguments(function() { return arguments; }());
+   * // => true
+   *
+   * _.isArguments([1, 2, 3]);
+   * // => false
+   */
+  function isArguments(value) {
+    // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+    return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+      (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+  }
+
+  /**
+   * Checks if `value` is classified as an `Array` object.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+   * @example
+   *
+   * _.isArray([1, 2, 3]);
+   * // => true
+   *
+   * _.isArray(document.body.children);
+   * // => false
+   *
+   * _.isArray('abc');
+   * // => false
+   *
+   * _.isArray(_.noop);
+   * // => false
+   */
+  var isArray = Array.isArray;
+
+  /**
+   * Checks if `value` is array-like. A value is considered array-like if it's
+   * not a function and has a `value.length` that's an integer greater than or
+   * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+   * @example
+   *
+   * _.isArrayLike([1, 2, 3]);
+   * // => true
+   *
+   * _.isArrayLike(document.body.children);
+   * // => true
+   *
+   * _.isArrayLike('abc');
+   * // => true
+   *
+   * _.isArrayLike(_.noop);
+   * // => false
+   */
+  function isArrayLike(value) {
+    return value != null && isLength(value.length) && !isFunction(value);
+  }
+
+  /**
+   * This method is like `_.isArrayLike` except that it also checks if `value`
+   * is an object.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an array-like object,
+   *  else `false`.
+   * @example
+   *
+   * _.isArrayLikeObject([1, 2, 3]);
+   * // => true
+   *
+   * _.isArrayLikeObject(document.body.children);
+   * // => true
+   *
+   * _.isArrayLikeObject('abc');
+   * // => false
+   *
+   * _.isArrayLikeObject(_.noop);
+   * // => false
+   */
+  function isArrayLikeObject(value) {
+    return isObjectLike(value) && isArrayLike(value);
+  }
+
+  /**
+   * Checks if `value` is a buffer.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.3.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+   * @example
+   *
+   * _.isBuffer(new Buffer(2));
+   * // => true
+   *
+   * _.isBuffer(new Uint8Array(2));
+   * // => false
+   */
+  var isBuffer = nativeIsBuffer || stubFalse;
+
+  /**
+   * Checks if `value` is an empty object, collection, map, or set.
+   *
+   * Objects are considered empty if they have no own enumerable string keyed
+   * properties.
+   *
+   * Array-like values such as `arguments` objects, arrays, buffers, strings, or
+   * jQuery-like collections are considered empty if they have a `length` of `0`.
+   * Similarly, maps and sets are considered empty if they have a `size` of `0`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is empty, else `false`.
+   * @example
+   *
+   * _.isEmpty(null);
+   * // => true
+   *
+   * _.isEmpty(true);
+   * // => true
+   *
+   * _.isEmpty(1);
+   * // => true
+   *
+   * _.isEmpty([1, 2, 3]);
+   * // => false
+   *
+   * _.isEmpty({ 'a': 1 });
+   * // => false
+   */
+  function isEmpty(value) {
+    if (isArrayLike(value) &&
+        (isArray(value) || typeof value == 'string' ||
+          typeof value.splice == 'function' || isBuffer(value) || isArguments(value))) {
+      return !value.length;
+    }
+    var tag = getTag(value);
+    if (tag == mapTag || tag == setTag) {
+      return !value.size;
+    }
+    if (nonEnumShadows || isPrototype(value)) {
+      return !nativeKeys(value).length;
+    }
+    for (var key in value) {
+      if (hasOwnProperty.call(value, key)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if `value` is classified as a `Function` object.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+   * @example
+   *
+   * _.isFunction(_);
+   * // => true
+   *
+   * _.isFunction(/abc/);
+   * // => false
+   */
+  function isFunction(value) {
+    // The use of `Object#toString` avoids issues with the `typeof` operator
+    // in Safari 8-9 which returns 'object' for typed array and other constructors.
+    var tag = isObject(value) ? objectToString.call(value) : '';
+    return tag == funcTag || tag == genTag;
+  }
+
+  /**
+   * Checks if `value` is a valid array-like length.
+   *
+   * **Note:** This method is loosely based on
+   * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+   * @example
+   *
+   * _.isLength(3);
+   * // => true
+   *
+   * _.isLength(Number.MIN_VALUE);
+   * // => false
+   *
+   * _.isLength(Infinity);
+   * // => false
+   *
+   * _.isLength('3');
+   * // => false
+   */
+  function isLength(value) {
+    return typeof value == 'number' &&
+      value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+  }
+
+  /**
+   * Checks if `value` is the
+   * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+   * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+   *
+   * @static
+   * @memberOf _
+   * @since 0.1.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+   * @example
+   *
+   * _.isObject({});
+   * // => true
+   *
+   * _.isObject([1, 2, 3]);
+   * // => true
+   *
+   * _.isObject(_.noop);
+   * // => true
+   *
+   * _.isObject(null);
+   * // => false
+   */
+  function isObject(value) {
+    var type = typeof value;
+    return !!value && (type == 'object' || type == 'function');
+  }
+
+  /**
+   * Checks if `value` is object-like. A value is object-like if it's not `null`
+   * and has a `typeof` result of "object".
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+   * @example
+   *
+   * _.isObjectLike({});
+   * // => true
+   *
+   * _.isObjectLike([1, 2, 3]);
+   * // => true
+   *
+   * _.isObjectLike(_.noop);
+   * // => false
+   *
+   * _.isObjectLike(null);
+   * // => false
+   */
+  function isObjectLike(value) {
+    return !!value && typeof value == 'object';
+  }
+
+  /**
+   * Checks if `value` is a plain object, that is, an object created by the
+   * `Object` constructor or one with a `[[Prototype]]` of `null`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.8.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   * }
+   *
+   * _.isPlainObject(new Foo);
+   * // => false
+   *
+   * _.isPlainObject([1, 2, 3]);
+   * // => false
+   *
+   * _.isPlainObject({ 'x': 0, 'y': 0 });
+   * // => true
+   *
+   * _.isPlainObject(Object.create(null));
+   * // => true
+   */
+  function isPlainObject(value) {
+    if (!isObjectLike(value) ||
+        objectToString.call(value) != objectTag || isHostObject(value)) {
+      return false;
+    }
+    var proto = getPrototype(value);
+    if (proto === null) {
+      return true;
+    }
+    var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+    return (typeof Ctor == 'function' &&
+      Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+  }
+
+  /**
+   * Checks if `value` is classified as a `Symbol` primitive or object.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+   * @example
+   *
+   * _.isSymbol(Symbol.iterator);
+   * // => true
+   *
+   * _.isSymbol('abc');
+   * // => false
+   */
+  function isSymbol(value) {
+    return typeof value == 'symbol' ||
+      (isObjectLike(value) && objectToString.call(value) == symbolTag);
+  }
+
+  /**
+   * Checks if `value` is classified as a typed array.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.0.0
+   * @category Lang
+   * @param {*} value The value to check.
+   * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+   * @example
+   *
+   * _.isTypedArray(new Uint8Array);
+   * // => true
+   *
+   * _.isTypedArray([]);
+   * // => false
+   */
+  var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+
+  /**
+   * Converts `value` to a plain object flattening inherited enumerable string
+   * keyed properties of `value` to own properties of the plain object.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.0.0
+   * @category Lang
+   * @param {*} value The value to convert.
+   * @returns {Object} Returns the converted plain object.
+   * @example
+   *
+   * function Foo() {
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.assign({ 'a': 1 }, new Foo);
+   * // => { 'a': 1, 'b': 2 }
+   *
+   * _.assign({ 'a': 1 }, _.toPlainObject(new Foo));
+   * // => { 'a': 1, 'b': 2, 'c': 3 }
+   */
+  function toPlainObject(value) {
+    return copyObject(value, keysIn(value));
+  }
+
+  /**
+   * Converts `value` to a string. An empty string is returned for `null`
+   * and `undefined` values. The sign of `-0` is preserved.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Lang
+   * @param {*} value The value to process.
+   * @returns {string} Returns the string.
+   * @example
+   *
+   * _.toString(null);
+   * // => ''
+   *
+   * _.toString(-0);
+   * // => '-0'
+   *
+   * _.toString([1, 2, 3]);
+   * // => '1,2,3'
+   */
+  function toString(value) {
+    return value == null ? '' : baseToString(value);
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * Gets the value at `path` of `object`. If the resolved value is
+   * `undefined`, the `defaultValue` is returned in its place.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.7.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path of the property to get.
+   * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+   * @returns {*} Returns the resolved value.
+   * @example
+   *
+   * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+   *
+   * _.get(object, 'a[0].b.c');
+   * // => 3
+   *
+   * _.get(object, ['a', '0', 'b', 'c']);
+   * // => 3
+   *
+   * _.get(object, 'a.b.c', 'default');
+   * // => 'default'
+   */
+  function get(object, path, defaultValue) {
+    var result = object == null ? undefined : baseGet(object, path);
+    return result === undefined ? defaultValue : result;
+  }
+
+  /**
+   * Checks if `path` is a direct or inherited property of `object`.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.0.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @param {Array|string} path The path to check.
+   * @returns {boolean} Returns `true` if `path` exists, else `false`.
+   * @example
+   *
+   * var object = _.create({ 'a': _.create({ 'b': 2 }) });
+   *
+   * _.hasIn(object, 'a');
+   * // => true
+   *
+   * _.hasIn(object, 'a.b');
+   * // => true
+   *
+   * _.hasIn(object, ['a', 'b']);
+   * // => true
+   *
+   * _.hasIn(object, 'b');
+   * // => false
+   */
+  function hasIn(object, path) {
+    return object != null && hasPath(object, path, baseHasIn);
+  }
+
+  /**
+   * Creates an array of the own enumerable property names of `object`.
+   *
+   * **Note:** Non-object values are coerced to objects. See the
+   * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+   * for more details.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Object
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.keys(new Foo);
+   * // => ['a', 'b'] (iteration order is not guaranteed)
+   *
+   * _.keys('hi');
+   * // => ['0', '1']
+   */
+  function keys(object) {
+    return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+  }
+
+  /**
+   * Creates an array of the own and inherited enumerable property names of `object`.
+   *
+   * **Note:** Non-object values are coerced to objects.
+   *
+   * @static
+   * @memberOf _
+   * @since 3.0.0
+   * @category Object
+   * @param {Object} object The object to query.
+   * @returns {Array} Returns the array of property names.
+   * @example
+   *
+   * function Foo() {
+   *   this.a = 1;
+   *   this.b = 2;
+   * }
+   *
+   * Foo.prototype.c = 3;
+   *
+   * _.keysIn(new Foo);
+   * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+   */
+  function keysIn(object) {
+    return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+  }
+
+  /**
+   * This method is like `_.assign` except that it recursively merges own and
+   * inherited enumerable string keyed properties of source objects into the
+   * destination object. Source properties that resolve to `undefined` are
+   * skipped if a destination value exists. Array and plain object properties
+   * are merged recursively. Other objects and value types are overridden by
+   * assignment. Source objects are applied from left to right. Subsequent
+   * sources overwrite property assignments of previous sources.
+   *
+   * **Note:** This method mutates `object`.
+   *
+   * @static
+   * @memberOf _
+   * @since 0.5.0
+   * @category Object
+   * @param {Object} object The destination object.
+   * @param {...Object} [sources] The source objects.
+   * @returns {Object} Returns `object`.
+   * @example
+   *
+   * var object = {
+   *   'a': [{ 'b': 2 }, { 'd': 4 }]
+   * };
+   *
+   * var other = {
+   *   'a': [{ 'c': 3 }, { 'e': 5 }]
+   * };
+   *
+   * _.merge(object, other);
+   * // => { 'a': [{ 'b': 2, 'c': 3 }, { 'd': 4, 'e': 5 }] }
+   */
+  var merge = createAssigner(function(object, source, srcIndex) {
+    baseMerge(object, source, srcIndex);
+  });
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * This method returns the first argument it receives.
+   *
+   * @static
+   * @since 0.1.0
+   * @memberOf _
+   * @category Util
+   * @param {*} value Any value.
+   * @returns {*} Returns `value`.
+   * @example
+   *
+   * var object = { 'a': 1 };
+   *
+   * console.log(_.identity(object) === object);
+   * // => true
+   */
+  function identity(value) {
+    return value;
+  }
+
+  /**
+   * Creates a function that invokes `func` with the arguments of the created
+   * function. If `func` is a property name, the created function returns the
+   * property value for a given element. If `func` is an array or object, the
+   * created function returns `true` for elements that contain the equivalent
+   * source properties, otherwise it returns `false`.
+   *
+   * @static
+   * @since 4.0.0
+   * @memberOf _
+   * @category Util
+   * @param {*} [func=_.identity] The value to convert to a callback.
+   * @returns {Function} Returns the callback.
+   * @example
+   *
+   * var users = [
+   *   { 'user': 'barney', 'age': 36, 'active': true },
+   *   { 'user': 'fred',   'age': 40, 'active': false }
+   * ];
+   *
+   * // The `_.matches` iteratee shorthand.
+   * _.filter(users, _.iteratee({ 'user': 'barney', 'active': true }));
+   * // => [{ 'user': 'barney', 'age': 36, 'active': true }]
+   *
+   * // The `_.matchesProperty` iteratee shorthand.
+   * _.filter(users, _.iteratee(['user', 'fred']));
+   * // => [{ 'user': 'fred', 'age': 40 }]
+   *
+   * // The `_.property` iteratee shorthand.
+   * _.map(users, _.iteratee('user'));
+   * // => ['barney', 'fred']
+   *
+   * // Create custom iteratee shorthands.
+   * _.iteratee = _.wrap(_.iteratee, function(iteratee, func) {
+   *   return !_.isRegExp(func) ? iteratee(func) : function(string) {
+   *     return func.test(string);
+   *   };
+   * });
+   *
+   * _.filter(['abc', 'def'], /ef/);
+   * // => ['def']
+   */
+  function iteratee(func) {
+    return baseIteratee(typeof func == 'function' ? func : baseClone(func, true));
+  }
+
+  /**
+   * Creates a function that returns the value at `path` of a given object.
+   *
+   * @static
+   * @memberOf _
+   * @since 2.4.0
+   * @category Util
+   * @param {Array|string} path The path of the property to get.
+   * @returns {Function} Returns the new accessor function.
+   * @example
+   *
+   * var objects = [
+   *   { 'a': { 'b': 2 } },
+   *   { 'a': { 'b': 1 } }
+   * ];
+   *
+   * _.map(objects, _.property('a.b'));
+   * // => [2, 1]
+   *
+   * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
+   * // => [1, 2]
+   */
+  function property(path) {
+    return isKey(path) ? baseProperty(toKey(path)) : basePropertyDeep(path);
+  }
+
+  /**
+   * This method returns a new empty array.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.13.0
+   * @category Util
+   * @returns {Array} Returns the new empty array.
+   * @example
+   *
+   * var arrays = _.times(2, _.stubArray);
+   *
+   * console.log(arrays);
+   * // => [[], []]
+   *
+   * console.log(arrays[0] === arrays[1]);
+   * // => false
+   */
+  function stubArray() {
+    return [];
+  }
+
+  /**
+   * This method returns `false`.
+   *
+   * @static
+   * @memberOf _
+   * @since 4.13.0
+   * @category Util
+   * @returns {boolean} Returns `false`.
+   * @example
+   *
+   * _.times(2, _.stubFalse);
+   * // => [false, false]
+   */
+  function stubFalse() {
+    return false;
+  }
+
+  /*------------------------------------------------------------------------*/
+
+  // Add methods that return wrapped values in chain sequences.
+  lodash.compact = compact;
+  lodash.iteratee = iteratee;
+  lodash.keys = keys;
+  lodash.keysIn = keysIn;
+  lodash.memoize = memoize;
+  lodash.merge = merge;
+  lodash.property = property;
+  lodash.toPlainObject = toPlainObject;
+
+  /*------------------------------------------------------------------------*/
+
+  // Add methods that return unwrapped values in chain sequences.
+  lodash.clone = clone;
+  lodash.eq = eq;
+  lodash.forEach = forEach;
+  lodash.get = get;
+  lodash.hasIn = hasIn;
+  lodash.identity = identity;
+  lodash.isArguments = isArguments;
+  lodash.isArray = isArray;
+  lodash.isArrayLike = isArrayLike;
+  lodash.isArrayLikeObject = isArrayLikeObject;
+  lodash.isBuffer = isBuffer;
+  lodash.isEmpty = isEmpty;
+  lodash.isFunction = isFunction;
+  lodash.isLength = isLength;
+  lodash.isObject = isObject;
+  lodash.isObjectLike = isObjectLike;
+  lodash.isPlainObject = isPlainObject;
+  lodash.isSymbol = isSymbol;
+  lodash.isTypedArray = isTypedArray;
+  lodash.stubArray = stubArray;
+  lodash.stubFalse = stubFalse;
+  lodash.toString = toString;
+
+  // Add aliases.
+  lodash.each = forEach;
+
+  /*------------------------------------------------------------------------*/
+
+  /**
+   * The semantic version number.
+   *
+   * @static
+   * @memberOf _
+   * @type {string}
+   */
+  lodash.VERSION = VERSION;
+
+  /*--------------------------------------------------------------------------*/
+
+  if (freeModule) {
+    // Export for Node.js.
+    (freeModule.exports = lodash)._ = lodash;
+    // Export for CommonJS support.
+    freeExports._ = lodash;
+  }
+}.call(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],67:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -41379,7 +46432,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":63}],62:[function(require,module,exports){
+},{"_process":69}],68:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
@@ -43911,7 +48964,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],63:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -44097,7 +49150,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],64:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /* global window, exports, define */
 
 !function() {
@@ -44317,7 +49370,7 @@ process.umask = function() { return 0; };
     /* eslint-enable quote-props */
 }()
 
-},{}],65:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var trim = require('./trim');
 var decap = require('./decapitalize');
 
@@ -44333,7 +49386,7 @@ module.exports = function camelize(str, decapitalize) {
   }
 };
 
-},{"./decapitalize":74,"./trim":127}],66:[function(require,module,exports){
+},{"./decapitalize":80,"./trim":133}],72:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function capitalize(str, lowercaseRest) {
@@ -44343,14 +49396,14 @@ module.exports = function capitalize(str, lowercaseRest) {
   return str.charAt(0).toUpperCase() + remainingChars;
 };
 
-},{"./helper/makeString":84}],67:[function(require,module,exports){
+},{"./helper/makeString":90}],73:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function chars(str) {
   return makeString(str).split('');
 };
 
-},{"./helper/makeString":84}],68:[function(require,module,exports){
+},{"./helper/makeString":90}],74:[function(require,module,exports){
 module.exports = function chop(str, step) {
   if (str == null) return [];
   str = String(str);
@@ -44358,7 +49411,7 @@ module.exports = function chop(str, step) {
   return step > 0 ? str.match(new RegExp('.{1,' + step + '}', 'g')) : [str];
 };
 
-},{}],69:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var camelize = require('./camelize');
 var makeString = require('./helper/makeString');
@@ -44368,14 +49421,14 @@ module.exports = function classify(str) {
   return capitalize(camelize(str.replace(/[\W_]/g, ' ')).replace(/\s/g, ''));
 };
 
-},{"./camelize":65,"./capitalize":66,"./helper/makeString":84}],70:[function(require,module,exports){
+},{"./camelize":71,"./capitalize":72,"./helper/makeString":90}],76:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function clean(str) {
   return trim(str).replace(/\s\s+/g, ' ');
 };
 
-},{"./trim":127}],71:[function(require,module,exports){
+},{"./trim":133}],77:[function(require,module,exports){
 
 var makeString = require('./helper/makeString');
 
@@ -44399,7 +49452,7 @@ module.exports = function cleanDiacritics(str) {
   });
 };
 
-},{"./helper/makeString":84}],72:[function(require,module,exports){
+},{"./helper/makeString":90}],78:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, substr) {
@@ -44411,14 +49464,14 @@ module.exports = function(str, substr) {
   return str.split(substr).length - 1;
 };
 
-},{"./helper/makeString":84}],73:[function(require,module,exports){
+},{"./helper/makeString":90}],79:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function dasherize(str) {
   return trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
 };
 
-},{"./trim":127}],74:[function(require,module,exports){
+},{"./trim":133}],80:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function decapitalize(str) {
@@ -44426,7 +49479,7 @@ module.exports = function decapitalize(str) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 };
 
-},{"./helper/makeString":84}],75:[function(require,module,exports){
+},{"./helper/makeString":90}],81:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 function getIndent(str) {
@@ -44456,7 +49509,7 @@ module.exports = function dedent(str, pattern) {
   return str.replace(reg, '');
 };
 
-},{"./helper/makeString":84}],76:[function(require,module,exports){
+},{"./helper/makeString":90}],82:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -44471,7 +49524,7 @@ module.exports = function endsWith(str, ends, position) {
   return position >= 0 && str.indexOf(ends, position) === position;
 };
 
-},{"./helper/makeString":84,"./helper/toPositive":86}],77:[function(require,module,exports){
+},{"./helper/makeString":90,"./helper/toPositive":92}],83:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var escapeChars = require('./helper/escapeChars');
 
@@ -44490,7 +49543,7 @@ module.exports = function escapeHTML(str) {
   });
 };
 
-},{"./helper/escapeChars":81,"./helper/makeString":84}],78:[function(require,module,exports){
+},{"./helper/escapeChars":87,"./helper/makeString":90}],84:[function(require,module,exports){
 module.exports = function() {
   var result = {};
 
@@ -44502,7 +49555,7 @@ module.exports = function() {
   return result;
 };
 
-},{}],79:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function adjacent(str, direction) {
@@ -44513,7 +49566,7 @@ module.exports = function adjacent(str, direction) {
   return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length - 1) + direction);
 };
 
-},{"./makeString":84}],80:[function(require,module,exports){
+},{"./makeString":90}],86:[function(require,module,exports){
 var escapeRegExp = require('./escapeRegExp');
 
 module.exports = function defaultToWhiteSpace(characters) {
@@ -44525,7 +49578,7 @@ module.exports = function defaultToWhiteSpace(characters) {
     return '[' + escapeRegExp(characters) + ']';
 };
 
-},{"./escapeRegExp":82}],81:[function(require,module,exports){
+},{"./escapeRegExp":88}],87:[function(require,module,exports){
 /* We're explicitly defining the list of entities we want to escape.
 nbsp is an HTML entity, but we don't want to escape all space characters in a string, hence its omission in this map.
 
@@ -44546,14 +49599,14 @@ var escapeChars = {
 
 module.exports = escapeChars;
 
-},{}],82:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function escapeRegExp(str) {
   return makeString(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 };
 
-},{"./makeString":84}],83:[function(require,module,exports){
+},{"./makeString":90}],89:[function(require,module,exports){
 /*
 We're explicitly defining the list of entities that might see in escape HTML strings
 */
@@ -44574,7 +49627,7 @@ var htmlEntities = {
 
 module.exports = htmlEntities;
 
-},{}],84:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 /**
  * Ensure some object is a coerced to a string
  **/
@@ -44583,7 +49636,7 @@ module.exports = function makeString(object) {
   return '' + object;
 };
 
-},{}],85:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module.exports = function strRepeat(str, qty){
   if (qty < 1) return '';
   var result = '';
@@ -44594,12 +49647,12 @@ module.exports = function strRepeat(str, qty){
   return result;
 };
 
-},{}],86:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 module.exports = function toPositive(number) {
   return number < 0 ? 0 : (+number || 0);
 };
 
-},{}],87:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var underscored = require('./underscored');
 var trim = require('./trim');
@@ -44608,7 +49661,7 @@ module.exports = function humanize(str) {
   return capitalize(trim(underscored(str).replace(/_id$/, '').replace(/_/g, ' ')));
 };
 
-},{"./capitalize":66,"./trim":127,"./underscored":129}],88:[function(require,module,exports){
+},{"./capitalize":72,"./trim":133,"./underscored":135}],94:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function include(str, needle) {
@@ -44616,7 +49669,7 @@ module.exports = function include(str, needle) {
   return makeString(str).indexOf(needle) !== -1;
 };
 
-},{"./helper/makeString":84}],89:[function(require,module,exports){
+},{"./helper/makeString":90}],95:[function(require,module,exports){
 /*
 * Underscore.string
 * (c) 2010 Esa-Matti Suuronen <esa-matti aet suuronen dot org>
@@ -44761,21 +49814,21 @@ for (var method in prototypeMethods) prototype2method(prototypeMethods[method]);
 
 module.exports = s;
 
-},{"./camelize":65,"./capitalize":66,"./chars":67,"./chop":68,"./classify":69,"./clean":70,"./cleanDiacritics":71,"./count":72,"./dasherize":73,"./decapitalize":74,"./dedent":75,"./endsWith":76,"./escapeHTML":77,"./exports":78,"./helper/escapeRegExp":82,"./humanize":87,"./include":88,"./insert":90,"./isBlank":91,"./join":92,"./levenshtein":93,"./lines":94,"./lpad":95,"./lrpad":96,"./ltrim":97,"./map":98,"./naturalCmp":99,"./numberFormat":100,"./pad":101,"./pred":102,"./prune":103,"./quote":104,"./repeat":105,"./replaceAll":106,"./reverse":107,"./rpad":108,"./rtrim":109,"./slugify":110,"./splice":111,"./sprintf":112,"./startsWith":113,"./strLeft":114,"./strLeftBack":115,"./strRight":116,"./strRightBack":117,"./stripTags":118,"./succ":119,"./surround":120,"./swapCase":121,"./titleize":122,"./toBoolean":123,"./toNumber":124,"./toSentence":125,"./toSentenceSerial":126,"./trim":127,"./truncate":128,"./underscored":129,"./unescapeHTML":130,"./unquote":131,"./vsprintf":132,"./words":133,"./wrap":134}],90:[function(require,module,exports){
+},{"./camelize":71,"./capitalize":72,"./chars":73,"./chop":74,"./classify":75,"./clean":76,"./cleanDiacritics":77,"./count":78,"./dasherize":79,"./decapitalize":80,"./dedent":81,"./endsWith":82,"./escapeHTML":83,"./exports":84,"./helper/escapeRegExp":88,"./humanize":93,"./include":94,"./insert":96,"./isBlank":97,"./join":98,"./levenshtein":99,"./lines":100,"./lpad":101,"./lrpad":102,"./ltrim":103,"./map":104,"./naturalCmp":105,"./numberFormat":106,"./pad":107,"./pred":108,"./prune":109,"./quote":110,"./repeat":111,"./replaceAll":112,"./reverse":113,"./rpad":114,"./rtrim":115,"./slugify":116,"./splice":117,"./sprintf":118,"./startsWith":119,"./strLeft":120,"./strLeftBack":121,"./strRight":122,"./strRightBack":123,"./stripTags":124,"./succ":125,"./surround":126,"./swapCase":127,"./titleize":128,"./toBoolean":129,"./toNumber":130,"./toSentence":131,"./toSentenceSerial":132,"./trim":133,"./truncate":134,"./underscored":135,"./unescapeHTML":136,"./unquote":137,"./vsprintf":138,"./words":139,"./wrap":140}],96:[function(require,module,exports){
 var splice = require('./splice');
 
 module.exports = function insert(str, i, substr) {
   return splice(str, i, 0, substr);
 };
 
-},{"./splice":111}],91:[function(require,module,exports){
+},{"./splice":117}],97:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function isBlank(str) {
   return (/^\s*$/).test(makeString(str));
 };
 
-},{"./helper/makeString":84}],92:[function(require,module,exports){
+},{"./helper/makeString":90}],98:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var slice = [].slice;
 
@@ -44786,7 +49839,7 @@ module.exports = function join() {
   return args.join(makeString(separator));
 };
 
-},{"./helper/makeString":84}],93:[function(require,module,exports){
+},{"./helper/makeString":90}],99:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 /**
@@ -44840,27 +49893,27 @@ module.exports = function levenshtein(str1, str2) {
   return nextCol;
 };
 
-},{"./helper/makeString":84}],94:[function(require,module,exports){
+},{"./helper/makeString":90}],100:[function(require,module,exports){
 module.exports = function lines(str) {
   if (str == null) return [];
   return String(str).split(/\r\n?|\n/);
 };
 
-},{}],95:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lpad(str, length, padStr) {
   return pad(str, length, padStr);
 };
 
-},{"./pad":101}],96:[function(require,module,exports){
+},{"./pad":107}],102:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lrpad(str, length, padStr) {
   return pad(str, length, padStr, 'both');
 };
 
-},{"./pad":101}],97:[function(require,module,exports){
+},{"./pad":107}],103:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimLeft = String.prototype.trimLeft;
@@ -44872,7 +49925,7 @@ module.exports = function ltrim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":80,"./helper/makeString":84}],98:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],104:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, callback) {
@@ -44883,7 +49936,7 @@ module.exports = function(str, callback) {
   return str.replace(/./g, callback);
 };
 
-},{"./helper/makeString":84}],99:[function(require,module,exports){
+},{"./helper/makeString":90}],105:[function(require,module,exports){
 module.exports = function naturalCmp(str1, str2) {
   if (str1 == str2) return 0;
   if (!str1) return -1;
@@ -44914,7 +49967,7 @@ module.exports = function naturalCmp(str1, str2) {
   return str1 < str2 ? -1 : 1;
 };
 
-},{}],100:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 module.exports = function numberFormat(number, dec, dsep, tsep) {
   if (isNaN(number) || number == null) return '';
 
@@ -44928,7 +49981,7 @@ module.exports = function numberFormat(number, dec, dsep, tsep) {
   return fnums.replace(/(\d)(?=(?:\d{3})+$)/g, '$1' + tsep) + decimals;
 };
 
-},{}],101:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -44956,14 +50009,14 @@ module.exports = function pad(str, length, padStr, type) {
   }
 };
 
-},{"./helper/makeString":84,"./helper/strRepeat":85}],102:[function(require,module,exports){
+},{"./helper/makeString":90,"./helper/strRepeat":91}],108:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, -1);
 };
 
-},{"./helper/adjacent":79}],103:[function(require,module,exports){
+},{"./helper/adjacent":85}],109:[function(require,module,exports){
 /**
  * _s.prune: a more elegant version of truncate
  * prune extra chars, never leaving a half-chopped word.
@@ -44992,14 +50045,14 @@ module.exports = function prune(str, length, pruneStr) {
   return (template + pruneStr).length > str.length ? str : str.slice(0, template.length) + pruneStr;
 };
 
-},{"./helper/makeString":84,"./rtrim":109}],104:[function(require,module,exports){
+},{"./helper/makeString":90,"./rtrim":115}],110:[function(require,module,exports){
 var surround = require('./surround');
 
 module.exports = function quote(str, quoteChar) {
   return surround(str, quoteChar || '"');
 };
 
-},{"./surround":120}],105:[function(require,module,exports){
+},{"./surround":126}],111:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -45017,7 +50070,7 @@ module.exports = function repeat(str, qty, separator) {
   return repeat.join(separator);
 };
 
-},{"./helper/makeString":84,"./helper/strRepeat":85}],106:[function(require,module,exports){
+},{"./helper/makeString":90,"./helper/strRepeat":91}],112:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function replaceAll(str, find, replace, ignorecase) {
@@ -45027,21 +50080,21 @@ module.exports = function replaceAll(str, find, replace, ignorecase) {
   return makeString(str).replace(reg, replace);
 };
 
-},{"./helper/makeString":84}],107:[function(require,module,exports){
+},{"./helper/makeString":90}],113:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function reverse(str) {
   return chars(str).reverse().join('');
 };
 
-},{"./chars":67}],108:[function(require,module,exports){
+},{"./chars":73}],114:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function rpad(str, length, padStr) {
   return pad(str, length, padStr, 'right');
 };
 
-},{"./pad":101}],109:[function(require,module,exports){
+},{"./pad":107}],115:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimRight = String.prototype.trimRight;
@@ -45053,7 +50106,7 @@ module.exports = function rtrim(str, characters) {
   return str.replace(new RegExp(characters + '+$'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":80,"./helper/makeString":84}],110:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],116:[function(require,module,exports){
 var trim = require('./trim');
 var dasherize = require('./dasherize');
 var cleanDiacritics = require('./cleanDiacritics');
@@ -45062,7 +50115,7 @@ module.exports = function slugify(str) {
   return trim(dasherize(cleanDiacritics(str).replace(/[^\w\s-]/g, '-').toLowerCase()), '-');
 };
 
-},{"./cleanDiacritics":71,"./dasherize":73,"./trim":127}],111:[function(require,module,exports){
+},{"./cleanDiacritics":77,"./dasherize":79,"./trim":133}],117:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function splice(str, i, howmany, substr) {
@@ -45071,13 +50124,13 @@ module.exports = function splice(str, i, howmany, substr) {
   return arr.join('');
 };
 
-},{"./chars":67}],112:[function(require,module,exports){
+},{"./chars":73}],118:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').sprintf,
   'sprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":64,"util-deprecate":136}],113:[function(require,module,exports){
+},{"sprintf-js":70,"util-deprecate":142}],119:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -45088,7 +50141,7 @@ module.exports = function startsWith(str, starts, position) {
   return str.lastIndexOf(starts, position) === position;
 };
 
-},{"./helper/makeString":84,"./helper/toPositive":86}],114:[function(require,module,exports){
+},{"./helper/makeString":90,"./helper/toPositive":92}],120:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeft(str, sep) {
@@ -45098,7 +50151,7 @@ module.exports = function strLeft(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":84}],115:[function(require,module,exports){
+},{"./helper/makeString":90}],121:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeftBack(str, sep) {
@@ -45108,7 +50161,7 @@ module.exports = function strLeftBack(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":84}],116:[function(require,module,exports){
+},{"./helper/makeString":90}],122:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRight(str, sep) {
@@ -45118,7 +50171,7 @@ module.exports = function strRight(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":84}],117:[function(require,module,exports){
+},{"./helper/makeString":90}],123:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRightBack(str, sep) {
@@ -45128,26 +50181,26 @@ module.exports = function strRightBack(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":84}],118:[function(require,module,exports){
+},{"./helper/makeString":90}],124:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function stripTags(str) {
   return makeString(str).replace(/<\/?[^>]+>/g, '');
 };
 
-},{"./helper/makeString":84}],119:[function(require,module,exports){
+},{"./helper/makeString":90}],125:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, 1);
 };
 
-},{"./helper/adjacent":79}],120:[function(require,module,exports){
+},{"./helper/adjacent":85}],126:[function(require,module,exports){
 module.exports = function surround(str, wrapper) {
   return [wrapper, str, wrapper].join('');
 };
 
-},{}],121:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function swapCase(str) {
@@ -45156,7 +50209,7 @@ module.exports = function swapCase(str) {
   });
 };
 
-},{"./helper/makeString":84}],122:[function(require,module,exports){
+},{"./helper/makeString":90}],128:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function titleize(str) {
@@ -45165,7 +50218,7 @@ module.exports = function titleize(str) {
   });
 };
 
-},{"./helper/makeString":84}],123:[function(require,module,exports){
+},{"./helper/makeString":90}],129:[function(require,module,exports){
 var trim = require('./trim');
 
 function boolMatch(s, matchers) {
@@ -45187,14 +50240,14 @@ module.exports = function toBoolean(str, trueValues, falseValues) {
   if (boolMatch(str, falseValues || ['false', '0'])) return false;
 };
 
-},{"./trim":127}],124:[function(require,module,exports){
+},{"./trim":133}],130:[function(require,module,exports){
 module.exports = function toNumber(num, precision) {
   if (num == null) return 0;
   var factor = Math.pow(10, isFinite(precision) ? precision : 0);
   return Math.round(num * factor) / factor;
 };
 
-},{}],125:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 var rtrim = require('./rtrim');
 
 module.exports = function toSentence(array, separator, lastSeparator, serial) {
@@ -45208,14 +50261,14 @@ module.exports = function toSentence(array, separator, lastSeparator, serial) {
   return a.length ? a.join(separator) + lastSeparator + lastMember : lastMember;
 };
 
-},{"./rtrim":109}],126:[function(require,module,exports){
+},{"./rtrim":115}],132:[function(require,module,exports){
 var toSentence = require('./toSentence');
 
 module.exports = function toSentenceSerial(array, sep, lastSep) {
   return toSentence(array, sep, lastSep, true);
 };
 
-},{"./toSentence":125}],127:[function(require,module,exports){
+},{"./toSentence":131}],133:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrim = String.prototype.trim;
@@ -45227,7 +50280,7 @@ module.exports = function trim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+|' + characters + '+$', 'g'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":80,"./helper/makeString":84}],128:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],134:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function truncate(str, length, truncateStr) {
@@ -45237,14 +50290,14 @@ module.exports = function truncate(str, length, truncateStr) {
   return str.length > length ? str.slice(0, length) + truncateStr : str;
 };
 
-},{"./helper/makeString":84}],129:[function(require,module,exports){
+},{"./helper/makeString":90}],135:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function underscored(str) {
   return trim(str).replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
 };
 
-},{"./trim":127}],130:[function(require,module,exports){
+},{"./trim":133}],136:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var htmlEntities = require('./helper/htmlEntities');
 
@@ -45266,7 +50319,7 @@ module.exports = function unescapeHTML(str) {
   });
 };
 
-},{"./helper/htmlEntities":83,"./helper/makeString":84}],131:[function(require,module,exports){
+},{"./helper/htmlEntities":89,"./helper/makeString":90}],137:[function(require,module,exports){
 module.exports = function unquote(str, quoteChar) {
   quoteChar = quoteChar || '"';
   if (str[0] === quoteChar && str[str.length - 1] === quoteChar)
@@ -45274,13 +50327,13 @@ module.exports = function unquote(str, quoteChar) {
   else return str;
 };
 
-},{}],132:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').vsprintf,
   'vsprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":64,"util-deprecate":136}],133:[function(require,module,exports){
+},{"sprintf-js":70,"util-deprecate":142}],139:[function(require,module,exports){
 var isBlank = require('./isBlank');
 var trim = require('./trim');
 
@@ -45289,7 +50342,7 @@ module.exports = function words(str, delimiter) {
   return trim(str, delimiter).split(delimiter || /\s+/);
 };
 
-},{"./isBlank":91,"./trim":127}],134:[function(require,module,exports){
+},{"./isBlank":97,"./trim":133}],140:[function(require,module,exports){
 // Wrap
 // wraps a string by a certain width
 
@@ -45393,7 +50446,7 @@ module.exports = function wrap(str, options){
   }
 };
 
-},{"./helper/makeString":84}],135:[function(require,module,exports){
+},{"./helper/makeString":90}],141:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -46943,7 +51996,7 @@ module.exports = function wrap(str, options){
   }
 }.call(this));
 
-},{}],136:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 (function (global){
 
 /**
@@ -47014,7 +52067,12 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],137:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
+module.exports.RADIUS = 6378137;
+module.exports.FLATTENING = 1/298.257223563;
+module.exports.POLAR_RADIUS = 6356752.3142;
+
+},{}],144:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -47068,13 +52126,25 @@ $(function() {
 		});
 	});
 
-	function loadResults(geo) {
+	function loadResults(geoArea, layerData) {
+		
+		overpass.search(geoArea, function(geoRes) {
 
-		results.update(geo);
+console.log('loadResults',layerData)
+			layerData.clearLayers().addData(geoRes);
+
+			results.update(geoRes);
+
+		});
 	}
 
-	maps.admin.onSelect = function(geo) {
+	maps.admin.onSelect = loadResults;
+	maps.area.onSelect = loadResults;
+	maps.gps.onSelect = loadResults;
+
+/*	maps.admin.onSelect = function(geo) {
 		console.log('select admin',geo)
+
 	};
 
 	maps.area.onSelect = function(geo) {
@@ -47083,7 +52153,7 @@ $(function() {
 
 	maps.gps.onSelect = function(geo) {
 		console.log('select gps',geo)
-	};
+	};*/
 
 /*	$.getJSON('./data/schools_trentino.json', function(geo) {
 
@@ -47092,7 +52162,7 @@ $(function() {
 	});*/
 
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./overpass":141,"./results":142,"./utils":143,"bootstrap":6,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./map_admin":145,"./map_area":146,"./map_gps":147,"./overpass":148,"./results":149,"./utils":150,"bootstrap":6,"handlebars":40,"jquery":52,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],145:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47105,6 +52175,8 @@ module.exports = {
   	
   	map: null,
 
+  	layerData: L.geoJSON(),
+
   	onSelect: function(area) {},
 
 	init: function(el) {
@@ -47112,6 +52184,8 @@ module.exports = {
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
+
+		this.map.addLayer(this.layerData);
 
 		$.getJSON('data/italy-regions.json', function(json) {
 
@@ -47128,7 +52202,7 @@ module.exports = {
 
 					$('#geo_selection').text( JSON.stringify(sel) );
 
-					self.onSelect( L.featureGroup(e.layers).toGeoJSON() );
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.layerData);
 				}
 
 			}).addTo(self.map);
@@ -47168,7 +52242,7 @@ module.exports = {
 	}*/
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":53,"../node_modules/leaflet-search/dist/leaflet-search.min.css":57,"./utils":143,"jquery":50,"leaflet-geojson-selector":54,"leaflet-search":58}],139:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":55,"../node_modules/leaflet-search/dist/leaflet-search.min.css":59,"./utils":150,"jquery":52,"leaflet-geojson-selector":56,"leaflet-search":60}],146:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47179,6 +52253,8 @@ require('../node_modules/leaflet-draw/dist/leaflet.draw.css');
 module.exports = {
   	
   	map: null,
+
+  	layerData: L.geoJSON(),
 
   	onSelect: function(area) {},
   	
@@ -47225,6 +52301,8 @@ module.exports = {
 
 		this.map = L.map(el, utils.getMapOpts() );
 
+		this.map.addLayer(this.layerData);
+
 		this.selectionLayer = L.featureGroup().addTo(this.map);
 
 		this.config.draw.edit.featureGroup = this.selectionLayer;
@@ -47268,7 +52346,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON() );
+                self.onSelect( self.selectionLayer.toGeoJSON(), self.layerData);
             })
             .on('draw:deleted', function (e) {
                 
@@ -47281,7 +52359,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":51,"./utils":143,"jquery":50,"leaflet-draw":52}],140:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":53,"./utils":150,"jquery":52,"leaflet-draw":54}],147:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -47292,6 +52370,8 @@ module.exports = {
   	
   	map: null,
 
+  	layerData: L.geoJSON(),
+
   	onSelect: function(area) {},
 
 	init: function(el) {
@@ -47299,6 +52379,8 @@ module.exports = {
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
+
+		this.map.addLayer(this.layerData);
 
 		var gpsControl = new L.Control.Gps({
 			position: 'topleft',
@@ -47309,10 +52391,10 @@ module.exports = {
 			//	e.marker.bindPopup(e.latlng.toString()).openPopup()
 			//console.log(e.latlng);
 			
-			var bb = self.map.getBounds(),
+			var bb = self.map.getBounds().pad(-0.8),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( L.featureGroup([poly]).toGeoJSON() );
+			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.layerData);
 		})
 
 		gpsControl.addTo(this.map);
@@ -47320,7 +52402,7 @@ module.exports = {
 		return this;
 	}
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":55,"./utils":143,"jquery":50,"leaflet-gps":56}],141:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":57,"./utils":150,"jquery":52,"leaflet-gps":58}],148:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -47328,19 +52410,61 @@ module.exports = {
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
+var osmtogeo = require('osmtogeojson');
 
 module.exports = {
   	
   	results: [],
 
-	search: function(area) {
+	search: function(geo, cb) {
 
 		//TODO
+		//
 
-		return []
+		var tmplUrl = 'http://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+			params = {
+				filter: 'amenity=school',
+				bbox: this.polyToBbox(geo)
+			},
+			url = L.Util.template(tmplUrl, params);
+
+		console.log(url)
+
+		$.getJSON(url, function(json) {
+			
+			var geojson = osmtogeo(json);
+
+			console.log(geojson);
+
+			//TODO remove layers outside polygon
+
+			cb(geojson);
+
+		});
+
+		return this;
+	}, 
+
+	polyToBbox: function(geo) {
+
+		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
+			prec = 6,
+			bb = L.geoJSON(geo).getBounds(),
+			sw = bb.getSouthWest(),
+			ne = bb.getNorthEast(),
+			bbox = [
+				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
+				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
+			],
+			bboxStr = L.Util.template(tmpl, {
+				lat1: bbox[0][0], lon1: bbox[0][1],
+				lat2: bbox[1][0], lon2: bbox[1][1]
+			});	
+		
+		return bboxStr;
 	}
 }
-},{"./utils":143,"jquery":50,"underscore":135}],142:[function(require,module,exports){
+},{"./utils":150,"jquery":52,"osmtogeojson":65,"underscore":141}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -47367,10 +52491,11 @@ module.exports = {
 			pageList: [5],
 			data: [],
 		    columns: [
-		    	{
+/*		    	{
 			        field: 'id',
 			        title: 'Id'
-			    }, {
+			    },*/
+			    {
 			        field: 'name',
 			        title: 'Name'
 			    }, {
@@ -47393,7 +52518,7 @@ module.exports = {
 		var json = _.map(geo.features, function(f) {
 			var p = f.properties;
 			return {
-				'id': p.osm_id,
+				//'id': p.osm_id || p.id,
 				'name': p.name,
 				'isced:level': p.isced_leve,
 				'operator': p.operator_r,
@@ -47403,7 +52528,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":143,"bootstrap-table":3,"jquery":50,"underscore":135}],143:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":150,"bootstrap-table":3,"jquery":52,"underscore":141}],150:[function(require,module,exports){
 
 module.exports = {
   
@@ -47543,4 +52668,4 @@ module.exports = {
 
 };
 
-},{}]},{},[137]);
+},{}]},{},[144]);

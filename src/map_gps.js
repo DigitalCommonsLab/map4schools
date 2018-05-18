@@ -8,6 +8,8 @@ module.exports = {
   	
   	map: null,
 
+  	layerData: L.geoJSON(),
+
   	onSelect: function(area) {},
 
 	init: function(el) {
@@ -15,6 +17,8 @@ module.exports = {
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
+
+		this.map.addLayer(this.layerData);
 
 		var gpsControl = new L.Control.Gps({
 			position: 'topleft',
@@ -25,10 +29,10 @@ module.exports = {
 			//	e.marker.bindPopup(e.latlng.toString()).openPopup()
 			//console.log(e.latlng);
 			
-			var bb = self.map.getBounds(),
+			var bb = self.map.getBounds().pad(-0.8),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( L.featureGroup([poly]).toGeoJSON() );
+			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.layerData);
 		})
 
 		gpsControl.addTo(this.map);

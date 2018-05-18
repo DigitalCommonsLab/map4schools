@@ -51,13 +51,25 @@ $(function() {
 		});
 	});
 
-	function loadResults(geo) {
+	function loadResults(geoArea, layerData) {
+		
+		overpass.search(geoArea, function(geoRes) {
 
-		results.update(geo);
+console.log('loadResults',layerData)
+			layerData.clearLayers().addData(geoRes);
+
+			results.update(geoRes);
+
+		});
 	}
 
-	maps.admin.onSelect = function(geo) {
+	maps.admin.onSelect = loadResults;
+	maps.area.onSelect = loadResults;
+	maps.gps.onSelect = loadResults;
+
+/*	maps.admin.onSelect = function(geo) {
 		console.log('select admin',geo)
+
 	};
 
 	maps.area.onSelect = function(geo) {
@@ -66,7 +78,7 @@ $(function() {
 
 	maps.gps.onSelect = function(geo) {
 		console.log('select gps',geo)
-	};
+	};*/
 
 /*	$.getJSON('./data/schools_trentino.json', function(geo) {
 
