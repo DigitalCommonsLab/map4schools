@@ -37,7 +37,6 @@ $(function() {
 	table.init('#table_selection');
 
 	var tmpls = {
-		bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	};

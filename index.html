@@ -26,7 +26,7 @@
 						</ul>
 						<div class="tab-content">
 						  <div class="tab-pane active" id="tab_admin" role="tabpanel">
-						  	<nav aria-label="breadcrumb">
+						  	<nav id="breadcrumb" aria-label="breadcrumb">
 						  		<!-- TMPLS -->
 							</nav>
 						  	<div id="map_admin" class="map"></div>
@@ -111,13 +111,13 @@
 
 <!-- DYNAMIC TEMAPLATES -->
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
-<ol id="bread_admin" class="breadcrumb">
-	{{#if reg}}
-		<li class="breadcrumb-item"><a href="#">{{reg}}</a></li>
-		{{#if prov}}
-			<li class="breadcrumb-item"><a href="#">{{prov}}</a></li>
-			{{#if com}}
-			<li class="breadcrumb-item active" aria-current="page">{{com}}</li>
+<ol class="breadcrumb">
+	{{#if region}}
+		<li class="breadcrumb-item"><a href="#" data-id="{{region}}">{{region_label}}</a></li>
+		{{#if province}}
+			<li class="breadcrumb-item"><a href="#" data-id="{{province}}">{{province_label}}</a></li>
+			{{#if municipality}}
+			<li class="breadcrumb-item active" data-id="{{municipality}}" aria-current="page">{{municipality_label}}</li>
 			{{/if}}
 		{{/if}}
 	{{else}}
