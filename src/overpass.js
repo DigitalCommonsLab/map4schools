@@ -32,6 +32,12 @@ module.exports = {
 				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
 			});
 
+			//DEBUGGING
+			geojson.features = _.map(geojson.features, function(f) {
+				f.properties['isced:level'] = ""+_.random(0,6);
+				return f;
+			});
+
 			cb(geojson);
 
 		});

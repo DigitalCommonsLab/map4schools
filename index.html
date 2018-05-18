@@ -65,7 +65,7 @@
 			    	<div class="col-sm">
 		      			<h2>Risultati</h2>
 
-		 				<table id="table_results" class="table">
+		 				<table id="table_selection" class="table">
 						</table>
 
 					</div>
@@ -138,12 +138,14 @@
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <ul class="list-group">
-  {{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">website</a></li>{{/if}}
+	{{#if operator}}<li class="list-group-item">Operator {{operator}}</li>{{/if}}
+	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">website</a></li>{{/if}}
+	{{#if isced:level}}<li class="list-group-item">Level {{isced:level}}</li>{{/if}}
 </ul>
 <br />
 <div class="btn-group btn-group-xs" role="group">
-	<a class="btn btn-secondary" href="{{url_view}}" target="_blank">view</a>
-	<a class="btn btn-secondary" href="{{url_edit}}">edit</a>
+	<a class="btn btn-primary" href="{{url_view}}" target="_blank">view</a>
+	<a class="btn btn-primary" href="{{url_edit}}">edit</a>
 </div>
 </script>
 <script src="bundle.js"></script>

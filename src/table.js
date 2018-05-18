@@ -22,6 +22,7 @@ module.exports = {
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],
+			//TODO cardView: true,
 			data: [],
 		    columns: [
 /*		    	{

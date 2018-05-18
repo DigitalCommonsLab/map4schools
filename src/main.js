@@ -22,7 +22,7 @@ var utils = require('./utils');
 var mapArea = require('./map_area');
 var mapAdmin = require('./map_admin');
 var mapGps = require('./map_gps');
-var results = require('./results');
+var table = require('./table');
 var overpass = require('./overpass');
 
 $(function() {
@@ -34,7 +34,7 @@ $(function() {
 		gps: mapGps.init('map_gps')
 	};
 
-	results.init('#table_results');
+	table.init('#table_selection');
 
 	var tmpls = {
 		bread_admin: H.compile($('#tmpl_bread_admin').html()),
@@ -51,21 +51,20 @@ $(function() {
 		});
 	});
 
-	function loadResults(geoArea, map) {
+	function loadSelection(geoArea, map) {
 
-		console.log('loadResults', map);
+		console.log('loadSelection', map);
 		
-		if(map.layerData)
-			map.layerData.clearLayers();
-		else {
+		if(!map.layerData) {
 			map.layerData = L.geoJSON([], {
 				onEachFeature: function(feature, layer) {
 					var p = feature.properties;
+
 					_.extend(p, {
 						url_view: "http://osm.org/"+p.id,
 						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
 					});
-					
+
 					layer.bindPopup( tmpls.map_popup(p) )
 				}
 			}).addTo(map);
@@ -74,33 +73,26 @@ $(function() {
 		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
 
-			map.layerData.addData(geoRes);
+			map.layerData.clearLayers().addData(geoRes);
 
-			results.update(geoRes);
+			table.update(geoRes);
 		});
 	}
 
-	maps.admin.onSelect = loadResults;
-	maps.area.onSelect = loadResults;
-	maps.gps.onSelect = loadResults;
+	maps.admin.onSelect = loadSelection;
+	maps.area.onSelect = loadSelection;
+	maps.gps.onSelect = loadSelection;
 
-/*	maps.admin.onSelect = function(geo) {
+	/*
+	maps.admin.onSelect = function(geo) {
 		console.log('select admin',geo)
-
 	};
-
 	maps.area.onSelect = function(geo) {
 		console.log('select area',geo)
 	};
-
 	maps.gps.onSelect = function(geo) {
 		console.log('select gps',geo)
-	};*/
-
-/*	$.getJSON('./data/schools_trentino.json', function(geo) {
-
-		results.update(geo);
-
-	});*/
+	};
+	*/
 
 });

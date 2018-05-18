@@ -52507,7 +52507,7 @@ var utils = require('./utils');
 var mapArea = require('./map_area');
 var mapAdmin = require('./map_admin');
 var mapGps = require('./map_gps');
-var results = require('./results');
+var table = require('./table');
 var overpass = require('./overpass');
 
 $(function() {
@@ -52519,7 +52519,7 @@ $(function() {
 		gps: mapGps.init('map_gps')
 	};
 
-	results.init('#table_results');
+	table.init('#table_selection');
 
 	var tmpls = {
 		bread_admin: H.compile($('#tmpl_bread_admin').html()),
@@ -52536,21 +52536,20 @@ $(function() {
 		});
 	});
 
-	function loadResults(geoArea, map) {
+	function loadSelection(geoArea, map) {
 
-		console.log('loadResults', map);
+		console.log('loadSelection', map);
 		
-		if(map.layerData)
-			map.layerData.clearLayers();
-		else {
+		if(!map.layerData) {
 			map.layerData = L.geoJSON([], {
 				onEachFeature: function(feature, layer) {
 					var p = feature.properties;
+
 					_.extend(p, {
 						url_view: "http://osm.org/"+p.id,
 						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
 					});
-					
+
 					layer.bindPopup( tmpls.map_popup(p) )
 				}
 			}).addTo(map);
@@ -52559,37 +52558,30 @@ $(function() {
 		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
 
-			map.layerData.addData(geoRes);
+			map.layerData.clearLayers().addData(geoRes);
 
-			results.update(geoRes);
+			table.update(geoRes);
 		});
 	}
 
-	maps.admin.onSelect = loadResults;
-	maps.area.onSelect = loadResults;
-	maps.gps.onSelect = loadResults;
+	maps.admin.onSelect = loadSelection;
+	maps.area.onSelect = loadSelection;
+	maps.gps.onSelect = loadSelection;
 
-/*	maps.admin.onSelect = function(geo) {
+	/*
+	maps.admin.onSelect = function(geo) {
 		console.log('select admin',geo)
-
 	};
-
 	maps.area.onSelect = function(geo) {
 		console.log('select area',geo)
 	};
-
 	maps.gps.onSelect = function(geo) {
 		console.log('select gps',geo)
-	};*/
-
-/*	$.getJSON('./data/schools_trentino.json', function(geo) {
-
-		results.update(geo);
-
-	});*/
+	};
+	*/
 
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./map_admin":146,"./map_area":147,"./map_gps":148,"./overpass":149,"./results":150,"./utils":151,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],146:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./map_admin":146,"./map_area":147,"./map_gps":148,"./overpass":149,"./table":150,"./utils":151,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],146:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -52852,6 +52844,12 @@ module.exports = {
 				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
 			});
 
+			//DEBUGGING
+			geojson.features = _.map(geojson.features, function(f) {
+				f.properties['isced:level'] = ""+_.random(0,6);
+				return f;
+			});
+
 			cb(geojson);
 
 		});
@@ -52903,6 +52901,7 @@ module.exports = {
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],
+			//TODO cardView: true,
 			data: [],
 		    columns: [
 /*		    	{
