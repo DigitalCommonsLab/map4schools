@@ -33,7 +33,7 @@ module.exports = {
 
 					$('#geo_selection').text( JSON.stringify(sel) );
 
-					self.onSelect( e.layers[0].toGeoJSON().geometry );
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON() );
 				}
 
 			}).addTo(self.map);

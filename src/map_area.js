@@ -97,7 +97,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON().features[0].geometry );
+                self.onSelect( self.selectionLayer.toGeoJSON() );
             })
             .on('draw:deleted', function (e) {
                 

@@ -47068,23 +47068,28 @@ $(function() {
 		});
 	});
 
-	maps.admin.onSelect = function(area) {
-		console.log('select admin',area)
+	function loadResults(geo) {
+
+		results.update(geo);
+	}
+
+	maps.admin.onSelect = function(geo) {
+		console.log('select admin',geo)
 	};
 
-	maps.area.onSelect = function(area) {
-		console.log('select area',area)
+	maps.area.onSelect = function(geo) {
+		console.log('select area',geo)
 	};
 
-	maps.gps.onSelect = function(area) {
-		console.log('select gps',area)
+	maps.gps.onSelect = function(geo) {
+		console.log('select gps',geo)
 	};
 
-	$.getJSON('./data/schools_trentino.json', function(geo) {
+/*	$.getJSON('./data/schools_trentino.json', function(geo) {
 
 		results.update(geo);
 
-	});
+	});*/
 
 });
 },{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":60,"./map_admin":138,"./map_area":139,"./map_gps":140,"./overpass":141,"./results":142,"./utils":143,"bootstrap":6,"handlebars":38,"jquery":50,"leaflet":59,"popper.js":62,"underscore":135,"underscore.string":89}],138:[function(require,module,exports){
@@ -47123,7 +47128,7 @@ module.exports = {
 
 					$('#geo_selection').text( JSON.stringify(sel) );
 
-					self.onSelect( e.layers[0].toGeoJSON().geometry );
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON() );
 				}
 
 			}).addTo(self.map);
@@ -47263,7 +47268,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON().features[0].geometry );
+                self.onSelect( self.selectionLayer.toGeoJSON() );
             })
             .on('draw:deleted', function (e) {
                 
@@ -47307,7 +47312,7 @@ module.exports = {
 			var bb = self.map.getBounds(),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( poly.toGeoJSON().geometry );
+			self.onSelect( L.featureGroup([poly]).toGeoJSON() );
 		})
 
 		gpsControl.addTo(this.map);

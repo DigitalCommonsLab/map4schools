@@ -28,7 +28,7 @@ module.exports = {
 			var bb = self.map.getBounds(),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( poly.toGeoJSON().geometry );
+			self.onSelect( L.featureGroup([poly]).toGeoJSON() );
 		})
 
 		gpsControl.addTo(this.map);

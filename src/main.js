@@ -51,22 +51,27 @@ $(function() {
 		});
 	});
 
-	maps.admin.onSelect = function(area) {
-		console.log('select admin',area)
+	function loadResults(geo) {
+
+		results.update(geo);
+	}
+
+	maps.admin.onSelect = function(geo) {
+		console.log('select admin',geo)
 	};
 
-	maps.area.onSelect = function(area) {
-		console.log('select area',area)
+	maps.area.onSelect = function(geo) {
+		console.log('select area',geo)
 	};
 
-	maps.gps.onSelect = function(area) {
-		console.log('select gps',area)
+	maps.gps.onSelect = function(geo) {
+		console.log('select gps',geo)
 	};
 
-	$.getJSON('./data/schools_trentino.json', function(geo) {
+/*	$.getJSON('./data/schools_trentino.json', function(geo) {
 
 		results.update(geo);
 
-	});
+	});*/
 
 });
