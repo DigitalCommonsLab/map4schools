@@ -136,7 +136,7 @@
 	<option value="6">Second stage</option>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
-<h5>{{name}}</h5>
+<h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <ul class="list-group">
   {{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">website</a></li>{{/if}}
 </ul>
