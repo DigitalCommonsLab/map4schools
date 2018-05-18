@@ -28,7 +28,7 @@ var overpass = require('./overpass');
 $(function() {
 
 	//ADMIN SELECTION
-	var maps = {
+	window.maps = {
 		admin:  mapAdmin.init('map_admin'),
 		area: mapArea.init('map_area'),
 		gps: mapGps.init('map_gps')

@@ -26074,7 +26074,7 @@ L.control.geoJsonSelector = function (layer, options) {
 var css = ".leaflet-container .leaflet-control-gps{position:relative;float:left;background:#fff;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;margin-left:10px;margin-top:10px}.leaflet-control-gps .gps-button{display:block;float:left;width:22px;height:22px;background-image:url(node_modules/leaflet-gps/images/gps-icon.svg);background-repeat:no-repeat;background-position:1px 1px;background-color:#fff;border-radius:4px;padding:2px;margin:2px}.leaflet-control-gps .gps-button.active:hover,.leaflet-control-gps .gps-button:hover{background-color:#f4f4f4}.leaflet-control-gps .gps-button.loading,.leaflet-control-gps .gps-button.loading:hover{background-position:1px -28px}.leaflet-control-gps .gps-button.active{background-position:1px -52px}.leaflet-control-gps .gps-button.disabled{background-position:1px -24px}.leaflet-control-gps .gps-alert{position:absolute;left:34px;bottom:-1px;width:220px;padding:2px;line-height:1em;color:#e00;border:2px solid rgba(0,0,0,.2);background-color:rgba(255,255,255,.75);border-radius:4px}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-gps/dist/leaflet-gps.min.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],56:[function(require,module,exports){
 /* 
- * Leaflet Control GPS v1.7.2 - 2018-05-14 
+ * Leaflet Control GPS v1.7.3 - 2018-05-18 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -26253,21 +26253,36 @@ L.Control.Gps = L.Control.extend({
 	},
 
 	_drawGps: function(e) {
+		
+		var self = this;
+
 		//TODO use e.accuracy for gps circle radius/color
 		this._currentLocation = this.options.transform(e.latlng);
 		
 		this._gpsMarker.setLatLng(this._currentLocation);
 
-		if(this.options.autoCenter)
+		if(this.options.autoCenter) {
+
+			this._map.once('moveend zoomend', function(e) {
+						
+				self.fire('gps:located', {
+					latlng: self._currentLocation,
+					marker: self._gpsMarker
+				});
+			});
+			
 			this._map.panTo(e.latlng);
+		}
+		else {
+			self.fire('gps:located', {
+				latlng: self._currentLocation,
+				marker: self._gpsMarker
+			});
+		}
+
 
 	//    	if(this._gpsMarker.accuracyCircle)
 	//    		this._gpsMarker.accuracyCircle.setRadius((e.accuracy / 2).toFixed(0));
-			
-		this.fire('gps:located', {
-			latlng: this._currentLocation,
-			marker: this._gpsMarker
-		});
 	},
 
 	_errorGps: function(e) {
@@ -26318,7 +26333,7 @@ return L.Control.Gps;
 var css = ".leaflet-container .leaflet-control-search{position:relative;float:left;background:#fff;color:#1978cf;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;margin-left:10px;margin-top:10px}.leaflet-control-search.search-exp{background:#fff;border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-control-search .search-input{display:block;float:left;background:#fff;border:1px solid #666;border-radius:2px;height:22px;padding:0 20px 0 2px;margin:4px 0 4px 4px}.leaflet-control-search.search-load .search-input{background:url(node_modules/leaflet-search/images/loader.gif) no-repeat center right #fff}.leaflet-control-search.search-load .search-cancel{visibility:hidden}.leaflet-control-search .search-cancel{display:block;width:22px;height:22px;position:absolute;right:28px;margin:6px 0;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 0 -46px;text-decoration:none;opacity:.8}.leaflet-control-search .search-cancel:hover{opacity:1}.leaflet-control-search .search-cancel span{display:none;font-size:18px;line-height:20px;color:#ccc;font-weight:700}.leaflet-control-search .search-cancel:hover span{color:#aaa}.leaflet-control-search .search-button{display:block;float:left;width:30px;height:30px;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px 4px #fff;border-radius:4px}.leaflet-control-search .search-button:hover{background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px -20px #fafafa}.leaflet-control-search .search-tooltip{position:absolute;top:100%;left:0;float:left;list-style:none;padding-left:0;min-width:120px;max-height:122px;box-shadow:1px 1px 6px rgba(0,0,0,.4);background-color:rgba(0,0,0,.25);z-index:1010;overflow-y:auto;overflow-x:hidden;cursor:pointer}.leaflet-control-search .search-tip{margin:2px;padding:2px 4px;display:block;color:#000;background:#eee;border-radius:.25em;text-decoration:none;white-space:nowrap;vertical-align:center}.leaflet-control-search .search-button:hover{background-color:#f4f4f4}.leaflet-control-search .search-tip-select,.leaflet-control-search .search-tip:hover{background-color:#fff}.leaflet-control-search .search-alert{cursor:pointer;clear:both;font-size:.75em;margin-bottom:5px;padding:0 .25em;color:#e00;font-weight:700;border-radius:.25em}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-search/dist/leaflet-search.min.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],58:[function(require,module,exports){
 /* 
- * Leaflet Control Search v2.8.0 - 2018-04-20 
+ * Leaflet Control Search v2.9.0 - 2018-05-16 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -26885,7 +26900,7 @@ L.Control.Search = L.Control.extend({
          
       }
     }
-    if(layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon)
+    else if(layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon)
     {
       if(self._getPath(layer.options,propName))
       {
@@ -47030,7 +47045,7 @@ var overpass = require('./overpass');
 $(function() {
 
 	//ADMIN SELECTION
-	var maps = {
+	window.maps = {
 		admin:  mapAdmin.init('map_admin'),
 		area: mapArea.init('map_area'),
 		gps: mapGps.init('map_gps')
@@ -47281,8 +47296,19 @@ module.exports = {
 		this.map = L.map(el, utils.getMapOpts() );
 
 		var gpsControl = new L.Control.Gps({
-			position: 'topleft'
-		});
+			position: 'topleft',
+			maxZoom: 14,
+			autoCenter:true
+		})
+		.on('gps:located', function(e) {
+			//	e.marker.bindPopup(e.latlng.toString()).openPopup()
+			//console.log(e.latlng);
+			
+			var bb = self.map.getBounds(),
+				poly = utils.createPolygonFromBounds(bb);
+
+			self.onSelect( poly.toGeoJSON().geometry );
+		})
 
 		gpsControl.addTo(this.map);
 
@@ -47394,6 +47420,22 @@ module.exports = {
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			})
 		}
+	},
+
+	createPolygonFromBounds: function(latLngBounds) {
+		var center = latLngBounds.getCenter()
+		latlngs = [];
+
+		latlngs.push(latLngBounds.getSouthWest());//bottom left
+		//latlngs.push({ lat: latLngBounds.getSouth(), lng: center.lng });//bottom center
+		latlngs.push(latLngBounds.getSouthEast());//bottom right
+		//latlngs.push({ lat: center.lat, lng: latLngBounds.getEast() });// center right
+		latlngs.push(latLngBounds.getNorthEast());//top right
+		//latlngs.push({ lat: latLngBounds.getNorth(), lng: map.getCenter().lng });//top center
+		latlngs.push(latLngBounds.getNorthWest());//top left
+		//latlngs.push({ lat: map.getCenter().lat, lng: latLngBounds.getWest() });//center left
+
+		return L.polygon(latlngs);
 	},
 
     createGeodesicPolygon: function (origin, radius, sides, rotation, projection) {
