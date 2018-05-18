@@ -52114,7 +52114,7 @@ $(function() {
 	var tmpls = {
 		bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
-		popup: H.compile($('#tmpl_popup').html())
+		map_popup: H.compile($('#tmpl_popup').html())
 	};
 
 	$('#tabs_maps a').on('shown.bs.tab', function(event) {
@@ -52126,15 +52126,27 @@ $(function() {
 		});
 	});
 
-	function loadResults(geoArea, layerData) {
+	function loadResults(geoArea, map) {
+
+		console.log('loadResults',map)
 		
+		if(map.layerData)
+			map.layerData.clearLayers();
+		else
+			map.layerData = L.geoJSON([],{
+				onEachFeature: function(feature, layer) {
+					console.log(feature.properties)
+					layer.bindPopup( tmpls.map_popup(feature.properties) )
+				}
+			}).addTo(map);
+			
+
+		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
 
-console.log('loadResults',layerData)
-			layerData.clearLayers().addData(geoRes);
+			map.layerData.addData(geoRes);
 
 			results.update(geoRes);
-
 		});
 	}
 
@@ -52175,17 +52187,13 @@ module.exports = {
   	
   	map: null,
 
-  	layerData: L.geoJSON(),
-
-  	onSelect: function(area) {},
+  	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
-
-		this.map.addLayer(this.layerData);
 
 		$.getJSON('data/italy-regions.json', function(json) {
 
@@ -52202,7 +52210,7 @@ module.exports = {
 
 					$('#geo_selection').text( JSON.stringify(sel) );
 
-					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.layerData);
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
 				}
 
 			}).addTo(self.map);
@@ -52254,9 +52262,7 @@ module.exports = {
   	
   	map: null,
 
-  	layerData: L.geoJSON(),
-
-  	onSelect: function(area) {},
+  	onSelect: function(area, map) {},
   	
   	selectionLayer: null,
 
@@ -52301,8 +52307,6 @@ module.exports = {
 
 		this.map = L.map(el, utils.getMapOpts() );
 
-		this.map.addLayer(this.layerData);
-
 		this.selectionLayer = L.featureGroup().addTo(this.map);
 
 		this.config.draw.edit.featureGroup = this.selectionLayer;
@@ -52346,7 +52350,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON(), self.layerData);
+                self.onSelect( self.selectionLayer.toGeoJSON(), self.map);
             })
             .on('draw:deleted', function (e) {
                 
@@ -52370,17 +52374,13 @@ module.exports = {
   	
   	map: null,
 
-  	layerData: L.geoJSON(),
-
-  	onSelect: function(area) {},
+  	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
-
-		this.map.addLayer(this.layerData);
 
 		var gpsControl = new L.Control.Gps({
 			position: 'topleft',
@@ -52394,7 +52394,7 @@ module.exports = {
 			var bb = self.map.getBounds().pad(-0.8),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.layerData);
+			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.map);
 		})
 
 		gpsControl.addTo(this.map);
@@ -52543,7 +52543,7 @@ module.exports = {
 
 	getMapOpts: function() {
 		return {
-			zoom: 15,
+			zoom: 13,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -52555,16 +52555,10 @@ module.exports = {
 	createPolygonFromBounds: function(latLngBounds) {
 		var center = latLngBounds.getCenter()
 		latlngs = [];
-
 		latlngs.push(latLngBounds.getSouthWest());//bottom left
-		//latlngs.push({ lat: latLngBounds.getSouth(), lng: center.lng });//bottom center
 		latlngs.push(latLngBounds.getSouthEast());//bottom right
-		//latlngs.push({ lat: center.lat, lng: latLngBounds.getEast() });// center right
 		latlngs.push(latLngBounds.getNorthEast());//top right
-		//latlngs.push({ lat: latLngBounds.getNorth(), lng: map.getCenter().lng });//top center
 		latlngs.push(latLngBounds.getNorthWest());//top left
-		//latlngs.push({ lat: map.getCenter().lat, lng: latLngBounds.getWest() });//center left
-
 		return L.polygon(latlngs);
 	},
 

@@ -39,7 +39,7 @@ $(function() {
 	var tmpls = {
 		bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
-		popup: H.compile($('#tmpl_popup').html())
+		map_popup: H.compile($('#tmpl_popup').html())
 	};
 
 	$('#tabs_maps a').on('shown.bs.tab', function(event) {
@@ -51,15 +51,27 @@ $(function() {
 		});
 	});
 
-	function loadResults(geoArea, layerData) {
+	function loadResults(geoArea, map) {
+
+		console.log('loadResults',map)
 		
+		if(map.layerData)
+			map.layerData.clearLayers();
+		else
+			map.layerData = L.geoJSON([],{
+				onEachFeature: function(feature, layer) {
+					console.log(feature.properties)
+					layer.bindPopup( tmpls.map_popup(feature.properties) )
+				}
+			}).addTo(map);
+			
+
+		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
 
-console.log('loadResults',layerData)
-			layerData.clearLayers().addData(geoRes);
+			map.layerData.addData(geoRes);
 
 			results.update(geoRes);
-
 		});
 	}
 

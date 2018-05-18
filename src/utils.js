@@ -12,7 +12,7 @@ module.exports = {
 
 	getMapOpts: function() {
 		return {
-			zoom: 15,
+			zoom: 13,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -24,16 +24,10 @@ module.exports = {
 	createPolygonFromBounds: function(latLngBounds) {
 		var center = latLngBounds.getCenter()
 		latlngs = [];
-
 		latlngs.push(latLngBounds.getSouthWest());//bottom left
-		//latlngs.push({ lat: latLngBounds.getSouth(), lng: center.lng });//bottom center
 		latlngs.push(latLngBounds.getSouthEast());//bottom right
-		//latlngs.push({ lat: center.lat, lng: latLngBounds.getEast() });// center right
 		latlngs.push(latLngBounds.getNorthEast());//top right
-		//latlngs.push({ lat: latLngBounds.getNorth(), lng: map.getCenter().lng });//top center
 		latlngs.push(latLngBounds.getNorthWest());//top left
-		//latlngs.push({ lat: map.getCenter().lat, lng: latLngBounds.getWest() });//center left
-
 		return L.polygon(latlngs);
 	},
 

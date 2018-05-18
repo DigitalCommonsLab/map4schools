@@ -10,17 +10,13 @@ module.exports = {
   	
   	map: null,
 
-  	layerData: L.geoJSON(),
-
-  	onSelect: function(area) {},
+  	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
 		this.map = L.map(el, utils.getMapOpts() );
-
-		this.map.addLayer(this.layerData);
 
 		$.getJSON('data/italy-regions.json', function(json) {
 
@@ -37,7 +33,7 @@ module.exports = {
 
 					$('#geo_selection').text( JSON.stringify(sel) );
 
-					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.layerData);
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
 				}
 
 			}).addTo(self.map);
