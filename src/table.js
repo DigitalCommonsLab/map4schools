@@ -11,7 +11,7 @@ module.exports = {
   	
   	table: null,
 
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
 
@@ -19,32 +19,34 @@ module.exports = {
 		this.table = $(el);
 
 		this.table.bootstrapTable({
+			
+			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
+
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],
-			//TODO cardView: true,
+			//cardView: true,
 			data: [],
 		    columns: [
-/*		    	{
-			        field: 'id',
-			        title: 'Id'
-			    },*/
 			    {
 			        field: 'name',
-			        title: 'Name'
+			        title: 'Nome'
 			    }, {
 			        field: 'isced:level',
-			        title: 'Level'
+			        title: 'Livello'
 			    }, {
 			        field: 'website',
-			        title: 'Website'
-			    }, {
+			        title: 'Sito Web'
+			    },
+/*			    {
 			        field: 'operator',
-			        title: 'Operator'
-			    }
+			        title: 'Operatore'
+			    },
+		    	{
+			        field: 'id',
+			        title: 'Id'
+			    }*/			    
 		    ]
-		}).on('onClickRow', function(e) {
-			console.log(e)
 		});
 	},
 
@@ -52,7 +54,7 @@ module.exports = {
 		var json = _.map(geo.features, function(f) {
 			var p = f.properties;
 			return {
-				//'id': p.osm_id || p.id,
+				'id': p.osm_id || p.id,
 				'name': p.name,
 				'isced:level': p.isced_leve,
 				'operator': p.operator_r,

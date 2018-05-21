@@ -35,13 +35,17 @@ module.exports = {
 		municipalities: null
 	},
 
+/*	getMarkerById(id) {
+		return L.marker
+	},*/
+
 	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
 
 		$.getJSON(urls.region, function(json) {
 
@@ -54,21 +58,24 @@ module.exports = {
 
 				if(e.selected) {
 				
-					this.selection = {
+					//TODO if only is a municipality level
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+					//console.log('map admin onSelect')
+
+					self.selection = {
 						region: e.layers[0].feature.properties.id,
 						regions: json
 					};
 					
-					var url = L.Util.template(urls.province, {region: this.selection.region });
-					console.log('GEJSON',url)
+					var url = L.Util.template(urls.province, {region: self.selection.region });
+					
+					//console.log('GEJSON',url);
+
 					$.getJSON(url, function(json) {
 						console.log(json)
 						geoLayer.clearLayers().addData(json);
 						geoSelect.reload(geoLayer);
 					});
-
-					//TODO if only is a municipality level
-					//self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
 
 					self.update();
 				}
@@ -99,7 +106,7 @@ module.exports = {
 			municipality_label: this.municipalities &&_.filter(this.municipalities.features, function(f){ return f.properties.id == this.selection.municipality })[0].properties.name
 		});
 
-		console.log('breadData', breadData);
+		//console.log('breadData', breadData);
 
 		$('#breadcrumb').html( this.tmpl_bread_admin(breadData) );
 	}

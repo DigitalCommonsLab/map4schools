@@ -12,6 +12,22 @@ module.exports = {
   	
   	results: [],
 
+  	getData: function(url, cb) {
+
+		if(!localStorage[url]) {
+	  		$.getJSON(url, function(json) {
+	  			
+	  			localStorage[url] = JSON.stringify(json);
+
+	  			cb(json);
+	  		});
+	  	}
+	  	else
+	  	{
+	  		cb(JSON.parse(localStorage[url]))
+	  	}
+  	},
+
 	search: function(geoArea, cb) {
 
 		//TODO
@@ -24,7 +40,8 @@ module.exports = {
 			},
 			url = L.Util.template(tmplUrl, params);
 
-		$.getJSON(url, function(json) {
+		//$.getJSON(url, function(json) {
+		this.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 

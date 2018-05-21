@@ -40,34 +40,33 @@
 						</div>
 					</div>
 				</div>
-				<div class="row">
+				<!-- <div class="row">
 					<label>Selected</label>
 					<pre id="geo_selection"></pre>
-				</div>
+				</div> -->
 		    </div>
 		    <div class="col-sm-5">
-		    	<div class="row">
+		    	<!-- <div class="row">
 			    	<div class="col-sm">
 				    	<h2>Tipologia Scuola</h2>
 				    	<form>
 						  <div class="form-group">
 						    <label for="sel_level">Livello istruzione</label>
 							<select id="sel_level" class="custom-select">
-								<!-- TMPLS -->
+								
 							</select>
 							<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
 						  </div>
 						  <button type="submit" class="btn btn-primary">Submit</button>
 						</form>
 					</div>
-			  	</div>
+			  	</div> -->
 			  	<div class="row">
 			    	<div class="col-sm">
-		      			<h2>Risultati</h2>
-
+		      			<h2>Scuole</h2>
+		      			<br /><br />
 		 				<table id="table_selection" class="table">
 						</table>
-
 					</div>
 				</div>
 		    </div>
@@ -76,8 +75,8 @@
 	
 	<hr />
 
-	<div class="container">		
-		<h2>Grafici Parametri Scuola</h2>
+	<div id="charts" class="container">		
+		<h2>Grafici Parametri Scuola<b></b></h2>
 		<div class="row">
 			<div class="col-sm-4">
 				<div class="card" style="width: 18rem;">
@@ -138,15 +137,15 @@
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <ul class="list-group">
-	{{#if operator}}<li class="list-group-item">Operator {{operator}}</li>{{/if}}
-	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">website</a></li>{{/if}}
-	{{#if isced:level}}<li class="list-group-item">Level {{isced:level}}</li>{{/if}}
+	{{#if operator}}<li class="list-group-item">Operatore {{operator}}</li>{{/if}}
+	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
+	{{#if isced:level}}<li class="list-group-item">Livello {{isced:level}}</li>{{/if}}
 </ul>
 <br />
-<div class="btn-group btn-group-xs" role="group">
-	<a class="btn btn-primary" href="{{url_view}}" target="_blank">view</a>
+<!-- <div class="btn-group btn-group-xs" role="group">
+	<a class="btn btn-link btn-xs" href="{{url_view}}" target="_blank">view</a>
 	<a class="btn btn-primary" href="{{url_edit}}">edit</a>
-</div>
+</div> -->
 </script>
 <script src="bundle.js"></script>
 </body>

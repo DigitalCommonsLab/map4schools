@@ -34,21 +34,26 @@ $(function() {
 		gps: mapGps.init('map_gps')
 	};
 
-	table.init('#table_selection');
+	table.init('#table_selection', {
+		onClickRow: function(e) {			
+
+			maps.admin.map.layerData.eachLayer(function(layer) {
+				
+				if(layer.feature.id==e.id) {
+					layer.openPopup();
+					maps.admin.map.setView(layer.getLatLng(), 10)
+				}
+			});
+
+
+			$('#charts h2 b').text(': '+e.name)
+		}
+	});
 
 	var tmpls = {
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	};
-
-	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-		//$(event.target).find();
-		//simplified
-		_.each(maps, function(m) {
-			m.map.invalidateSize(false);
-		});
-	});
 
 	function loadSelection(geoArea, map) {
 
@@ -81,6 +86,16 @@ $(function() {
 	maps.admin.onSelect = loadSelection;
 	maps.area.onSelect = loadSelection;
 	maps.gps.onSelect = loadSelection;
+
+	$('#tabs_maps a').on('shown.bs.tab', function(event) {
+		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
+		//$(event.target).find();
+		//simplified
+		_.each(maps, function(m) {
+			m.map.invalidateSize(false);
+		});
+	});
+
 
 	/*
 	maps.admin.onSelect = function(geo) {

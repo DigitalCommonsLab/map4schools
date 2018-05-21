@@ -52519,21 +52519,26 @@ $(function() {
 		gps: mapGps.init('map_gps')
 	};
 
-	table.init('#table_selection');
+	table.init('#table_selection', {
+		onClickRow: function(e) {			
+
+			maps.admin.map.layerData.eachLayer(function(layer) {
+				
+				if(layer.feature.id==e.id) {
+					layer.openPopup();
+					maps.admin.map.setView(layer.getLatLng(), 10)
+				}
+			});
+
+
+			$('#charts h2 b').text(': '+e.name)
+		}
+	});
 
 	var tmpls = {
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	};
-
-	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-		//$(event.target).find();
-		//simplified
-		_.each(maps, function(m) {
-			m.map.invalidateSize(false);
-		});
-	});
 
 	function loadSelection(geoArea, map) {
 
@@ -52566,6 +52571,16 @@ $(function() {
 	maps.admin.onSelect = loadSelection;
 	maps.area.onSelect = loadSelection;
 	maps.gps.onSelect = loadSelection;
+
+	$('#tabs_maps a').on('shown.bs.tab', function(event) {
+		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
+		//$(event.target).find();
+		//simplified
+		_.each(maps, function(m) {
+			m.map.invalidateSize(false);
+		});
+	});
+
 
 	/*
 	maps.admin.onSelect = function(geo) {
@@ -52618,13 +52633,17 @@ module.exports = {
 		municipalities: null
 	},
 
+/*	getMarkerById(id) {
+		return L.marker
+	},*/
+
 	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
 
 		$.getJSON(urls.region, function(json) {
 
@@ -52637,21 +52656,24 @@ module.exports = {
 
 				if(e.selected) {
 				
-					this.selection = {
+					//TODO if only is a municipality level
+					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+					//console.log('map admin onSelect')
+
+					self.selection = {
 						region: e.layers[0].feature.properties.id,
 						regions: json
 					};
 					
-					var url = L.Util.template(urls.province, {region: this.selection.region });
-					console.log('GEJSON',url)
+					var url = L.Util.template(urls.province, {region: self.selection.region });
+					
+					//console.log('GEJSON',url);
+
 					$.getJSON(url, function(json) {
 						console.log(json)
 						geoLayer.clearLayers().addData(json);
 						geoSelect.reload(geoLayer);
 					});
-
-					//TODO if only is a municipality level
-					//self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
 
 					self.update();
 				}
@@ -52682,7 +52704,7 @@ module.exports = {
 			municipality_label: this.municipalities &&_.filter(this.municipalities.features, function(f){ return f.properties.id == this.selection.municipality })[0].properties.name
 		});
 
-		console.log('breadData', breadData);
+		//console.log('breadData', breadData);
 
 		$('#breadcrumb').html( this.tmpl_bread_admin(breadData) );
 	}
@@ -52877,6 +52899,22 @@ module.exports = {
   	
   	results: [],
 
+  	getData: function(url, cb) {
+
+		if(!localStorage[url]) {
+	  		$.getJSON(url, function(json) {
+	  			
+	  			localStorage[url] = JSON.stringify(json);
+
+	  			cb(json);
+	  		});
+	  	}
+	  	else
+	  	{
+	  		cb(JSON.parse(localStorage[url]))
+	  	}
+  	},
+
 	search: function(geoArea, cb) {
 
 		//TODO
@@ -52889,7 +52927,8 @@ module.exports = {
 			},
 			url = L.Util.template(tmplUrl, params);
 
-		$.getJSON(url, function(json) {
+		//$.getJSON(url, function(json) {
+		this.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 
@@ -52943,7 +52982,7 @@ module.exports = {
   	
   	table: null,
 
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
 
@@ -52951,32 +52990,34 @@ module.exports = {
 		this.table = $(el);
 
 		this.table.bootstrapTable({
+			
+			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
+
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],
-			//TODO cardView: true,
+			//cardView: true,
 			data: [],
 		    columns: [
-/*		    	{
-			        field: 'id',
-			        title: 'Id'
-			    },*/
 			    {
 			        field: 'name',
-			        title: 'Name'
+			        title: 'Nome'
 			    }, {
 			        field: 'isced:level',
-			        title: 'Level'
+			        title: 'Livello'
 			    }, {
 			        field: 'website',
-			        title: 'Website'
-			    }, {
+			        title: 'Sito Web'
+			    },
+/*			    {
 			        field: 'operator',
-			        title: 'Operator'
-			    }
+			        title: 'Operatore'
+			    },
+		    	{
+			        field: 'id',
+			        title: 'Id'
+			    }*/			    
 		    ]
-		}).on('onClickRow', function(e) {
-			console.log(e)
 		});
 	},
 
@@ -52984,7 +53025,7 @@ module.exports = {
 		var json = _.map(geo.features, function(f) {
 			var p = f.properties;
 			return {
-				//'id': p.osm_id || p.id,
+				'id': p.osm_id || p.id,
 				'name': p.name,
 				'isced:level': p.isced_leve,
 				'operator': p.operator_r,
