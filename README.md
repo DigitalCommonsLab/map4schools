@@ -1,8 +1,8 @@
 # osm4schools
 
-[screenshot](https://raw.githubusercontent.com/DigitalCommonsLab/osm4schools/master/screenshots/selections.gif)
+[screenshot](https://raw.githubusercontent.com/DigitalCommonsLab/osm4schools/master/screenshots/selections2.gif)
 
-![screenshot](screenshots/selections.gif)
+![screenshot](screenshots/selections2.gif)
 
 
 # Usage
