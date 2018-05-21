@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -52530,7 +52530,6 @@ $(function() {
 				}
 			});
 
-
 			$('#charts h2 b').text(': '+e.name)
 		}
 	});
@@ -52604,8 +52603,8 @@ var Select = require('leaflet-geojson-selector');
 require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-//var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
-var baseUrl = 'data/confini-istat/geojson/';
+var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
+//var baseUrl = 'data/confini-istat/geojson/';
 
 var urls = {
 	region: baseUrl+'regions.json',

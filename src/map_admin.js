@@ -8,8 +8,8 @@ var Select = require('leaflet-geojson-selector');
 require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-//var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
-var baseUrl = 'data/confini-istat/geojson/';
+var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
+//var baseUrl = 'data/confini-istat/geojson/';
 
 var urls = {
 	region: baseUrl+'regions.json',

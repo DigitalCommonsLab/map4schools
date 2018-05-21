@@ -16,3 +16,7 @@
 .leaflet-container a {
     color: inherit;
 }
+
+.leaflet-popup-content {
+	margin:3px 9px;
+}
