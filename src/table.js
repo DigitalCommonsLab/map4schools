@@ -56,8 +56,8 @@ module.exports = {
 			return {
 				'id': p.osm_id || p.id,
 				'name': p.name,
-				'isced:level': p.isced_leve,
-				'operator': p.operator_r,
+				'isced:level': p['isced:level'],
+				'operator': p.operator,
 				'website': p.website
 			};
 		});
