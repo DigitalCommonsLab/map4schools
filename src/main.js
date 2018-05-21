@@ -47,7 +47,7 @@ $(function() {
 
 			$('#charts h2 b').text(': '+e.name)
 
-			$('#charts').show()
+			$('#charts').show();
 		}
 	});
 

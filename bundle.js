@@ -52532,7 +52532,7 @@ $(function() {
 
 			$('#charts h2 b').text(': '+e.name)
 
-			$('#charts').show()
+			$('#charts').show();
 		}
 	});
 
@@ -52952,6 +52952,7 @@ module.exports = {
 			//DEBUGGING
 			geojson.features = _.map(geojson.features, function(f) {
 				f.properties['isced:level'] = ""+_.random(0,6);
+				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
 				return f;
 			});
 
