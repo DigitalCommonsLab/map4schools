@@ -47,6 +47,12 @@ module.exports = {
 		
 		self.map = L.map(el, utils.getMapOpts() );
 
+		self.map.on('popupopen', function(e) {
+		    var px = map.project(e.popup._latlng);
+		    px.y -= e.popup._container.clientHeight/2
+		    map.panTo(map.unproject(px),{animate: true});
+		});
+
 		$.getJSON(urls.region, function(json) {
 
 			var geoLayer = L.geoJson(json).addTo(self.map);
@@ -59,25 +65,32 @@ module.exports = {
 				if(e.selected) {
 				
 					//TODO if only is a municipality level
-					self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
-					//console.log('map admin onSelect')
-
-					self.selection = {
-						region: e.layers[0].feature.properties.id,
-						regions: json
-					};
 					
-					var url = L.Util.template(urls.province, {region: self.selection.region });
-					
-					//console.log('GEJSON',url);
+					//is a province level
+					if(e.layers[0].feature.properties.id_reg) {
+						self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+					}
+					else {
 
-					$.getJSON(url, function(json) {
-						console.log(json)
-						geoLayer.clearLayers().addData(json);
-						geoSelect.reload(geoLayer);
-					});
+						self.selection = {
+							region: e.layers[0].feature.properties.id,
+							regions: json
+						};
+						
+						var url = L.Util.template(urls.province, {
+							region: self.selection.region
+						});
+						
+						//console.log('GEJSON',url);
 
-					self.update();
+						$.getJSON(url, function(json) {
+							console.log(json)
+							geoLayer.clearLayers().addData(json);
+							geoSelect.reload(geoLayer);
+						});
+
+						self.update();
+					}
 				}
 
 			}).addTo(self.map);

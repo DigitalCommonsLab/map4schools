@@ -41,7 +41,7 @@ $(function() {
 				
 				if(layer.feature.id==e.id) {
 					layer.openPopup();
-					maps.admin.map.setView(layer.getLatLng(), 10)
+					//maps.admin.map.setView(layer.getLatLng(), 10)
 				}
 			});
 
@@ -56,8 +56,6 @@ $(function() {
 	};
 
 	function loadSelection(geoArea, map) {
-
-		console.log('loadSelection', map);
 		
 		if(!map.layerData) {
 			map.layerData = L.geoJSON([], {
