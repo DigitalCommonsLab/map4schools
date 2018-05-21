@@ -20,3 +20,8 @@
 .leaflet-popup-content {
 	margin:3px 9px;
 }
+
+.leaflet-control-gps.leaflet-control a {
+	margin: 4px;
+	background-color: #fff;
+}
