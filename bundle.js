@@ -52643,9 +52643,9 @@ module.exports = {
 		self.map = L.map(el, utils.getMapOpts() );
 
 		self.map.on('popupopen', function(e) {
-		    var px = map.project(e.popup._latlng);
+		    var px = self.map.project(e.popup._latlng);
 		    px.y -= e.popup._container.clientHeight/2
-		    map.panTo(map.unproject(px),{animate: true});
+		    self.map.panTo(self.map.unproject(px),{animate: true});
 		});
 
 		$.getJSON(urls.region, function(json) {
@@ -52664,6 +52664,7 @@ module.exports = {
 					//is a province level
 					if(e.layers[0].feature.properties.id_reg) {
 						self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+						//geoLayer.remove()
 					}
 					else {
 
@@ -53002,7 +53003,7 @@ module.exports = {
 		this.table.bootstrapTable({
 			
 			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
-
+			//radio:true,
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],

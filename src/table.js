@@ -21,7 +21,7 @@ module.exports = {
 		this.table.bootstrapTable({
 			
 			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
-
+			//radio:true,
 			pagination:true,
 			pageSize: 5,
 			pageList: [5],
