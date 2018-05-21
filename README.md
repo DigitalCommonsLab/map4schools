@@ -1,6 +1,6 @@
 # osm4schools
 
-[screenshot](screenshots/selections.gif)
+[screenshot](https://raw.githubusercontent.com/DigitalCommonsLab/osm4schools/master/screenshots/selections.gif)
 
 ![screenshot](screenshots/selections.gif)
 
