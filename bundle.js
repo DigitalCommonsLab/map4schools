@@ -52640,6 +52640,14 @@ module.exports = {
 
 		var self = this;
 
+		self.tmpls = {
+			url_region: H.compile(baseUrl + 'regions.json'),
+			url_province: H.compile(baseUrl + '{{region.properties.id}}/provinces.json'),
+			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json'),
+			//TODO FIXME municipalities
+			bread_admin: H.compile($('#tmpl_bread_admin').html()),
+		};
+
 		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
@@ -52724,8 +52732,6 @@ module.exports = {
 			//self.map.setMaxBounds( self.selectionLayer.getBounds().pad(0.5) );
 		});
 
-		this.tmpl_bread_admin = H.compile($('#tmpl_bread_admin').html());
-
 		return this;
 	},
 
@@ -52733,33 +52739,20 @@ module.exports = {
 
 		var self = this;
 
-		var sel = self.selection;
-
-		console.log('selection', sel)
-
-		$('#breadcrumb').html( self.tmpl_bread_admin(sel) );
+		$('#breadcrumb').html( self.tmpls.bread_admin(self.selection) );
 	},
 
 	getGeoUrl: function() {
-		var sel = this.selection,
-			tmpl = '',
-			tmpls = {
-				region: 'regions.json',
-				province: '{{region.properties.id}}/provinces.json',
-				municipality: '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json',
-				//TODO FIXME municipalities
-			};
+		var sel = this.selection;
 
 		if(sel.region && sel.province)
-			tmpl = tmpls.municipality;
+			return this.tmpls.url_municipality(sel);
 		
 		else if(sel.region && !sel.province)
-			tmpl = tmpls.province;
+			return this.tmpls.url_province(sel);
 
 		else
-			tmpl = tmpls.region;
-
-		return baseUrl + H.compile(tmpl)(sel);
+			return this.tmpls.url_region(sel);
 	},
 
 /*	initSearch: function() {
