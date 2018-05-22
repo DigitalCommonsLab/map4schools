@@ -75,7 +75,7 @@
 	
 	<hr />
 
-	<div id="charts" style="display: none" class="container">		
+	<div id="charts" style="display:none" class="container">		
 		<h2>Grafici Parametri Scuola<b></b></h2>
 		<div class="row">
 			<div class="col-sm-4">
@@ -112,21 +112,21 @@
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
 <ol class="breadcrumb">
 	{{#if region}}
-		{{#with region}}
-		<li class="breadcrumb-item"><a href="#" data-id="{{properties.id}}">{{properties.name}}</a></li>
-		{{/with}}
+		<li class="breadcrumb-item">
+			<a href="#" data-region="{{region.properties.id}}">{{region.properties.name}}</a>
+		</li>
 		{{#if province}}
-			{{#with province}}
-			<li class="breadcrumb-item"><a href="#" data-id="{{properties.id}}">{{properties.name}}</a></li>
-			{{/with}}
+			<li class="breadcrumb-item">
+				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}">{{province.properties.name}}</a>
+			</li>
 			{{#if municipality}}
-			{{#with municipality}}
-			<li class="breadcrumb-item active" data-id="{{properties.id}}" aria-current="page">{{properties.name}}</li>
-			{{/with}}
+			<li class="breadcrumb-item" aria-current="page">
+				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}" data-municipality="{{municipality.properties.id}}">{{municipality.properties.name}}</a>
+			</li>
 			{{/if}}
 		{{/if}}
 	{{else}}
-	<li class="breadcrumb-item" aria-current="page">Seleziona una regione</li>
+	<li class="breadcrumb-item" aria-current="page"><i>Seleziona una regione</i></li>
 	{{/if}}
 </ol>
 </script>

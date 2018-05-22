@@ -3,15 +3,11 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
 var utils = require('./utils');
-var Search = require('leaflet-search');
 var Select = require('leaflet-geojson-selector');
-require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
 var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
 //var baseUrl = 'data/confini-istat/geojson/';
-
-//https://www.npmjs.com/package/confini-istat
 
 module.exports = {
 	
@@ -43,13 +39,15 @@ module.exports = {
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};
+		
+		self.$breadcrumb = $('#breadcrumb');
 
 		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
 		self.map.addControl(L.control.zoom({ position:'topright'}));
 
-		self.selectionLayer = L.geoJson(null,{
+		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
 				l.bindTooltip(f.properties.name);
 			}
@@ -62,7 +60,7 @@ module.exports = {
 		    self.map.panTo(self.map.unproject(p),{animate: true});
 		});
 
-		$.getJSON(self.getGeoUrl(), function(json) {
+		$.getJSON(self.getGeoUrl(self.selection), function(json) {
 
 			self.selectionLayer.addData(json);
 
@@ -73,35 +71,38 @@ module.exports = {
 				//listOnlyVisibleLayers: true
 			}).on('change', function(e) {
 
+				
+
 				if(e.selected) {
 
-					let props = e.layers[0].feature.properties;
+					let selectedGeo = L.featureGroup(e.layers).toGeoJSON();
+					let selectedProps = selectedGeo.features[0].properties;
 				
 					self.map.fitBounds(e.layers[0].getBounds());
 					//TODO if only is a municipality level
 					
 					//is a municipality level
-					if(props.id_prov) {
+					if(selectedProps.id_prov) {
 						
 						self.selection = _.extend(self.selection, {
-							municipality: L.featureGroup(e.layers).toGeoJSON().features[0]
+							municipality: selectedGeo.features[0]
 						});						
 					}
 					//is a province level
-					else if(props.id_reg) {
+					else if(selectedProps.id_reg) {
 
 						self.selection = _.extend(self.selection, {
-							province: L.featureGroup(e.layers).toGeoJSON().features[0]
+							province: selectedGeo.features[0]
 						});
 					}
 					else {
 						
 						self.selection = _.extend(self.selection, {
-							region: L.featureGroup(e.layers).toGeoJSON().features[0]
+							region: selectedGeo.features[0]
 						});						
 					}
 
-					$.getJSON(self.getGeoUrl(), function(json) {
+					$.getJSON(self.getGeoUrl(self.selection), function(json) {
 						
 						self.selectionLayer.clearLayers().addData(json);
 
@@ -109,23 +110,31 @@ module.exports = {
 
 						self.controlSelect.reload(self.selectionLayer);
 
-						if(props.id_prov) {
+						if(selectedProps.id_prov) {
 
-							self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+							self.onSelect(selectedGeo, self.map);
 						}
 
-						self.update();
+						
 					});
 
 					
-					
+					self.update();
 				}
 				//else
 					//TODO return to up level
 
 			}).addTo(self.map);
 
+			self.update();
+
 			//self.map.setMaxBounds( self.selectionLayer.getBounds().pad(0.5) );
+		});
+
+		self.$breadcrumb.on('click','a', function(e) {
+			var sel = $(e.target).data();
+
+			console.log(sel);
 		});
 
 		return this;
@@ -135,11 +144,10 @@ module.exports = {
 
 		var self = this;
 
-		$('#breadcrumb').html( self.tmpls.bread_admin(self.selection) );
+		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
 	},
 
-	getGeoUrl: function() {
-		var sel = this.selection;
+	getGeoUrl: function(sel) {
 
 		if(sel.region && sel.province)
 			return this.tmpls.url_municipality(sel);
@@ -149,27 +157,5 @@ module.exports = {
 
 		else
 			return this.tmpls.url_region(sel);
-	},
-
-/*	initSearch: function() {
-	
-		L.control.search({
-			layer: geo,
-			propertyName: 'name',
-			marker: false,
-			initial: false,
-			casesensitive: false,
-			buildTip: function(text, val) {
-				var name = val.layer.feature.properties.name;
-				return '<a href="#">'+name+'</a>';
-			},
-			moveToLocation: function(latlng, title, map) {
-				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-	  			//map.setView(latlng, zoom); // access the zoom
-	  			latlng.layer.fire('click')
-			}
-		}).on('search:locationfound', function(e) {
-			e.layer.openTooltip();
-		}).addTo(this.map);
-	}*/
+	}
 };

@@ -320,7 +320,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules/amdefine/amdefine.js")
-},{"_process":70,"path":68}],3:[function(require,module,exports){
+},{"_process":68,"path":66}],3:[function(require,module,exports){
 /**
  * @author zhixin wen <wenzhixin2010@gmail.com>
  * version: 1.12.1
@@ -7550,7 +7550,7 @@ var css = "/*!\n * Bootstrap v4.1.1 (https://getbootstrap.com/)\n * Copyright 20
 })));
 
 
-},{"jquery":53,"popper.js":69}],7:[function(require,module,exports){
+},{"jquery":53,"popper.js":67}],7:[function(require,module,exports){
 'use strict';
 // For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
 
@@ -7695,7 +7695,7 @@ function rad(_) {
     return _ * Math.PI / 180;
 }
 
-},{"wgs84":144}],10:[function(require,module,exports){
+},{"wgs84":142}],10:[function(require,module,exports){
 var geojsonArea = require('geojson-area');
 
 module.exports = rewind;
@@ -26856,1023 +26856,7 @@ return L.Control.Gps;
 });
 
 
-},{"leaflet":62}],60:[function(require,module,exports){
-var css = ".leaflet-container .leaflet-control-search{position:relative;float:left;background:#fff;color:#1978cf;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;margin-left:10px;margin-top:10px}.leaflet-control-search.search-exp{background:#fff;border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-control-search .search-input{display:block;float:left;background:#fff;border:1px solid #666;border-radius:2px;height:22px;padding:0 20px 0 2px;margin:4px 0 4px 4px}.leaflet-control-search.search-load .search-input{background:url(node_modules/leaflet-search/images/loader.gif) no-repeat center right #fff}.leaflet-control-search.search-load .search-cancel{visibility:hidden}.leaflet-control-search .search-cancel{display:block;width:22px;height:22px;position:absolute;right:28px;margin:6px 0;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 0 -46px;text-decoration:none;opacity:.8}.leaflet-control-search .search-cancel:hover{opacity:1}.leaflet-control-search .search-cancel span{display:none;font-size:18px;line-height:20px;color:#ccc;font-weight:700}.leaflet-control-search .search-cancel:hover span{color:#aaa}.leaflet-control-search .search-button{display:block;float:left;width:30px;height:30px;background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px 4px #fff;border-radius:4px}.leaflet-control-search .search-button:hover{background:url(node_modules/leaflet-search/images/search-icon.png) no-repeat 4px -20px #fafafa}.leaflet-control-search .search-tooltip{position:absolute;top:100%;left:0;float:left;list-style:none;padding-left:0;min-width:120px;max-height:122px;box-shadow:1px 1px 6px rgba(0,0,0,.4);background-color:rgba(0,0,0,.25);z-index:1010;overflow-y:auto;overflow-x:hidden;cursor:pointer}.leaflet-control-search .search-tip{margin:2px;padding:2px 4px;display:block;color:#000;background:#eee;border-radius:.25em;text-decoration:none;white-space:nowrap;vertical-align:center}.leaflet-control-search .search-button:hover{background-color:#f4f4f4}.leaflet-control-search .search-tip-select,.leaflet-control-search .search-tip:hover{background-color:#fff}.leaflet-control-search .search-alert{cursor:pointer;clear:both;font-size:.75em;margin-bottom:5px;padding:0 .25em;color:#e00;font-weight:700;border-radius:.25em}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-search/dist/leaflet-search.min.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],61:[function(require,module,exports){
-/* 
- * Leaflet Control Search v2.9.0 - 2018-05-16 
- * 
- * Copyright 2018 Stefano Cudini 
- * stefano.cudini@gmail.com 
- * http://labs.easyblog.it/ 
- * 
- * Licensed under the MIT license. 
- * 
- * Demo: 
- * http://labs.easyblog.it/maps/leaflet-search/ 
- * 
- * Source: 
- * git@github.com:stefanocudini/leaflet-search.git 
- * 
- */
-/*
-	Name					Data passed			   Description
-
-	Managed Events:
-	 search:locationfound	{latlng, title, layer} fired after moved and show markerLocation
-	 search:expanded		{}					   fired after control was expanded
-	 search:collapsed		{}					   fired after control was collapsed
- 	 search:cancel			{}					   fired after cancel button clicked
-
-	Public methods:
-	 setLayer()				L.LayerGroup()         set layer search at runtime
-	 showAlert()            'Text message'         show alert message
-	 searchText()			'Text searched'        search text by external code
-*/
-
-//TODO implement can do research on multiple sources layers and remote		
-//TODO history: false,		//show latest searches in tooltip		
-//FIXME option condition problem {autoCollapse: true, markerLocation: true} not show location
-//FIXME option condition problem {autoCollapse: false }
-//
-//TODO here insert function  search inputText FIRST in _recordsCache keys and if not find results.. 
-//  run one of callbacks search(sourceData,jsonpUrl or options.layer) and run this.showTooltip
-//
-//TODO change structure of _recordsCache
-//	like this: _recordsCache = {"text-key1": {loc:[lat,lng], ..other attributes.. }, {"text-key2": {loc:[lat,lng]}...}, ...}
-//	in this mode every record can have a free structure of attributes, only 'loc' is required
-//TODO important optimization!!! always append data in this._recordsCache
-//  now _recordsCache content is emptied and replaced with new data founded
-//  always appending data on _recordsCache give the possibility of caching ajax, jsonp and layersearch!
-//
-//TODO here insert function  search inputText FIRST in _recordsCache keys and if not find results.. 
-//  run one of callbacks search(sourceData,jsonpUrl or options.layer) and run this.showTooltip
-//
-//TODO change structure of _recordsCache
-//	like this: _recordsCache = {"text-key1": {loc:[lat,lng], ..other attributes.. }, {"text-key2": {loc:[lat,lng]}...}, ...}
-//	in this way every record can have a free structure of attributes, only 'loc' is required
-
-(function (factory) {
-    if(typeof define === 'function' && define.amd) {
-    //AMD
-        define(['leaflet'], factory);
-    } else if(typeof module !== 'undefined') {
-    // Node/CommonJS
-        module.exports = factory(require('leaflet'));
-    } else {
-    // Browser globals
-        if(typeof window.L === 'undefined')
-            throw 'Leaflet must be loaded first';
-        factory(window.L);
-    }
-})(function (L) {
-
-
-L.Control.Search = L.Control.extend({
-	
-	includes: L.version[0]==='1' ? L.Evented.prototype : L.Mixin.Events,
-
-	options: {
-		url: '',						//url for search by ajax request, ex: "search.php?q={s}". Can be function to returns string for dynamic parameter setting
-		layer: null,					//layer where search markers(is a L.LayerGroup)				
-		sourceData: null,				//function to fill _recordsCache, passed searching text by first param and callback in second				
-		//TODO implements uniq option 'sourceData' to recognizes source type: url,array,callback or layer				
-		jsonpParam: null,				//jsonp param name for search by jsonp service, ex: "callback"
-		propertyLoc: 'loc',				//field for remapping location, using array: ['latname','lonname'] for select double fields(ex. ['lat','lon'] ) support dotted format: 'prop.subprop.title'
-		propertyName: 'title',			//property in marker.options(or feature.properties for vector layer) trough filter elements in layer,
-		formatData: null,				//callback for reformat all data from source to indexed data object
-		filterData: null,				//callback for filtering data from text searched, params: textSearch, allRecords
-		moveToLocation: null,			//callback run on location found, params: latlng, title, map
-		buildTip: null,					//function to return row tip html node(or html string), receive text tooltip in first param
-		container: '',					//container id to insert Search Control		
-		zoom: null,						//default zoom level for move to location
-		minLength: 1,					//minimal text length for autocomplete
-		initial: true,					//search elements only by initial text
-		casesensitive: false,			//search elements in case sensitive text
-		autoType: true,					//complete input with first suggested result and select this filled-in text.
-		delayType: 400,					//delay while typing for show tooltip
-		tooltipLimit: -1,				//limit max results to show in tooltip. -1 for no limit, 0 for no results
-		tipAutoSubmit: true,			//auto map panTo when click on tooltip
-		firstTipSubmit: false,			//auto select first result con enter click
-		autoResize: true,				//autoresize on input change
-		collapsed: true,				//collapse search control at startup
-		autoCollapse: false,			//collapse search control after submit(on button or on tips if enabled tipAutoSubmit)
-		autoCollapseTime: 1200,			//delay for autoclosing alert and collapse after blur
-		textErr: 'Location not found',	//error message
-		textCancel: 'Cancel',		    //title in cancel button		
-		textPlaceholder: 'Search...',   //placeholder value			
-		hideMarkerOnCollapse: false,    //remove circle and marker on search control collapsed		
-		position: 'topleft',		
-		marker: {						//custom L.Marker or false for hide
-			icon: false,				//custom L.Icon for maker location or false for hide
-			animate: true,				//animate a circle over location found
-			circle: {					//draw a circle in location found
-				radius: 10,
-				weight: 3,
-				color: '#e03',
-				stroke: true,
-				fill: false
-			}
-		}
-	},
-
-	_getPath: function(obj, prop) {
-		var parts = prop.split('.'),
-			last = parts.pop(),
-			len = parts.length,
-			cur = parts[0],
-			i = 1;
-
-		if(len > 0)
-			while((obj = obj[cur]) && i < len)
-				cur = parts[i++];
-
-		if(obj)
-			return obj[last];
-	},
-
-	_isObject: function(obj) {
-		return Object.prototype.toString.call(obj) === "[object Object]";
-	},
-
-	initialize: function(options) {
-		L.Util.setOptions(this, options || {});
-		this._inputMinSize = this.options.textPlaceholder ? this.options.textPlaceholder.length : 10;
-		this._layer = this.options.layer || new L.LayerGroup();
-		this._filterData = this.options.filterData || this._defaultFilterData;
-		this._formatData = this.options.formatData || this._defaultFormatData;
-		this._moveToLocation = this.options.moveToLocation || this._defaultMoveToLocation;
-		this._autoTypeTmp = this.options.autoType;	//useful for disable autoType temporarily in delete/backspace keydown
-		this._countertips = 0;		//number of tips items
-		this._recordsCache = {};	//key,value table! to store locations! format: key,latlng
-		this._curReq = null;
-	},
-
-	onAdd: function (map) {
-		this._map = map;
-		this._container = L.DomUtil.create('div', 'leaflet-control-search');
-		this._input = this._createInput(this.options.textPlaceholder, 'search-input');
-		this._tooltip = this._createTooltip('search-tooltip');
-		this._cancel = this._createCancel(this.options.textCancel, 'search-cancel');
-		this._button = this._createButton(this.options.textPlaceholder, 'search-button');
-		this._alert = this._createAlert('search-alert');
-
-		if(this.options.collapsed===false)
-			this.expand(this.options.collapsed);
-
-		if(this.options.marker) {
-			
-			if(this.options.marker instanceof L.Marker || this.options.marker instanceof L.CircleMarker)
-				this._markerSearch = this.options.marker;
-
-			else if(this._isObject(this.options.marker))
-				this._markerSearch = new L.Control.Search.Marker([0,0], this.options.marker);
-
-			this._markerSearch._isMarkerSearch = true;
-		}
-
-		this.setLayer( this._layer );
-
-		map.on({
-			// 		'layeradd': this._onLayerAddRemove,
-			// 		'layerremove': this._onLayerAddRemove
-			'resize': this._handleAutoresize
-			}, this);
-		return this._container;
-	},
-	addTo: function (map) {
-
-		if(this.options.container) {
-			this._container = this.onAdd(map);
-			this._wrapper = L.DomUtil.get(this.options.container);
-			this._wrapper.style.position = 'relative';
-			this._wrapper.appendChild(this._container);
-		}
-		else
-			L.Control.prototype.addTo.call(this, map);
-
-		return this;
-	},
-
-	onRemove: function(map) {
-		this._recordsCache = {};
-		// map.off({
-		// 		'layeradd': this._onLayerAddRemove,
-		// 		'layerremove': this._onLayerAddRemove
-		// 	}, this);
-	},
-
-	// _onLayerAddRemove: function(e) {
-	// 	//without this, run setLayer also for each Markers!! to optimize!
-	// 	if(e.layer instanceof L.LayerGroup)
-	// 		if( L.stamp(e.layer) != L.stamp(this._layer) )
-	// 			this.setLayer(e.layer);
-	// },
-
-	setLayer: function(layer) {	//set search layer at runtime
-		//this.options.layer = layer; //setting this, run only this._recordsFromLayer()
-		this._layer = layer;
-		this._layer.addTo(this._map);
-		return this;
-	},
-	
-	showAlert: function(text) {
-		var self = this;
-		text = text || this.options.textErr;
-		this._alert.style.display = 'block';
-		this._alert.innerHTML = text;
-		clearTimeout(this.timerAlert);
-		
-		this.timerAlert = setTimeout(function() {
-			self.hideAlert();
-		},this.options.autoCollapseTime);
-		return this;
-	},
-	
-	hideAlert: function() {
-		this._alert.style.display = 'none';
-		return this;
-	},
-		
-	cancel: function() {
-		this._input.value = '';
-		this._handleKeypress({ keyCode: 8 });//simulate backspace keypress
-		this._input.size = this._inputMinSize;
-		this._input.focus();
-		this._cancel.style.display = 'none';
-		this._hideTooltip();
-		this.fire('search:cancel');
-		return this;
-	},
-	
-	expand: function(toggle) {
-		toggle = typeof toggle === 'boolean' ? toggle : true;
-		this._input.style.display = 'block';
-		L.DomUtil.addClass(this._container, 'search-exp');
-		if ( toggle !== false ) {
-			this._input.focus();
-			this._map.on('dragstart click', this.collapse, this);
-		}
-		this.fire('search:expanded');
-		return this;	
-	},
-
-	collapse: function() {
-		this._hideTooltip();
-		this.cancel();
-		this._alert.style.display = 'none';
-		this._input.blur();
-		if(this.options.collapsed)
-		{
-			this._input.style.display = 'none';
-			this._cancel.style.display = 'none';			
-			L.DomUtil.removeClass(this._container, 'search-exp');		
-			if (this.options.hideMarkerOnCollapse) {
-				this._map.removeLayer(this._markerSearch);
-			}
-			this._map.off('dragstart click', this.collapse, this);
-		}
-		this.fire('search:collapsed');
-		return this;
-	},
-	
-	collapseDelayed: function() {	//collapse after delay, used on_input blur
-		var self = this;
-		if (!this.options.autoCollapse) return this;
-		clearTimeout(this.timerCollapse);
-		this.timerCollapse = setTimeout(function() {
-			self.collapse();
-		}, this.options.autoCollapseTime);
-		return this;		
-	},
-
-	collapseDelayedStop: function() {
-		clearTimeout(this.timerCollapse);
-		return this;		
-	},
-
-	////start DOM creations
-	_createAlert: function(className) {
-		var alert = L.DomUtil.create('div', className, this._container);
-		alert.style.display = 'none';
-
-		L.DomEvent
-			.on(alert, 'click', L.DomEvent.stop, this)
-			.on(alert, 'click', this.hideAlert, this);
-
-		return alert;
-	},
-
-	_createInput: function (text, className) {
-		var label = L.DomUtil.create('label', className, this._container);
-		var input = L.DomUtil.create('input', className, this._container);
-		input.type = 'text';
-		input.size = this._inputMinSize;
-		input.value = '';
-		input.autocomplete = 'off';
-		input.autocorrect = 'off';
-		input.autocapitalize = 'off';
-		input.placeholder = text;
-		input.style.display = 'none';
-		input.role = 'search';
-		input.id = input.role + input.type + input.size;
-		
-		label.htmlFor = input.id;
-		label.style.display = 'none';
-		label.value = text;
-
-		L.DomEvent
-			.disableClickPropagation(input)
-			.on(input, 'keyup', this._handleKeypress, this)
-			.on(input, 'blur', this.collapseDelayed, this)
-			.on(input, 'focus', this.collapseDelayedStop, this);
-		
-		return input;
-	},
-
-	_createCancel: function (title, className) {
-		var cancel = L.DomUtil.create('a', className, this._container);
-		cancel.href = '#';
-		cancel.title = title;
-		cancel.style.display = 'none';
-		cancel.innerHTML = "<span>&otimes;</span>";//imageless(see css)
-
-		L.DomEvent
-			.on(cancel, 'click', L.DomEvent.stop, this)
-			.on(cancel, 'click', this.cancel, this);
-
-		return cancel;
-	},
-	
-	_createButton: function (title, className) {
-		var button = L.DomUtil.create('a', className, this._container);
-		button.href = '#';
-		button.title = title;
-
-		L.DomEvent
-			.on(button, 'click', L.DomEvent.stop, this)
-			.on(button, 'click', this._handleSubmit, this)			
-			.on(button, 'focus', this.collapseDelayedStop, this)
-			.on(button, 'blur', this.collapseDelayed, this);
-
-		return button;
-	},
-
-	_createTooltip: function(className) {
-		var self = this;		
-		var tool = L.DomUtil.create('ul', className, this._container);
-		tool.style.display = 'none';
-		L.DomEvent
-			.disableClickPropagation(tool)
-			.on(tool, 'blur', this.collapseDelayed, this)
-			.on(tool, 'mousewheel', function(e) {
-				self.collapseDelayedStop();
-				L.DomEvent.stopPropagation(e);//disable zoom map
-			}, this)
-			.on(tool, 'mouseover', function(e) {
-				self.collapseDelayedStop();
-			}, this);
-		return tool;
-	},
-
-	_createTip: function(text, val) {//val is object in recordCache, usually is Latlng
-		var tip;
-		
-		if(this.options.buildTip)
-		{
-			tip = this.options.buildTip.call(this, text, val); //custom tip node or html string
-			if(typeof tip === 'string')
-			{
-				var tmpNode = L.DomUtil.create('div');
-				tmpNode.innerHTML = tip;
-				tip = tmpNode.firstChild;
-			}
-		}
-		else
-		{
-			tip = L.DomUtil.create('li', '');
-			tip.innerHTML = text;
-		}
-		
-		L.DomUtil.addClass(tip, 'search-tip');
-		tip._text = text; //value replaced in this._input and used by _autoType
-
-		if(this.options.tipAutoSubmit)
-			L.DomEvent
-				.disableClickPropagation(tip)		
-				.on(tip, 'click', L.DomEvent.stop, this)
-				.on(tip, 'click', function(e) {
-					this._input.value = text;
-					this._handleAutoresize();
-					this._input.focus();
-					this._hideTooltip();	
-					this._handleSubmit();
-				}, this);
-
-		return tip;
-	},
-
-	//////end DOM creations
-
-	_getUrl: function(text) {
-		return (typeof this.options.url === 'function') ? this.options.url(text) : this.options.url;
-	},
-
-	_defaultFilterData: function(text, records) {
-	
-		var I, icase, regSearch, frecords = {};
-
-		text = text.replace(/[.*+?^${}()|[\]\\]/g, '');  //sanitize remove all special characters
-		if(text==='')
-			return [];
-
-		I = this.options.initial ? '^' : '';  //search only initial text
-		icase = !this.options.casesensitive ? 'i' : undefined;
-
-		regSearch = new RegExp(I + text, icase);
-
-		//TODO use .filter or .map
-		for(var key in records) {
-			if( regSearch.test(key) )
-				frecords[key]= records[key];
-		}
-		
-		return frecords;
-	},
-
-	showTooltip: function(records) {
-		
-
-		this._countertips = 0;
-		this._tooltip.innerHTML = '';
-		this._tooltip.currentSelection = -1;  //inizialized for _handleArrowSelect()
-
-		if(this.options.tooltipLimit)
-		{
-			for(var key in records)//fill tooltip
-			{
-				if(this._countertips === this.options.tooltipLimit)
-					break;
-				
-				this._countertips++;
-
-				this._tooltip.appendChild( this._createTip(key, records[key]) );
-			}
-		}
-		
-		if(this._countertips > 0)
-		{
-			this._tooltip.style.display = 'block';
-			
-			if(this._autoTypeTmp)
-				this._autoType();
-
-			this._autoTypeTmp = this.options.autoType;//reset default value
-		}
-		else
-			this._hideTooltip();
-
-		this._tooltip.scrollTop = 0;
-
-		return this._countertips;
-	},
-
-	_hideTooltip: function() {
-		this._tooltip.style.display = 'none';
-		this._tooltip.innerHTML = '';
-		return 0;
-	},
-
-	_defaultFormatData: function(json) {	//default callback for format data to indexed data
-		var self = this,
-			propName = this.options.propertyName,
-			propLoc = this.options.propertyLoc,
-			i, jsonret = {};
-
-		if( L.Util.isArray(propLoc) )
-			for(i in json)
-				jsonret[ self._getPath(json[i],propName) ]= L.latLng( json[i][ propLoc[0] ], json[i][ propLoc[1] ] );
-		else
-			for(i in json)
-				jsonret[ self._getPath(json[i],propName) ]= L.latLng( self._getPath(json[i],propLoc) );
-		//TODO throw new Error("propertyName '"+propName+"' not found in JSON data");
-		return jsonret;
-	},
-
-	_recordsFromJsonp: function(text, callAfter) {  //extract searched records from remote jsonp service
-		L.Control.Search.callJsonp = callAfter;
-		var script = L.DomUtil.create('script','leaflet-search-jsonp', document.getElementsByTagName('body')[0] ),			
-			url = L.Util.template(this._getUrl(text)+'&'+this.options.jsonpParam+'=L.Control.Search.callJsonp', {s: text}); //parsing url
-			//rnd = '&_='+Math.floor(Math.random()*10000);
-			//TODO add rnd param or randomize callback name! in recordsFromJsonp
-		script.type = 'text/javascript';
-		script.src = url;
-		return { abort: function() { script.parentNode.removeChild(script); } };
-	},
-
-	_recordsFromAjax: function(text, callAfter) {	//Ajax request
-		if (window.XMLHttpRequest === undefined) {
-			window.XMLHttpRequest = function() {
-				try { return new ActiveXObject("Microsoft.XMLHTTP.6.0"); }
-				catch  (e1) {
-					try { return new ActiveXObject("Microsoft.XMLHTTP.3.0"); }
-					catch (e2) { throw new Error("XMLHttpRequest is not supported"); }
-				}
-			};
-		}
-		var IE8or9 = ( L.Browser.ie && !window.atob && document.querySelector ),
-			request = IE8or9 ? new XDomainRequest() : new XMLHttpRequest(),
-			url = L.Util.template(this._getUrl(text), {s: text});
-
-		//rnd = '&_='+Math.floor(Math.random()*10000);
-		//TODO add rnd param or randomize callback name! in recordsFromAjax			
-		
-		request.open("GET", url);
-		
-
-		request.onload = function() {
-			callAfter( JSON.parse(request.responseText) );
-		};
-		request.onreadystatechange = function() {
-		    if(request.readyState === 4 && request.status === 200) {
-		    	this.onload();
-		    }
-		};
-
-		request.send();
-		return request;   
-	},
-
-  _searchInLayer: function(layer, retRecords, propName) {
-    var self = this, loc;
-
-    if(layer instanceof L.Control.Search.Marker) return;
-
-    if(layer instanceof L.Marker || layer instanceof L.CircleMarker)
-    {
-      if(self._getPath(layer.options,propName))
-      {
-        loc = layer.getLatLng();
-        loc.layer = layer;
-        retRecords[ self._getPath(layer.options,propName) ] = loc;
-      }
-      else if(self._getPath(layer.feature.properties,propName))
-      {
-        loc = layer.getLatLng();
-        loc.layer = layer;
-        retRecords[ self._getPath(layer.feature.properties,propName) ] = loc;
-      }
-      else {
-        //throw new Error("propertyName '"+propName+"' not found in marker"); 
-         
-      }
-    }
-    else if(layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon)
-    {
-      if(self._getPath(layer.options,propName))
-      {
-        loc = layer.getBounds().getCenter();
-        loc.layer = layer;
-        retRecords[ self._getPath(layer.options,propName) ] = loc;
-      }
-      else if(self._getPath(layer.feature.properties,propName))
-      {
-        loc = layer.getBounds().getCenter();
-        loc.layer = layer;
-        retRecords[ self._getPath(layer.feature.properties,propName) ] = loc;
-      }
-      else {
-        //throw new Error("propertyName '"+propName+"' not found in shape"); 
-         
-      }
-    }
-    else if(layer.hasOwnProperty('feature'))//GeoJSON
-    {
-      if(layer.feature.properties.hasOwnProperty(propName))
-      {
-        if(layer.getLatLng && typeof layer.getLatLng === 'function') {
-          loc = layer.getLatLng();
-          loc.layer = layer;			
-          retRecords[ layer.feature.properties[propName] ] = loc;
-        } else if(layer.getBounds && typeof layer.getBounds === 'function') {
-          loc = layer.getBounds().getCenter();
-          loc.layer = layer;			
-          retRecords[ layer.feature.properties[propName] ] = loc;
-        } else {
-          
-        }
-      }
-      else {
-        //throw new Error("propertyName '"+propName+"' not found in feature");
-         
-      }
-    }
-    else if(layer instanceof L.LayerGroup)
-    {
-      layer.eachLayer(function (layer) {
-        self._searchInLayer(layer, retRecords, propName);
-      });
-    }
-  },
-	
-	_recordsFromLayer: function() {	//return table: key,value from layer
-		var self = this,
-			retRecords = {},
-			propName = this.options.propertyName;
-		
-		this._layer.eachLayer(function (layer) {
-			self._searchInLayer(layer, retRecords, propName);
-		});
-		
-		return retRecords;
-	},
-	
-	_autoType: function() {
-		
-		//TODO implements autype without selection(useful for mobile device)
-		
-		var start = this._input.value.length,
-			firstRecord = this._tooltip.firstChild ? this._tooltip.firstChild._text : '',
-			end = firstRecord.length;
-
-		if (firstRecord.indexOf(this._input.value) === 0) { // If prefix match
-			this._input.value = firstRecord;
-			this._handleAutoresize();
-
-			if (this._input.createTextRange) {
-				var selRange = this._input.createTextRange();
-				selRange.collapse(true);
-				selRange.moveStart('character', start);
-				selRange.moveEnd('character', end);
-				selRange.select();
-			}
-			else if(this._input.setSelectionRange) {
-				this._input.setSelectionRange(start, end);
-			}
-			else if(this._input.selectionStart) {
-				this._input.selectionStart = start;
-				this._input.selectionEnd = end;
-			}
-		}
-	},
-
-	_hideAutoType: function() {	// deselect text:
-
-		var sel;
-		if ((sel = this._input.selection) && sel.empty) {
-			sel.empty();
-		}
-		else if (this._input.createTextRange) {
-			sel = this._input.createTextRange();
-			sel.collapse(true);
-			var end = this._input.value.length;
-			sel.moveStart('character', end);
-			sel.moveEnd('character', end);
-			sel.select();
-		}
-		else {
-			if (this._input.getSelection) {
-				this._input.getSelection().removeAllRanges();
-			}
-			this._input.selectionStart = this._input.selectionEnd;
-		}
-	},
-	
-	_handleKeypress: function (e) {	//run _input keyup event
-		var self = this;
-
-		switch(e.keyCode)
-		{
-			case 27://Esc
-				this.collapse();
-			break;
-			case 13://Enter
-				if(this._countertips == 1 || (this.options.firstTipSubmit && this._countertips > 0))
-          if(this._tooltip.currentSelection == -1)
-					  this._handleArrowSelect(1);
-				this._handleSubmit();	//do search
-			break;
-			case 38://Up
-				this._handleArrowSelect(-1);
-			break;
-			case 40://Down
-				this._handleArrowSelect(1);
-			break;
-			case  8://Backspace
-			case 45://Insert
-			case 46://Delete
-				this._autoTypeTmp = false;//disable temporarily autoType
-			break;
-			case 37://Left
-			case 39://Right
-			case 16://Shift
-			case 17://Ctrl
-			case 35://End
-			case 36://Home
-			break;
-			default://All keys
-
-				if(this._input.value.length)
-					this._cancel.style.display = 'block';
-				else
-					this._cancel.style.display = 'none';
-
-				if(this._input.value.length >= this.options.minLength)
-				{
-					clearTimeout(this.timerKeypress);	//cancel last search request while type in				
-					this.timerKeypress = setTimeout(function() {	//delay before request, for limit jsonp/ajax request
-
-						self._fillRecordsCache();
-					
-					}, this.options.delayType);
-				}
-				else
-					this._hideTooltip();
-		}
-
-		this._handleAutoresize();
-	},
-
-	searchText: function(text) {
-		var code = text.charCodeAt(text.length);
-
-		this._input.value = text;
-
-		this._input.style.display = 'block';
-		L.DomUtil.addClass(this._container, 'search-exp');
-
-		this._autoTypeTmp = false;
-
-		this._handleKeypress({keyCode: code});
-	},
-	
-	_fillRecordsCache: function() {
-
-		var self = this,
-			inputText = this._input.value, records;
-
-		if(this._curReq && this._curReq.abort)
-			this._curReq.abort();
-		//abort previous requests
-
-		L.DomUtil.addClass(this._container, 'search-load');	
-
-		if(this.options.layer)
-		{
-			//TODO _recordsFromLayer must return array of objects, formatted from _formatData
-			this._recordsCache = this._recordsFromLayer();
-			
-			records = this._filterData( this._input.value, this._recordsCache );
-
-			this.showTooltip( records );
-
-			L.DomUtil.removeClass(this._container, 'search-load');
-		}
-		else
-		{
-			if(this.options.sourceData)
-				this._retrieveData = this.options.sourceData;
-
-			else if(this.options.url)	//jsonp or ajax
-				this._retrieveData = this.options.jsonpParam ? this._recordsFromJsonp : this._recordsFromAjax;
-
-			this._curReq = this._retrieveData.call(this, inputText, function(data) {
-				
-				self._recordsCache = self._formatData.call(self, data);
-
-				//TODO refact!
-				if(self.options.sourceData)
-					records = self._filterData( self._input.value, self._recordsCache );
-				else
-					records = self._recordsCache;
-
-				self.showTooltip( records );
- 
-				L.DomUtil.removeClass(self._container, 'search-load');
-			});
-		}
-	},
-	
-	_handleAutoresize: function() {	//autoresize this._input
-	    //TODO refact _handleAutoresize now is not accurate
-	    if (this._input.style.maxWidth != this._map._container.offsetWidth) //If maxWidth isn't the same as when first set, reset to current Map width
-	        this._input.style.maxWidth = L.DomUtil.getStyle(this._map._container, 'width');
-
-		if(this.options.autoResize && (this._container.offsetWidth + 45 < this._map._container.offsetWidth))
-			this._input.size = this._input.value.length<this._inputMinSize ? this._inputMinSize : this._input.value.length;
-	},
-
-	_handleArrowSelect: function(velocity) {
-	
-		var searchTips = this._tooltip.hasChildNodes() ? this._tooltip.childNodes : [];
-			
-		for (i=0; i<searchTips.length; i++)
-			L.DomUtil.removeClass(searchTips[i], 'search-tip-select');
-		
-		if ((velocity == 1 ) && (this._tooltip.currentSelection >= (searchTips.length - 1))) {// If at end of list.
-			L.DomUtil.addClass(searchTips[this._tooltip.currentSelection], 'search-tip-select');
-		}
-		else if ((velocity == -1 ) && (this._tooltip.currentSelection <= 0)) { // Going back up to the search box.
-			this._tooltip.currentSelection = -1;
-		}
-		else if (this._tooltip.style.display != 'none') {
-			this._tooltip.currentSelection += velocity;
-			
-			L.DomUtil.addClass(searchTips[this._tooltip.currentSelection], 'search-tip-select');
-			
-			this._input.value = searchTips[this._tooltip.currentSelection]._text;
-
-			// scroll:
-			var tipOffsetTop = searchTips[this._tooltip.currentSelection].offsetTop;
-			
-			if (tipOffsetTop + searchTips[this._tooltip.currentSelection].clientHeight >= this._tooltip.scrollTop + this._tooltip.clientHeight) {
-				this._tooltip.scrollTop = tipOffsetTop - this._tooltip.clientHeight + searchTips[this._tooltip.currentSelection].clientHeight;
-			}
-			else if (tipOffsetTop <= this._tooltip.scrollTop) {
-				this._tooltip.scrollTop = tipOffsetTop;
-			}
-		}
-	},
-
-	_handleSubmit: function() {	//button and tooltip click and enter submit
-
-		this._hideAutoType();
-		
-		this.hideAlert();
-		this._hideTooltip();
-
-		if(this._input.style.display == 'none')	//on first click show _input only
-			this.expand();
-		else
-		{
-			if(this._input.value === '')	//hide _input only
-				this.collapse();
-			else
-			{
-				var loc = this._getLocation(this._input.value);
-				
-				if(loc===false)
-					this.showAlert();
-				else
-				{
-					this.showLocation(loc, this._input.value);
-					this.fire('search:locationfound', {
-							latlng: loc,
-							text: this._input.value,
-							layer: loc.layer ? loc.layer : null
-						});
-				}
-			}
-		}
-	},
-
-	_getLocation: function(key) {	//extract latlng from _recordsCache
-
-		if( this._recordsCache.hasOwnProperty(key) )
-			return this._recordsCache[key];//then after use .loc attribute
-		else
-			return false;
-	},
-
-	_defaultMoveToLocation: function(latlng, title, map) {
-		if(this.options.zoom)
- 			this._map.setView(latlng, this.options.zoom);
- 		else
-			this._map.panTo(latlng);
-	},
-
-	showLocation: function(latlng, title) {	//set location on map from _recordsCache
-		var self = this;
-
-		self._map.once('moveend zoomend', function(e) {
-
-			if(self._markerSearch) {
-				self._markerSearch.addTo(self._map).setLatLng(latlng);
-			}
-			
-		});
-
-		self._moveToLocation(latlng, title, self._map);
-		//FIXME autoCollapse option hide self._markerSearch before visualized!!
-		if(self.options.autoCollapse)
-			self.collapse();
-
-		return self;
-	}
-});
-
-L.Control.Search.Marker = L.Marker.extend({
-
-	includes: L.version[0]==='1' ? L.Evented.prototype : L.Mixin.Events,
-	
-	options: {
-		icon: new L.Icon.Default(),
-		animate: true,
-		circle: {
-			radius: 10,
-			weight: 3,
-			color: '#e03',
-			stroke: true,
-			fill: false
-		}
-	},
-	
-	initialize: function (latlng, options) {
-		L.setOptions(this, options);
-
-		if(options.icon === true)
-			options.icon = new L.Icon.Default();
-
-		L.Marker.prototype.initialize.call(this, latlng, options);
-		
-		if( L.Control.Search.prototype._isObject(this.options.circle) )
-			this._circleLoc = new L.CircleMarker(latlng, this.options.circle);
-	},
-
-	onAdd: function (map) {
-		L.Marker.prototype.onAdd.call(this, map);
-		if(this._circleLoc) {
-			map.addLayer(this._circleLoc);
-			if(this.options.animate)
-				this.animate();
-		}
-	},
-
-	onRemove: function (map) {
-		L.Marker.prototype.onRemove.call(this, map);
-		if(this._circleLoc)
-			map.removeLayer(this._circleLoc);
-	},
-	
-	setLatLng: function (latlng) {
-		L.Marker.prototype.setLatLng.call(this, latlng);
-		if(this._circleLoc)
-			this._circleLoc.setLatLng(latlng);
-		return this;
-	},
-	
-	_initIcon: function () {
-		if(this.options.icon)
-			L.Marker.prototype._initIcon.call(this);
-	},
-
-	_removeIcon: function () {
-		if(this.options.icon)
-			L.Marker.prototype._removeIcon.call(this);
-	},
-
-	animate: function() {
-	//TODO refact animate() more smooth! like this: http://goo.gl/DDlRs
-		if(this._circleLoc)
-		{
-			var circle = this._circleLoc,
-				tInt = 200,	//time interval
-				ss = 5,	//frames
-				mr = parseInt(circle._radius/ss),
-				oldrad = this.options.circle.radius,
-				newrad = circle._radius * 2,
-				acc = 0;
-
-			circle._timerAnimLoc = setInterval(function() {
-				acc += 0.5;
-				mr += acc;	//adding acceleration
-				newrad -= mr;
-				
-				circle.setRadius(newrad);
-
-				if(newrad<oldrad)
-				{
-					clearInterval(circle._timerAnimLoc);
-					circle.setRadius(oldrad);//reset radius
-					//if(typeof afterAnimCall == 'function')
-						//afterAnimCall();
-						//TODO use create event 'animateEnd' in L.Control.Search.Marker 
-				}
-			}, tInt);
-		}
-		
-		return this;
-	}
-});
-
-L.Map.addInitHook(function () {
-    if (this.options.searchControl) {
-        this.searchControl = L.control.search(this.options.searchControl);
-        this.addControl(this.searchControl);
-    }
-});
-
-L.control.search = function (options) {
-    return new L.Control.Search(options);
-};
-
-return L.Control.Search;
-
-});
-
-
-
-},{"leaflet":62}],62:[function(require,module,exports){
+},{"leaflet":60}],60:[function(require,module,exports){
 /* @preserve
  * Leaflet 1.3.1, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2017 Vladimir Agafonkin, (c) 2010-2011 CloudMade
@@ -41676,12 +40660,12 @@ exports.map = createMap;
 })));
 
 
-},{}],63:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var css = ".leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-overlay-pane svg,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-tile{will-change:opacity}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;-o-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}.leaflet-zoom-anim .leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);-o-transition:-o-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline:0}.leaflet-container a{color:#0078a8}.leaflet-container a.leaflet-active{outline:2px solid orange}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font:12px/1.5 \"Helvetica Neue\",Arial,Helvetica,sans-serif}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a,.leaflet-bar a:hover{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(node_modules/leaflet/dist/images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.7);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-container .leaflet-control-attribution,.leaflet-container .leaflet-control-scale{font-size:11px}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;font-size:11px;white-space:nowrap;overflow:hidden;-moz-box-sizing:border-box;box-sizing:border-box;background:#fff;background:rgba(255,255,255,.5)}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 19px;line-height:1.4}.leaflet-popup-content p{margin:18px 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);-o-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;padding:4px 4px 0 0;border:none;text-align:center;width:18px;height:14px;font:16px/14px Tahoma,Verdana,sans-serif;color:#c3c3c3;text-decoration:none;font-weight:700;background:0 0}.leaflet-container a.leaflet-popup-close-button:hover{color:#999}.leaflet-popup-scrolled{overflow:auto;border-bottom:1px solid #ddd;border-top:1px solid #ddd}.leaflet-oldie .leaflet-popup-content-wrapper{zoom:1}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto}.leaflet-oldie .leaflet-popup-tip-container{margin-top:-1px}.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-clickable{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:\"\"}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet/dist/leaflet.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],64:[function(require,module,exports){
+},{"browserify-css":7}],62:[function(require,module,exports){
 module.exports = require('./polygon-features.json')
 
-},{"./polygon-features.json":65}],65:[function(require,module,exports){
+},{"./polygon-features.json":63}],63:[function(require,module,exports){
 module.exports=[
     {
         "key": "building",
@@ -41840,7 +40824,7 @@ module.exports=[
     }
 ]
 
-},{}],66:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var _ = require("./lodash.custom.js");
 var rewind = require("geojson-rewind");
 
@@ -42907,7 +41891,7 @@ osmtogeojson.toGeojson = osmtogeojson;
 
 module.exports = osmtogeojson;
 
-},{"./lodash.custom.js":67,"geojson-rewind":10,"osm-polygon-features":64}],67:[function(require,module,exports){
+},{"./lodash.custom.js":65,"geojson-rewind":10,"osm-polygon-features":62}],65:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -46614,7 +45598,7 @@ module.exports = osmtogeojson;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],68:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -46842,7 +45826,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":70}],69:[function(require,module,exports){
+},{"_process":68}],67:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
@@ -49374,7 +48358,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],70:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -49560,7 +48544,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],71:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /* global window, exports, define */
 
 !function() {
@@ -49780,7 +48764,7 @@ process.umask = function() { return 0; };
     /* eslint-enable quote-props */
 }()
 
-},{}],72:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 var trim = require('./trim');
 var decap = require('./decapitalize');
 
@@ -49796,7 +48780,7 @@ module.exports = function camelize(str, decapitalize) {
   }
 };
 
-},{"./decapitalize":81,"./trim":134}],73:[function(require,module,exports){
+},{"./decapitalize":79,"./trim":132}],71:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function capitalize(str, lowercaseRest) {
@@ -49806,14 +48790,14 @@ module.exports = function capitalize(str, lowercaseRest) {
   return str.charAt(0).toUpperCase() + remainingChars;
 };
 
-},{"./helper/makeString":91}],74:[function(require,module,exports){
+},{"./helper/makeString":89}],72:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function chars(str) {
   return makeString(str).split('');
 };
 
-},{"./helper/makeString":91}],75:[function(require,module,exports){
+},{"./helper/makeString":89}],73:[function(require,module,exports){
 module.exports = function chop(str, step) {
   if (str == null) return [];
   str = String(str);
@@ -49821,7 +48805,7 @@ module.exports = function chop(str, step) {
   return step > 0 ? str.match(new RegExp('.{1,' + step + '}', 'g')) : [str];
 };
 
-},{}],76:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var camelize = require('./camelize');
 var makeString = require('./helper/makeString');
@@ -49831,14 +48815,14 @@ module.exports = function classify(str) {
   return capitalize(camelize(str.replace(/[\W_]/g, ' ')).replace(/\s/g, ''));
 };
 
-},{"./camelize":72,"./capitalize":73,"./helper/makeString":91}],77:[function(require,module,exports){
+},{"./camelize":70,"./capitalize":71,"./helper/makeString":89}],75:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function clean(str) {
   return trim(str).replace(/\s\s+/g, ' ');
 };
 
-},{"./trim":134}],78:[function(require,module,exports){
+},{"./trim":132}],76:[function(require,module,exports){
 
 var makeString = require('./helper/makeString');
 
@@ -49862,7 +48846,7 @@ module.exports = function cleanDiacritics(str) {
   });
 };
 
-},{"./helper/makeString":91}],79:[function(require,module,exports){
+},{"./helper/makeString":89}],77:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, substr) {
@@ -49874,14 +48858,14 @@ module.exports = function(str, substr) {
   return str.split(substr).length - 1;
 };
 
-},{"./helper/makeString":91}],80:[function(require,module,exports){
+},{"./helper/makeString":89}],78:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function dasherize(str) {
   return trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
 };
 
-},{"./trim":134}],81:[function(require,module,exports){
+},{"./trim":132}],79:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function decapitalize(str) {
@@ -49889,7 +48873,7 @@ module.exports = function decapitalize(str) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 };
 
-},{"./helper/makeString":91}],82:[function(require,module,exports){
+},{"./helper/makeString":89}],80:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 function getIndent(str) {
@@ -49919,7 +48903,7 @@ module.exports = function dedent(str, pattern) {
   return str.replace(reg, '');
 };
 
-},{"./helper/makeString":91}],83:[function(require,module,exports){
+},{"./helper/makeString":89}],81:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -49934,7 +48918,7 @@ module.exports = function endsWith(str, ends, position) {
   return position >= 0 && str.indexOf(ends, position) === position;
 };
 
-},{"./helper/makeString":91,"./helper/toPositive":93}],84:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/toPositive":91}],82:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var escapeChars = require('./helper/escapeChars');
 
@@ -49953,7 +48937,7 @@ module.exports = function escapeHTML(str) {
   });
 };
 
-},{"./helper/escapeChars":88,"./helper/makeString":91}],85:[function(require,module,exports){
+},{"./helper/escapeChars":86,"./helper/makeString":89}],83:[function(require,module,exports){
 module.exports = function() {
   var result = {};
 
@@ -49965,7 +48949,7 @@ module.exports = function() {
   return result;
 };
 
-},{}],86:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function adjacent(str, direction) {
@@ -49976,7 +48960,7 @@ module.exports = function adjacent(str, direction) {
   return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length - 1) + direction);
 };
 
-},{"./makeString":91}],87:[function(require,module,exports){
+},{"./makeString":89}],85:[function(require,module,exports){
 var escapeRegExp = require('./escapeRegExp');
 
 module.exports = function defaultToWhiteSpace(characters) {
@@ -49988,7 +48972,7 @@ module.exports = function defaultToWhiteSpace(characters) {
     return '[' + escapeRegExp(characters) + ']';
 };
 
-},{"./escapeRegExp":89}],88:[function(require,module,exports){
+},{"./escapeRegExp":87}],86:[function(require,module,exports){
 /* We're explicitly defining the list of entities we want to escape.
 nbsp is an HTML entity, but we don't want to escape all space characters in a string, hence its omission in this map.
 
@@ -50009,14 +48993,14 @@ var escapeChars = {
 
 module.exports = escapeChars;
 
-},{}],89:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function escapeRegExp(str) {
   return makeString(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 };
 
-},{"./makeString":91}],90:[function(require,module,exports){
+},{"./makeString":89}],88:[function(require,module,exports){
 /*
 We're explicitly defining the list of entities that might see in escape HTML strings
 */
@@ -50037,7 +49021,7 @@ var htmlEntities = {
 
 module.exports = htmlEntities;
 
-},{}],91:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 /**
  * Ensure some object is a coerced to a string
  **/
@@ -50046,7 +49030,7 @@ module.exports = function makeString(object) {
   return '' + object;
 };
 
-},{}],92:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module.exports = function strRepeat(str, qty){
   if (qty < 1) return '';
   var result = '';
@@ -50057,12 +49041,12 @@ module.exports = function strRepeat(str, qty){
   return result;
 };
 
-},{}],93:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module.exports = function toPositive(number) {
   return number < 0 ? 0 : (+number || 0);
 };
 
-},{}],94:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var underscored = require('./underscored');
 var trim = require('./trim');
@@ -50071,7 +49055,7 @@ module.exports = function humanize(str) {
   return capitalize(trim(underscored(str).replace(/_id$/, '').replace(/_/g, ' ')));
 };
 
-},{"./capitalize":73,"./trim":134,"./underscored":136}],95:[function(require,module,exports){
+},{"./capitalize":71,"./trim":132,"./underscored":134}],93:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function include(str, needle) {
@@ -50079,7 +49063,7 @@ module.exports = function include(str, needle) {
   return makeString(str).indexOf(needle) !== -1;
 };
 
-},{"./helper/makeString":91}],96:[function(require,module,exports){
+},{"./helper/makeString":89}],94:[function(require,module,exports){
 /*
 * Underscore.string
 * (c) 2010 Esa-Matti Suuronen <esa-matti aet suuronen dot org>
@@ -50224,21 +49208,21 @@ for (var method in prototypeMethods) prototype2method(prototypeMethods[method]);
 
 module.exports = s;
 
-},{"./camelize":72,"./capitalize":73,"./chars":74,"./chop":75,"./classify":76,"./clean":77,"./cleanDiacritics":78,"./count":79,"./dasherize":80,"./decapitalize":81,"./dedent":82,"./endsWith":83,"./escapeHTML":84,"./exports":85,"./helper/escapeRegExp":89,"./humanize":94,"./include":95,"./insert":97,"./isBlank":98,"./join":99,"./levenshtein":100,"./lines":101,"./lpad":102,"./lrpad":103,"./ltrim":104,"./map":105,"./naturalCmp":106,"./numberFormat":107,"./pad":108,"./pred":109,"./prune":110,"./quote":111,"./repeat":112,"./replaceAll":113,"./reverse":114,"./rpad":115,"./rtrim":116,"./slugify":117,"./splice":118,"./sprintf":119,"./startsWith":120,"./strLeft":121,"./strLeftBack":122,"./strRight":123,"./strRightBack":124,"./stripTags":125,"./succ":126,"./surround":127,"./swapCase":128,"./titleize":129,"./toBoolean":130,"./toNumber":131,"./toSentence":132,"./toSentenceSerial":133,"./trim":134,"./truncate":135,"./underscored":136,"./unescapeHTML":137,"./unquote":138,"./vsprintf":139,"./words":140,"./wrap":141}],97:[function(require,module,exports){
+},{"./camelize":70,"./capitalize":71,"./chars":72,"./chop":73,"./classify":74,"./clean":75,"./cleanDiacritics":76,"./count":77,"./dasherize":78,"./decapitalize":79,"./dedent":80,"./endsWith":81,"./escapeHTML":82,"./exports":83,"./helper/escapeRegExp":87,"./humanize":92,"./include":93,"./insert":95,"./isBlank":96,"./join":97,"./levenshtein":98,"./lines":99,"./lpad":100,"./lrpad":101,"./ltrim":102,"./map":103,"./naturalCmp":104,"./numberFormat":105,"./pad":106,"./pred":107,"./prune":108,"./quote":109,"./repeat":110,"./replaceAll":111,"./reverse":112,"./rpad":113,"./rtrim":114,"./slugify":115,"./splice":116,"./sprintf":117,"./startsWith":118,"./strLeft":119,"./strLeftBack":120,"./strRight":121,"./strRightBack":122,"./stripTags":123,"./succ":124,"./surround":125,"./swapCase":126,"./titleize":127,"./toBoolean":128,"./toNumber":129,"./toSentence":130,"./toSentenceSerial":131,"./trim":132,"./truncate":133,"./underscored":134,"./unescapeHTML":135,"./unquote":136,"./vsprintf":137,"./words":138,"./wrap":139}],95:[function(require,module,exports){
 var splice = require('./splice');
 
 module.exports = function insert(str, i, substr) {
   return splice(str, i, 0, substr);
 };
 
-},{"./splice":118}],98:[function(require,module,exports){
+},{"./splice":116}],96:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function isBlank(str) {
   return (/^\s*$/).test(makeString(str));
 };
 
-},{"./helper/makeString":91}],99:[function(require,module,exports){
+},{"./helper/makeString":89}],97:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var slice = [].slice;
 
@@ -50249,7 +49233,7 @@ module.exports = function join() {
   return args.join(makeString(separator));
 };
 
-},{"./helper/makeString":91}],100:[function(require,module,exports){
+},{"./helper/makeString":89}],98:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 /**
@@ -50303,27 +49287,27 @@ module.exports = function levenshtein(str1, str2) {
   return nextCol;
 };
 
-},{"./helper/makeString":91}],101:[function(require,module,exports){
+},{"./helper/makeString":89}],99:[function(require,module,exports){
 module.exports = function lines(str) {
   if (str == null) return [];
   return String(str).split(/\r\n?|\n/);
 };
 
-},{}],102:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lpad(str, length, padStr) {
   return pad(str, length, padStr);
 };
 
-},{"./pad":108}],103:[function(require,module,exports){
+},{"./pad":106}],101:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lrpad(str, length, padStr) {
   return pad(str, length, padStr, 'both');
 };
 
-},{"./pad":108}],104:[function(require,module,exports){
+},{"./pad":106}],102:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimLeft = String.prototype.trimLeft;
@@ -50335,7 +49319,7 @@ module.exports = function ltrim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":87,"./helper/makeString":91}],105:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],103:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, callback) {
@@ -50346,7 +49330,7 @@ module.exports = function(str, callback) {
   return str.replace(/./g, callback);
 };
 
-},{"./helper/makeString":91}],106:[function(require,module,exports){
+},{"./helper/makeString":89}],104:[function(require,module,exports){
 module.exports = function naturalCmp(str1, str2) {
   if (str1 == str2) return 0;
   if (!str1) return -1;
@@ -50377,7 +49361,7 @@ module.exports = function naturalCmp(str1, str2) {
   return str1 < str2 ? -1 : 1;
 };
 
-},{}],107:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = function numberFormat(number, dec, dsep, tsep) {
   if (isNaN(number) || number == null) return '';
 
@@ -50391,7 +49375,7 @@ module.exports = function numberFormat(number, dec, dsep, tsep) {
   return fnums.replace(/(\d)(?=(?:\d{3})+$)/g, '$1' + tsep) + decimals;
 };
 
-},{}],108:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -50419,14 +49403,14 @@ module.exports = function pad(str, length, padStr, type) {
   }
 };
 
-},{"./helper/makeString":91,"./helper/strRepeat":92}],109:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/strRepeat":90}],107:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, -1);
 };
 
-},{"./helper/adjacent":86}],110:[function(require,module,exports){
+},{"./helper/adjacent":84}],108:[function(require,module,exports){
 /**
  * _s.prune: a more elegant version of truncate
  * prune extra chars, never leaving a half-chopped word.
@@ -50455,14 +49439,14 @@ module.exports = function prune(str, length, pruneStr) {
   return (template + pruneStr).length > str.length ? str : str.slice(0, template.length) + pruneStr;
 };
 
-},{"./helper/makeString":91,"./rtrim":116}],111:[function(require,module,exports){
+},{"./helper/makeString":89,"./rtrim":114}],109:[function(require,module,exports){
 var surround = require('./surround');
 
 module.exports = function quote(str, quoteChar) {
   return surround(str, quoteChar || '"');
 };
 
-},{"./surround":127}],112:[function(require,module,exports){
+},{"./surround":125}],110:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -50480,7 +49464,7 @@ module.exports = function repeat(str, qty, separator) {
   return repeat.join(separator);
 };
 
-},{"./helper/makeString":91,"./helper/strRepeat":92}],113:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/strRepeat":90}],111:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function replaceAll(str, find, replace, ignorecase) {
@@ -50490,21 +49474,21 @@ module.exports = function replaceAll(str, find, replace, ignorecase) {
   return makeString(str).replace(reg, replace);
 };
 
-},{"./helper/makeString":91}],114:[function(require,module,exports){
+},{"./helper/makeString":89}],112:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function reverse(str) {
   return chars(str).reverse().join('');
 };
 
-},{"./chars":74}],115:[function(require,module,exports){
+},{"./chars":72}],113:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function rpad(str, length, padStr) {
   return pad(str, length, padStr, 'right');
 };
 
-},{"./pad":108}],116:[function(require,module,exports){
+},{"./pad":106}],114:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimRight = String.prototype.trimRight;
@@ -50516,7 +49500,7 @@ module.exports = function rtrim(str, characters) {
   return str.replace(new RegExp(characters + '+$'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":87,"./helper/makeString":91}],117:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],115:[function(require,module,exports){
 var trim = require('./trim');
 var dasherize = require('./dasherize');
 var cleanDiacritics = require('./cleanDiacritics');
@@ -50525,7 +49509,7 @@ module.exports = function slugify(str) {
   return trim(dasherize(cleanDiacritics(str).replace(/[^\w\s-]/g, '-').toLowerCase()), '-');
 };
 
-},{"./cleanDiacritics":78,"./dasherize":80,"./trim":134}],118:[function(require,module,exports){
+},{"./cleanDiacritics":76,"./dasherize":78,"./trim":132}],116:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function splice(str, i, howmany, substr) {
@@ -50534,13 +49518,13 @@ module.exports = function splice(str, i, howmany, substr) {
   return arr.join('');
 };
 
-},{"./chars":74}],119:[function(require,module,exports){
+},{"./chars":72}],117:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').sprintf,
   'sprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":71,"util-deprecate":143}],120:[function(require,module,exports){
+},{"sprintf-js":69,"util-deprecate":141}],118:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -50551,7 +49535,7 @@ module.exports = function startsWith(str, starts, position) {
   return str.lastIndexOf(starts, position) === position;
 };
 
-},{"./helper/makeString":91,"./helper/toPositive":93}],121:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/toPositive":91}],119:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeft(str, sep) {
@@ -50561,7 +49545,7 @@ module.exports = function strLeft(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":91}],122:[function(require,module,exports){
+},{"./helper/makeString":89}],120:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeftBack(str, sep) {
@@ -50571,7 +49555,7 @@ module.exports = function strLeftBack(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":91}],123:[function(require,module,exports){
+},{"./helper/makeString":89}],121:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRight(str, sep) {
@@ -50581,7 +49565,7 @@ module.exports = function strRight(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":91}],124:[function(require,module,exports){
+},{"./helper/makeString":89}],122:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRightBack(str, sep) {
@@ -50591,26 +49575,26 @@ module.exports = function strRightBack(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":91}],125:[function(require,module,exports){
+},{"./helper/makeString":89}],123:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function stripTags(str) {
   return makeString(str).replace(/<\/?[^>]+>/g, '');
 };
 
-},{"./helper/makeString":91}],126:[function(require,module,exports){
+},{"./helper/makeString":89}],124:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, 1);
 };
 
-},{"./helper/adjacent":86}],127:[function(require,module,exports){
+},{"./helper/adjacent":84}],125:[function(require,module,exports){
 module.exports = function surround(str, wrapper) {
   return [wrapper, str, wrapper].join('');
 };
 
-},{}],128:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function swapCase(str) {
@@ -50619,7 +49603,7 @@ module.exports = function swapCase(str) {
   });
 };
 
-},{"./helper/makeString":91}],129:[function(require,module,exports){
+},{"./helper/makeString":89}],127:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function titleize(str) {
@@ -50628,7 +49612,7 @@ module.exports = function titleize(str) {
   });
 };
 
-},{"./helper/makeString":91}],130:[function(require,module,exports){
+},{"./helper/makeString":89}],128:[function(require,module,exports){
 var trim = require('./trim');
 
 function boolMatch(s, matchers) {
@@ -50650,14 +49634,14 @@ module.exports = function toBoolean(str, trueValues, falseValues) {
   if (boolMatch(str, falseValues || ['false', '0'])) return false;
 };
 
-},{"./trim":134}],131:[function(require,module,exports){
+},{"./trim":132}],129:[function(require,module,exports){
 module.exports = function toNumber(num, precision) {
   if (num == null) return 0;
   var factor = Math.pow(10, isFinite(precision) ? precision : 0);
   return Math.round(num * factor) / factor;
 };
 
-},{}],132:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var rtrim = require('./rtrim');
 
 module.exports = function toSentence(array, separator, lastSeparator, serial) {
@@ -50671,14 +49655,14 @@ module.exports = function toSentence(array, separator, lastSeparator, serial) {
   return a.length ? a.join(separator) + lastSeparator + lastMember : lastMember;
 };
 
-},{"./rtrim":116}],133:[function(require,module,exports){
+},{"./rtrim":114}],131:[function(require,module,exports){
 var toSentence = require('./toSentence');
 
 module.exports = function toSentenceSerial(array, sep, lastSep) {
   return toSentence(array, sep, lastSep, true);
 };
 
-},{"./toSentence":132}],134:[function(require,module,exports){
+},{"./toSentence":130}],132:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrim = String.prototype.trim;
@@ -50690,7 +49674,7 @@ module.exports = function trim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+|' + characters + '+$', 'g'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":87,"./helper/makeString":91}],135:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],133:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function truncate(str, length, truncateStr) {
@@ -50700,14 +49684,14 @@ module.exports = function truncate(str, length, truncateStr) {
   return str.length > length ? str.slice(0, length) + truncateStr : str;
 };
 
-},{"./helper/makeString":91}],136:[function(require,module,exports){
+},{"./helper/makeString":89}],134:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function underscored(str) {
   return trim(str).replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
 };
 
-},{"./trim":134}],137:[function(require,module,exports){
+},{"./trim":132}],135:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var htmlEntities = require('./helper/htmlEntities');
 
@@ -50729,7 +49713,7 @@ module.exports = function unescapeHTML(str) {
   });
 };
 
-},{"./helper/htmlEntities":90,"./helper/makeString":91}],138:[function(require,module,exports){
+},{"./helper/htmlEntities":88,"./helper/makeString":89}],136:[function(require,module,exports){
 module.exports = function unquote(str, quoteChar) {
   quoteChar = quoteChar || '"';
   if (str[0] === quoteChar && str[str.length - 1] === quoteChar)
@@ -50737,13 +49721,13 @@ module.exports = function unquote(str, quoteChar) {
   else return str;
 };
 
-},{}],139:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').vsprintf,
   'vsprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":71,"util-deprecate":143}],140:[function(require,module,exports){
+},{"sprintf-js":69,"util-deprecate":141}],138:[function(require,module,exports){
 var isBlank = require('./isBlank');
 var trim = require('./trim');
 
@@ -50752,7 +49736,7 @@ module.exports = function words(str, delimiter) {
   return trim(str, delimiter).split(delimiter || /\s+/);
 };
 
-},{"./isBlank":98,"./trim":134}],141:[function(require,module,exports){
+},{"./isBlank":96,"./trim":132}],139:[function(require,module,exports){
 // Wrap
 // wraps a string by a certain width
 
@@ -50856,7 +49840,7 @@ module.exports = function wrap(str, options){
   }
 };
 
-},{"./helper/makeString":91}],142:[function(require,module,exports){
+},{"./helper/makeString":89}],140:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -52406,7 +51390,7 @@ module.exports = function wrap(str, options){
   }
 }.call(this));
 
-},{}],143:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 (function (global){
 
 /**
@@ -52477,12 +51461,12 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],144:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module.exports.RADIUS = 6378137;
 module.exports.FLATTENING = 1/298.257223563;
 module.exports.POLAR_RADIUS = 6356752.3142;
 
-},{}],145:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -52503,7 +51487,7 @@ module.exports = {
 		this.chart = $(el);
 	}
 };
-},{"./utils":152,"jquery":53,"underscore":142}],146:[function(require,module,exports){
+},{"./utils":150,"jquery":53,"underscore":140}],144:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -52601,21 +51585,17 @@ $(function() {
 		});
 	});
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./chart_radar":145,"./map_admin":147,"./map_area":148,"./map_gps":149,"./overpass":150,"./table":151,"./utils":152,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],147:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":61,"./chart_radar":143,"./map_admin":145,"./map_area":146,"./map_gps":147,"./overpass":148,"./table":149,"./utils":150,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":60,"popper.js":67,"underscore":140,"underscore.string":94}],145:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
 var utils = require('./utils');
-var Search = require('leaflet-search');
 var Select = require('leaflet-geojson-selector');
-require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
 var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
 //var baseUrl = 'data/confini-istat/geojson/';
-
-//https://www.npmjs.com/package/confini-istat
 
 module.exports = {
 	
@@ -52647,13 +51627,15 @@ module.exports = {
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};
+		
+		self.$breadcrumb = $('#breadcrumb');
 
 		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
 		self.map.addControl(L.control.zoom({ position:'topright'}));
 
-		self.selectionLayer = L.geoJson(null,{
+		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
 				l.bindTooltip(f.properties.name);
 			}
@@ -52666,7 +51648,7 @@ module.exports = {
 		    self.map.panTo(self.map.unproject(p),{animate: true});
 		});
 
-		$.getJSON(self.getGeoUrl(), function(json) {
+		$.getJSON(self.getGeoUrl(self.selection), function(json) {
 
 			self.selectionLayer.addData(json);
 
@@ -52677,35 +51659,38 @@ module.exports = {
 				//listOnlyVisibleLayers: true
 			}).on('change', function(e) {
 
+				
+
 				if(e.selected) {
 
-					let props = e.layers[0].feature.properties;
+					let selectedGeo = L.featureGroup(e.layers).toGeoJSON();
+					let selectedProps = selectedGeo.features[0].properties;
 				
 					self.map.fitBounds(e.layers[0].getBounds());
 					//TODO if only is a municipality level
 					
 					//is a municipality level
-					if(props.id_prov) {
+					if(selectedProps.id_prov) {
 						
 						self.selection = _.extend(self.selection, {
-							municipality: L.featureGroup(e.layers).toGeoJSON().features[0]
+							municipality: selectedGeo.features[0]
 						});						
 					}
 					//is a province level
-					else if(props.id_reg) {
+					else if(selectedProps.id_reg) {
 
 						self.selection = _.extend(self.selection, {
-							province: L.featureGroup(e.layers).toGeoJSON().features[0]
+							province: selectedGeo.features[0]
 						});
 					}
 					else {
 						
 						self.selection = _.extend(self.selection, {
-							region: L.featureGroup(e.layers).toGeoJSON().features[0]
+							region: selectedGeo.features[0]
 						});						
 					}
 
-					$.getJSON(self.getGeoUrl(), function(json) {
+					$.getJSON(self.getGeoUrl(self.selection), function(json) {
 						
 						self.selectionLayer.clearLayers().addData(json);
 
@@ -52713,23 +51698,31 @@ module.exports = {
 
 						self.controlSelect.reload(self.selectionLayer);
 
-						if(props.id_prov) {
+						if(selectedProps.id_prov) {
 
-							self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+							self.onSelect(selectedGeo, self.map);
 						}
 
-						self.update();
+						
 					});
 
 					
-					
+					self.update();
 				}
 				//else
 					//TODO return to up level
 
 			}).addTo(self.map);
 
+			self.update();
+
 			//self.map.setMaxBounds( self.selectionLayer.getBounds().pad(0.5) );
+		});
+
+		self.$breadcrumb.on('click','a', function(e) {
+			var sel = $(e.target).data();
+
+			console.log(sel);
 		});
 
 		return this;
@@ -52739,11 +51732,10 @@ module.exports = {
 
 		var self = this;
 
-		$('#breadcrumb').html( self.tmpls.bread_admin(self.selection) );
+		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
 	},
 
-	getGeoUrl: function() {
-		var sel = this.selection;
+	getGeoUrl: function(sel) {
 
 		if(sel.region && sel.province)
 			return this.tmpls.url_municipality(sel);
@@ -52753,32 +51745,10 @@ module.exports = {
 
 		else
 			return this.tmpls.url_region(sel);
-	},
-
-/*	initSearch: function() {
-	
-		L.control.search({
-			layer: geo,
-			propertyName: 'name',
-			marker: false,
-			initial: false,
-			casesensitive: false,
-			buildTip: function(text, val) {
-				var name = val.layer.feature.properties.name;
-				return '<a href="#">'+name+'</a>';
-			},
-			moveToLocation: function(latlng, title, map) {
-				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-	  			//map.setView(latlng, zoom); // access the zoom
-	  			latlng.layer.fire('click')
-			}
-		}).on('search:locationfound', function(e) {
-			e.layer.openTooltip();
-		}).addTo(this.map);
-	}*/
+	}
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":56,"../node_modules/leaflet-search/dist/leaflet-search.min.css":60,"./utils":152,"handlebars":41,"jquery":53,"leaflet-geojson-selector":57,"leaflet-search":61,"underscore":142}],148:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":56,"./utils":150,"handlebars":41,"jquery":53,"leaflet-geojson-selector":57,"underscore":140}],146:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -52894,11 +51864,13 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":54,"./utils":152,"jquery":53,"leaflet-draw":55}],149:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":54,"./utils":150,"jquery":53,"leaflet-draw":55}],147:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
 var Gps = require('leaflet-gps');
+//var Search = require('leaflet-search');
+//require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-gps/dist/leaflet-gps.min.css');
 
 module.exports = {
@@ -52935,8 +51907,29 @@ module.exports = {
 
 		return self;
 	}
+/*	,initSearch: function() {
+	
+		L.control.search({
+			layer: geo,
+			propertyName: 'name',
+			marker: false,
+			initial: false,
+			casesensitive: false,
+			buildTip: function(text, val) {
+				var name = val.layer.feature.properties.name;
+				return '<a href="#">'+name+'</a>';
+			},
+			moveToLocation: function(latlng, title, map) {
+				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+	  			//map.setView(latlng, zoom); // access the zoom
+	  			latlng.layer.fire('click')
+			}
+		}).on('search:locationfound', function(e) {
+			e.layer.openTooltip();
+		}).addTo(this.map);
+	}*/
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":152,"jquery":53,"leaflet-gps":59}],150:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":150,"jquery":53,"leaflet-gps":59}],148:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -53021,7 +52014,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":152,"geojson-utils":11,"jquery":53,"osmtogeojson":66,"underscore":142}],151:[function(require,module,exports){
+},{"./utils":150,"geojson-utils":11,"jquery":53,"osmtogeojson":64,"underscore":140}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -53090,7 +52083,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":152,"bootstrap-table":3,"jquery":53,"underscore":142}],152:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":150,"bootstrap-table":3,"jquery":53,"underscore":140}],150:[function(require,module,exports){
 
 module.exports = {
   
@@ -53224,4 +52217,4 @@ module.exports = {
 
 };
 
-},{}]},{},[146]);
+},{}]},{},[144]);

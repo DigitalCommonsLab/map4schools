@@ -2,6 +2,8 @@
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
 var Gps = require('leaflet-gps');
+//var Search = require('leaflet-search');
+//require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-gps/dist/leaflet-gps.min.css');
 
 module.exports = {
@@ -38,4 +40,25 @@ module.exports = {
 
 		return self;
 	}
+/*	,initSearch: function() {
+	
+		L.control.search({
+			layer: geo,
+			propertyName: 'name',
+			marker: false,
+			initial: false,
+			casesensitive: false,
+			buildTip: function(text, val) {
+				var name = val.layer.feature.properties.name;
+				return '<a href="#">'+name+'</a>';
+			},
+			moveToLocation: function(latlng, title, map) {
+				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+	  			//map.setView(latlng, zoom); // access the zoom
+	  			latlng.layer.fire('click')
+			}
+		}).on('search:locationfound', function(e) {
+			e.layer.openTooltip();
+		}).addTo(this.map);
+	}*/
 }
