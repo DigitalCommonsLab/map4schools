@@ -11,6 +11,8 @@ module.exports = {
   	
   	table: null,
 
+  	onSelect: function(e){ console.log('onClickRow',e); },
+
 	init: function(el, opts) {
 
 		var self = this;
@@ -20,7 +22,7 @@ module.exports = {
 
 		this.table.bootstrapTable({
 			
-			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
+			onClickRow: opts && opts.onSelect,
 			//radio:true,
 			pagination:true,
 			pageSize: 5,

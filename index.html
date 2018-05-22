@@ -124,6 +124,19 @@
 	{{/if}}
 </ol>
 </script>
+<script id="tmpl_popup" type="text/x-handlebars-template">
+<h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
+<ul class="list-group">
+	{{#if operator}}<li class="list-group-item">Operatore {{operator}}</li>{{/if}}
+	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
+	{{#if isced:level}}<li class="list-group-item">Livello {{isced:level}}</li>{{/if}}
+</ul>
+<br />
+<!--div class="btn-group btn-group-xs" role="group">
+	<a class="btn btn-link btn-xs" href="{{url_view}}" target="_blank">view</a>
+	<a class="btn btn-primary" href="{{url_edit}}">edit</a>
+</div-->
+</script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>
 	<option value="0">Pre-primary</option>
@@ -133,19 +146,6 @@
 	<option value="4">Post-secondary</option>
 	<option value="5">First stage</option> 
 	<option value="6">Second stage</option>
-</script>
-<script id="tmpl_popup" type="text/x-handlebars-template">
-<h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
-<ul class="list-group">
-	{{#if operator}}<li class="list-group-item">Operatore {{operator}}</li>{{/if}}
-	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
-	{{#if isced:level}}<li class="list-group-item">Livello {{isced:level}}</li>{{/if}}
-</ul>
-<br />
-<!-- <div class="btn-group btn-group-xs" role="group">
-	<a class="btn btn-link btn-xs" href="{{url_view}}" target="_blank">view</a>
-	<a class="btn btn-primary" href="{{url_edit}}">edit</a>
-</div> -->
 </script>
 <script src="bundle.js"></script>
 </body>

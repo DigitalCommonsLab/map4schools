@@ -17,6 +17,8 @@ module.exports = {
 	
 	map: null,
 
+	onSelect: function(e){ console.log('onSelect',e); },
+
 	selectionLayer: null,
 
 	selection: {
@@ -30,40 +32,19 @@ module.exports = {
 		municipalities: null
 	},
 
-/*	getMarkerById(id) {
+	//TODO
+	/* getMarkerById(id) {
 		return L.marker
 	},*/
 
-	getGeoUrl: function() {
-		var sel = this.selection,
-			tmpl = '',
-			tmpls = {
-				region: 'regions.json',
-				province: '{region}/provinces.json',
-				municipality: '{region}/{province}/muncipalities.json',
-				//TODO FIXME municipalities
-			};
-
-		if(sel.region && sel.province)
-			tmpl = tmpls.municipality;
-		
-		else if(sel.region && !sel.province)
-			tmpl = tmpls.province;
-
-		else
-			tmpl = tmpls.region;
-
-		return baseUrl + L.Util.template(tmpl, sel);
-	},
-
-	onSelect: function(area, map) {},
-
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
+
+		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
-		self.map.addControl(L.control.zoom({position:'topright'}));
+		self.map.addControl(L.control.zoom({ position:'topright'}));
 
 		self.selectionLayer = L.geoJson(null,{
 			onEachFeature: function(f,l) {
@@ -121,8 +102,6 @@ module.exports = {
 					}
 
 					$.getJSON(self.getGeoUrl(), function(json) {
-
-						console.log('GEOJSON',self.selection, json.features[0].properties);
 						
 						self.selectionLayer.clearLayers().addData(json);
 
@@ -160,16 +139,38 @@ module.exports = {
 		
 		//$('#geo_selection').text( JSON.stringify(this.selection) );
 
-		var breadData = _.extend({}, this.selection, {
-			region_label: this.regions && _.filter(this.regions.features, function(f){ return f.properties.id == this.selection.region })[0].properties.name,
-			province_label: this.provinces && _.filter(this.provinces.features, function(f){ return f.properties.id == this.selection.province })[0].properties.name,
-			municipality_label: this.municipalities &&_.filter(this.municipalities.features, function(f){ return f.properties.id == this.selection.municipality })[0].properties.name
+		var breadData = _.extend({}, self.selection, {
+			region_label: self.regions && _.filter(self.regions.features, function(f){ return f.properties.id == self.selection.region })[0].properties.name,
+			province_label: self.provinces && _.filter(self.provinces.features, function(f){ return f.properties.id == self.selection.province })[0].properties.name,
+			municipality_label: self.municipalities &&_.filter(self.municipalities.features, function(f){ return f.properties.id == self.selection.municipality })[0].properties.name
 		});
 
 		//console.log('breadData', breadData);
 
-		$('#breadcrumb').html( this.tmpl_bread_admin(breadData) );
-	}
+		$('#breadcrumb').html( self.tmpl_bread_admin(breadData) );
+	},
+
+	getGeoUrl: function() {
+		var sel = this.selection,
+			tmpl = '',
+			tmpls = {
+				region: 'regions.json',
+				province: '{region}/provinces.json',
+				municipality: '{region}/{province}/muncipalities.json',
+				//TODO FIXME municipalities
+			};
+
+		if(sel.region && sel.province)
+			tmpl = tmpls.municipality;
+		
+		else if(sel.region && !sel.province)
+			tmpl = tmpls.province;
+
+		else
+			tmpl = tmpls.region;
+
+		return baseUrl + L.Util.template(tmpl, sel);
+	},
 
 /*	initSearch: function() {
 	

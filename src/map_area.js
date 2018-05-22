@@ -9,7 +9,7 @@ module.exports = {
   	
   	map: null,
 
-  	onSelect: function(area, map) {},
+  	onSelect: function(e){ console.log('onSelect',e); },
   	
   	selectionLayer: null,
 
@@ -48,9 +48,11 @@ module.exports = {
 		}
   	},
 
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
+
+		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
 		self.map.addControl(L.control.zoom({position:'topright'}));

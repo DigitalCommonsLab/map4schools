@@ -12,44 +12,24 @@ var L = require('leaflet');
 require('../node_modules/leaflet/dist/leaflet.css');
 
 //var dissolve = require('geojson-dissolve');
-//var Panel = require('leaflet-panel-layers');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 require('../main.css');
 
 var utils = require('./utils');
-
-var mapArea = require('./map_area');
-var mapAdmin = require('./map_admin');
-var mapGps = require('./map_gps');
-var table = require('./table');
 var overpass = require('./overpass');
 
+var mapAdmin = require('./map_admin');
+var mapArea = require('./map_area');
+var mapGps = require('./map_gps');
+
+var table = require('./table');
+
+var chartRadar = require('./chart_radar');
+//var chartBarsVert = require('./chart_bar_vert');
+//var chartBarsOriz = require('./chart_bar_oriz');
+
 $(function() {
-
-	//ADMIN SELECTION
-	window.maps = {
-		admin:  mapAdmin.init('map_admin'),
-		area: mapArea.init('map_area'),
-		gps: mapGps.init('map_gps')
-	};
-
-	table.init('#table_selection', {
-		onClickRow: function(e) {			
-
-			maps.admin.map.layerData.eachLayer(function(layer) {
-				
-				if(layer.feature.id==e.id) {
-					layer.openPopup();
-					//maps.admin.map.setView(layer.getLatLng(), 10)
-				}
-			});
-
-			$('#charts h2 b').text(': '+e.name)
-
-			$('#charts').show();
-		}
-	});
 
 	var tmpls = {
 		sel_level: H.compile($('#tmpl_sel_level').html()),
@@ -57,6 +37,8 @@ $(function() {
 	};
 
 	function loadSelection(geoArea, map) {
+
+		var self = this;
 		
 		if(!map.layerData) {
 			map.layerData = L.geoJSON([], {
@@ -82,14 +64,32 @@ $(function() {
 		});
 	}
 
-	maps.admin.onSelect = loadSelection;
-	maps.area.onSelect = loadSelection;
-	maps.gps.onSelect = loadSelection;
+	//init maps
+	var maps = {
+		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
+		area: mapArea.init('map_area', { onSelect: loadSelection }),
+		gps: mapGps.init('map_gps', { onSelect: loadSelection })
+	};
+
+	window.maps = maps;
+
+	table.init('#table_selection', {
+		onSelect: function(e) {			
+
+			maps.admin.map.layerData.eachLayer(function(layer) {
+				
+				if(layer.feature.id==e.id) {
+					layer.openPopup();
+				}
+			});
+
+			$('#charts h2 b').text(': '+e.name)
+
+			$('#charts').show();
+		}
+	});
 
 	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-		//$(event.target).find();
-		//simplified
 		_.each(maps, function(m) {
 			m.map.invalidateSize(false);
 		});

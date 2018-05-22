@@ -52486,6 +52486,27 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
+var utils = require('./utils');
+
+//var radar = require('...');
+//https://github.com/wenzhixin/bootstrap-table
+//require('../node_modules/... .min.css');
+
+module.exports = {
+  	
+  	chart: null,
+
+	init: function(el) {
+
+		var self = this;
+
+		this.chart = $(el);
+	}
+};
+},{"./utils":152,"jquery":53,"underscore":142}],146:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
 var H = require('handlebars');
@@ -52497,44 +52518,24 @@ var L = require('leaflet');
 require('../node_modules/leaflet/dist/leaflet.css');
 
 //var dissolve = require('geojson-dissolve');
-//var Panel = require('leaflet-panel-layers');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 require('../main.css');
 
 var utils = require('./utils');
-
-var mapArea = require('./map_area');
-var mapAdmin = require('./map_admin');
-var mapGps = require('./map_gps');
-var table = require('./table');
 var overpass = require('./overpass');
 
+var mapAdmin = require('./map_admin');
+var mapArea = require('./map_area');
+var mapGps = require('./map_gps');
+
+var table = require('./table');
+
+var chartRadar = require('./chart_radar');
+//var chartBarsVert = require('./chart_bar_vert');
+//var chartBarsOriz = require('./chart_bar_oriz');
+
 $(function() {
-
-	//ADMIN SELECTION
-	window.maps = {
-		admin:  mapAdmin.init('map_admin'),
-		area: mapArea.init('map_area'),
-		gps: mapGps.init('map_gps')
-	};
-
-	table.init('#table_selection', {
-		onClickRow: function(e) {			
-
-			maps.admin.map.layerData.eachLayer(function(layer) {
-				
-				if(layer.feature.id==e.id) {
-					layer.openPopup();
-					//maps.admin.map.setView(layer.getLatLng(), 10)
-				}
-			});
-
-			$('#charts h2 b').text(': '+e.name)
-
-			$('#charts').show();
-		}
-	});
 
 	var tmpls = {
 		sel_level: H.compile($('#tmpl_sel_level').html()),
@@ -52542,6 +52543,8 @@ $(function() {
 	};
 
 	function loadSelection(geoArea, map) {
+
+		var self = this;
 		
 		if(!map.layerData) {
 			map.layerData = L.geoJSON([], {
@@ -52567,14 +52570,32 @@ $(function() {
 		});
 	}
 
-	maps.admin.onSelect = loadSelection;
-	maps.area.onSelect = loadSelection;
-	maps.gps.onSelect = loadSelection;
+	//init maps
+	var maps = {
+		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
+		area: mapArea.init('map_area', { onSelect: loadSelection }),
+		gps: mapGps.init('map_gps', { onSelect: loadSelection })
+	};
+
+	window.maps = maps;
+
+	table.init('#table_selection', {
+		onSelect: function(e) {			
+
+			maps.admin.map.layerData.eachLayer(function(layer) {
+				
+				if(layer.feature.id==e.id) {
+					layer.openPopup();
+				}
+			});
+
+			$('#charts h2 b').text(': '+e.name)
+
+			$('#charts').show();
+		}
+	});
 
 	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		//TODO var tabid = $(maps.admin.getContainer()).parent('.tab-pane').attr('id');
-		//$(event.target).find();
-		//simplified
 		_.each(maps, function(m) {
 			m.map.invalidateSize(false);
 		});
@@ -52594,7 +52615,7 @@ $(function() {
 	*/
 
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./map_admin":146,"./map_area":147,"./map_gps":148,"./overpass":149,"./table":150,"./utils":151,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],146:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./chart_radar":145,"./map_admin":147,"./map_area":148,"./map_gps":149,"./overpass":150,"./table":151,"./utils":152,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],147:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -52614,6 +52635,8 @@ module.exports = {
 	
 	map: null,
 
+	onSelect: function(e){ console.log('onSelect',e); },
+
 	selectionLayer: null,
 
 	selection: {
@@ -52627,40 +52650,19 @@ module.exports = {
 		municipalities: null
 	},
 
-/*	getMarkerById(id) {
+	//TODO
+	/* getMarkerById(id) {
 		return L.marker
 	},*/
 
-	getGeoUrl: function() {
-		var sel = this.selection,
-			tmpl = '',
-			tmpls = {
-				region: 'regions.json',
-				province: '{region}/provinces.json',
-				municipality: '{region}/{province}/muncipalities.json',
-				//TODO FIXME municipalities
-			};
-
-		if(sel.region && sel.province)
-			tmpl = tmpls.municipality;
-		
-		else if(sel.region && !sel.province)
-			tmpl = tmpls.province;
-
-		else
-			tmpl = tmpls.region;
-
-		return baseUrl + L.Util.template(tmpl, sel);
-	},
-
-	onSelect: function(area, map) {},
-
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
+
+		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
-		self.map.addControl(L.control.zoom({position:'topright'}));
+		self.map.addControl(L.control.zoom({ position:'topright'}));
 
 		self.selectionLayer = L.geoJson(null,{
 			onEachFeature: function(f,l) {
@@ -52718,8 +52720,6 @@ module.exports = {
 					}
 
 					$.getJSON(self.getGeoUrl(), function(json) {
-
-						console.log('GEOJSON',self.selection, json.features[0].properties);
 						
 						self.selectionLayer.clearLayers().addData(json);
 
@@ -52757,16 +52757,38 @@ module.exports = {
 		
 		//$('#geo_selection').text( JSON.stringify(this.selection) );
 
-		var breadData = _.extend({}, this.selection, {
-			region_label: this.regions && _.filter(this.regions.features, function(f){ return f.properties.id == this.selection.region })[0].properties.name,
-			province_label: this.provinces && _.filter(this.provinces.features, function(f){ return f.properties.id == this.selection.province })[0].properties.name,
-			municipality_label: this.municipalities &&_.filter(this.municipalities.features, function(f){ return f.properties.id == this.selection.municipality })[0].properties.name
+		var breadData = _.extend({}, self.selection, {
+			region_label: self.regions && _.filter(self.regions.features, function(f){ return f.properties.id == self.selection.region })[0].properties.name,
+			province_label: self.provinces && _.filter(self.provinces.features, function(f){ return f.properties.id == self.selection.province })[0].properties.name,
+			municipality_label: self.municipalities &&_.filter(self.municipalities.features, function(f){ return f.properties.id == self.selection.municipality })[0].properties.name
 		});
 
 		//console.log('breadData', breadData);
 
-		$('#breadcrumb').html( this.tmpl_bread_admin(breadData) );
-	}
+		$('#breadcrumb').html( self.tmpl_bread_admin(breadData) );
+	},
+
+	getGeoUrl: function() {
+		var sel = this.selection,
+			tmpl = '',
+			tmpls = {
+				region: 'regions.json',
+				province: '{region}/provinces.json',
+				municipality: '{region}/{province}/muncipalities.json',
+				//TODO FIXME municipalities
+			};
+
+		if(sel.region && sel.province)
+			tmpl = tmpls.municipality;
+		
+		else if(sel.region && !sel.province)
+			tmpl = tmpls.province;
+
+		else
+			tmpl = tmpls.region;
+
+		return baseUrl + L.Util.template(tmpl, sel);
+	},
 
 /*	initSearch: function() {
 	
@@ -52791,7 +52813,7 @@ module.exports = {
 	}*/
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":56,"../node_modules/leaflet-search/dist/leaflet-search.min.css":60,"./utils":151,"handlebars":41,"jquery":53,"leaflet-geojson-selector":57,"leaflet-search":61,"underscore":142}],147:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":56,"../node_modules/leaflet-search/dist/leaflet-search.min.css":60,"./utils":152,"handlebars":41,"jquery":53,"leaflet-geojson-selector":57,"leaflet-search":61,"underscore":142}],148:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -52803,7 +52825,7 @@ module.exports = {
   	
   	map: null,
 
-  	onSelect: function(area, map) {},
+  	onSelect: function(e){ console.log('onSelect',e); },
   	
   	selectionLayer: null,
 
@@ -52842,9 +52864,11 @@ module.exports = {
 		}
   	},
 
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
+
+		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
 		self.map.addControl(L.control.zoom({position:'topright'}));
@@ -52905,7 +52929,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":54,"./utils":151,"jquery":53,"leaflet-draw":55}],148:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":54,"./utils":152,"jquery":53,"leaflet-draw":55}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -52916,12 +52940,14 @@ module.exports = {
   	
   	map: null,
 
-  	onSelect: function(area, map) {},
+  	onSelect: function(e){ console.log('onSelect',e); },
 
-	init: function(el) {
+	init: function(el, opts) {
 
 		var self = this;
-		
+
+		self.onSelect = opts && opts.onSelect,
+
 		self.map = L.map(el, utils.getMapOpts() );
 		self.map.addControl(L.control.zoom({position:'topright'}));
 
@@ -52945,7 +52971,7 @@ module.exports = {
 		return self;
 	}
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":151,"jquery":53,"leaflet-gps":59}],149:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":152,"jquery":53,"leaflet-gps":59}],150:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -53030,7 +53056,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":151,"geojson-utils":11,"jquery":53,"osmtogeojson":66,"underscore":142}],150:[function(require,module,exports){
+},{"./utils":152,"geojson-utils":11,"jquery":53,"osmtogeojson":66,"underscore":142}],151:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -53044,6 +53070,8 @@ module.exports = {
   	
   	table: null,
 
+  	onSelect: function(e){ console.log('onClickRow',e); },
+
 	init: function(el, opts) {
 
 		var self = this;
@@ -53053,7 +53081,7 @@ module.exports = {
 
 		this.table.bootstrapTable({
 			
-			onClickRow: opts.onClickRow || function(e){ console.log('onClickRow',e); },
+			onClickRow: opts && opts.onSelect,
 			//radio:true,
 			pagination:true,
 			pageSize: 5,
@@ -53097,7 +53125,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":151,"bootstrap-table":3,"jquery":53,"underscore":142}],151:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":152,"bootstrap-table":3,"jquery":53,"underscore":142}],152:[function(require,module,exports){
 
 module.exports = {
   
@@ -53231,4 +53259,4 @@ module.exports = {
 
 };
 
-},{}]},{},[145]);
+},{}]},{},[146]);
