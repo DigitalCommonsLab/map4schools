@@ -23,13 +23,8 @@ module.exports = {
 
 	selection: {
 		region: null,
-		regions: null,
-
 		province: null,
-		provinces: null,
-
-		municipality: null,
-		municipalities: null
+		municipality: null
 	},
 
 	//TODO
@@ -81,23 +76,20 @@ module.exports = {
 					if(props.id_prov) {
 						
 						self.selection = _.extend(self.selection, {
-							municipality: props.id,
-							municipalities: e.layers
+							municipality: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});						
 					}
 					//is a province level
 					else if(props.id_reg) {
 
 						self.selection = _.extend(self.selection, {
-							province: props.id,
-							provinces: e.layers
+							province: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});
 					}
 					else {
 						
 						self.selection = _.extend(self.selection, {
-							region: props.id,
-							regions: e.layers
+							region: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});						
 					}
 
@@ -136,18 +128,12 @@ module.exports = {
 	update: function() {
 
 		var self = this;
-		
-		//$('#geo_selection').text( JSON.stringify(this.selection) );
 
-		var breadData = _.extend({}, self.selection, {
-			region_label: self.regions && _.filter(self.regions.features, function(f){ return f.properties.id == self.selection.region })[0].properties.name,
-			province_label: self.provinces && _.filter(self.provinces.features, function(f){ return f.properties.id == self.selection.province })[0].properties.name,
-			municipality_label: self.municipalities &&_.filter(self.municipalities.features, function(f){ return f.properties.id == self.selection.municipality })[0].properties.name
-		});
+		var sel = self.selection;
 
-		//console.log('breadData', breadData);
+		console.log('selection', sel)
 
-		$('#breadcrumb').html( self.tmpl_bread_admin(breadData) );
+		$('#breadcrumb').html( self.tmpl_bread_admin(sel) );
 	},
 
 	getGeoUrl: function() {
@@ -155,8 +141,8 @@ module.exports = {
 			tmpl = '',
 			tmpls = {
 				region: 'regions.json',
-				province: '{region}/provinces.json',
-				municipality: '{region}/{province}/muncipalities.json',
+				province: '{{region.properties.id}}/provinces.json',
+				municipality: '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json',
 				//TODO FIXME municipalities
 			};
 
@@ -169,7 +155,7 @@ module.exports = {
 		else
 			tmpl = tmpls.region;
 
-		return baseUrl + L.Util.template(tmpl, sel);
+		return baseUrl + H.compile(tmpl)(sel);
 	},
 
 /*	initSearch: function() {

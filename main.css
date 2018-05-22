@@ -25,3 +25,7 @@
 	margin: 4px;
 	background-color: #fff;
 }
+
+tr:hover {
+	cursor: pointer
+}

@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}tr:hover{cursor:pointer}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -52600,20 +52600,6 @@ $(function() {
 			m.map.invalidateSize(false);
 		});
 	});
-
-
-	/*
-	maps.admin.onSelect = function(geo) {
-		console.log('select admin',geo)
-	};
-	maps.area.onSelect = function(geo) {
-		console.log('select area',geo)
-	};
-	maps.gps.onSelect = function(geo) {
-		console.log('select gps',geo)
-	};
-	*/
-
 });
 },{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":63,"./chart_radar":145,"./map_admin":147,"./map_area":148,"./map_gps":149,"./overpass":150,"./table":151,"./utils":152,"bootstrap":6,"handlebars":41,"jquery":53,"leaflet":62,"popper.js":69,"underscore":142,"underscore.string":96}],147:[function(require,module,exports){
 
@@ -52641,13 +52627,8 @@ module.exports = {
 
 	selection: {
 		region: null,
-		regions: null,
-
 		province: null,
-		provinces: null,
-
-		municipality: null,
-		municipalities: null
+		municipality: null
 	},
 
 	//TODO
@@ -52699,23 +52680,20 @@ module.exports = {
 					if(props.id_prov) {
 						
 						self.selection = _.extend(self.selection, {
-							municipality: props.id,
-							municipalities: e.layers
+							municipality: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});						
 					}
 					//is a province level
 					else if(props.id_reg) {
 
 						self.selection = _.extend(self.selection, {
-							province: props.id,
-							provinces: e.layers
+							province: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});
 					}
 					else {
 						
 						self.selection = _.extend(self.selection, {
-							region: props.id,
-							regions: e.layers
+							region: L.featureGroup(e.layers).toGeoJSON().features[0]
 						});						
 					}
 
@@ -52754,18 +52732,12 @@ module.exports = {
 	update: function() {
 
 		var self = this;
-		
-		//$('#geo_selection').text( JSON.stringify(this.selection) );
 
-		var breadData = _.extend({}, self.selection, {
-			region_label: self.regions && _.filter(self.regions.features, function(f){ return f.properties.id == self.selection.region })[0].properties.name,
-			province_label: self.provinces && _.filter(self.provinces.features, function(f){ return f.properties.id == self.selection.province })[0].properties.name,
-			municipality_label: self.municipalities &&_.filter(self.municipalities.features, function(f){ return f.properties.id == self.selection.municipality })[0].properties.name
-		});
+		var sel = self.selection;
 
-		//console.log('breadData', breadData);
+		console.log('selection', sel)
 
-		$('#breadcrumb').html( self.tmpl_bread_admin(breadData) );
+		$('#breadcrumb').html( self.tmpl_bread_admin(sel) );
 	},
 
 	getGeoUrl: function() {
@@ -52773,8 +52745,8 @@ module.exports = {
 			tmpl = '',
 			tmpls = {
 				region: 'regions.json',
-				province: '{region}/provinces.json',
-				municipality: '{region}/{province}/muncipalities.json',
+				province: '{{region.properties.id}}/provinces.json',
+				municipality: '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json',
 				//TODO FIXME municipalities
 			};
 
@@ -52787,7 +52759,7 @@ module.exports = {
 		else
 			tmpl = tmpls.region;
 
-		return baseUrl + L.Util.template(tmpl, sel);
+		return baseUrl + H.compile(tmpl)(sel);
 	},
 
 /*	initSearch: function() {

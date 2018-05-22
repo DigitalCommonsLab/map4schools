@@ -94,18 +94,4 @@ $(function() {
 			m.map.invalidateSize(false);
 		});
 	});
-
-
-	/*
-	maps.admin.onSelect = function(geo) {
-		console.log('select admin',geo)
-	};
-	maps.area.onSelect = function(geo) {
-		console.log('select area',geo)
-	};
-	maps.gps.onSelect = function(geo) {
-		console.log('select gps',geo)
-	};
-	*/
-
 });
