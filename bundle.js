@@ -52662,7 +52662,11 @@ module.exports = {
 		self.map = L.map(el, utils.getMapOpts() )
 		self.map.addControl(L.control.zoom({position:'topright'}));
 
-		self.selectionLayer = L.geoJson().addTo(self.map);
+		self.selectionLayer = L.geoJson(null,{
+			onEachFeature: function(f,l) {
+				l.bindTooltip(f.properties.name);
+			}
+		}).addTo(self.map);
 
 		self.map.on('popupopen', function(e) {
 		    var p = self.map.project(e.popup._latlng);
