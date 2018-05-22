@@ -52,15 +52,16 @@ module.exports = {
 
 		var self = this;
 
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
+		self.map.addControl(L.control.zoom({position:'topright'}));
 
-		this.selectionLayer = L.featureGroup().addTo(this.map);
+		self.selectionLayer = L.featureGroup().addTo(self.map);
 
-		this.config.draw.edit.featureGroup = this.selectionLayer;
+		self.config.draw.edit.featureGroup = self.selectionLayer;
 
-		var drawControl = new L.Control.Draw(this.config.draw);
+		var drawControl = new L.Control.Draw(self.config.draw);
 
-		drawControl.addTo(this.map);
+		drawControl.addTo(self.map);
 
 		//DRAW EVENTS
 		self.map.on('draw:created', function (e) {

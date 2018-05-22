@@ -52608,18 +52608,13 @@ require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.
 var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
 //var baseUrl = 'data/confini-istat/geojson/';
 
-var urls = {
-	region: baseUrl+'regions.json',
-	province: baseUrl+'{region}/provinces.json',
-	municipality: baseUrl+'{region}/{province}/muncipalities.json',
-	//TODO FIXME municipalities
-};
-
 //https://www.npmjs.com/package/confini-istat
 
 module.exports = {
 	
 	map: null,
+
+	selectionLayer: null,
 
 	selection: {
 		region: null,
@@ -52636,70 +52631,115 @@ module.exports = {
 		return L.marker
 	},*/
 
+	getGeoUrl: function() {
+		var sel = this.selection,
+			tmpl = '',
+			tmpls = {
+				region: 'regions.json',
+				province: '{region}/provinces.json',
+				municipality: '{region}/{province}/muncipalities.json',
+				//TODO FIXME municipalities
+			};
+
+		if(sel.region && sel.province)
+			tmpl = tmpls.municipality;
+		
+		else if(sel.region && !sel.province)
+			tmpl = tmpls.province;
+
+		else
+			tmpl = tmpls.region;
+
+		return baseUrl + L.Util.template(tmpl, sel);
+	},
+
 	onSelect: function(area, map) {},
 
 	init: function(el) {
 
 		var self = this;
 		
-		self.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() )
+		self.map.addControl(L.control.zoom({position:'topright'}));
+
+		self.selectionLayer = L.geoJson().addTo(self.map);
 
 		self.map.on('popupopen', function(e) {
-		    var px = self.map.project(e.popup._latlng);
-		    px.y -= e.popup._container.clientHeight/2
-		    self.map.panTo(self.map.unproject(px),{animate: true});
+		    var p = self.map.project(e.popup._latlng);
+		    p.y -= e.popup._container.clientHeight/2;
+		    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
+		    self.map.panTo(self.map.unproject(p),{animate: true});
 		});
 
-		$.getJSON(urls.region, function(json) {
+		$.getJSON(self.getGeoUrl(), function(json) {
 
-			var geoLayer = L.geoJson(json).addTo(self.map);
+			self.selectionLayer.addData(json);
 
-			var geoSelect = new L.Control.GeoJSONSelector(geoLayer, {
-				zoomToLayer: true,
+			self.map.fitBounds(self.selectionLayer.getBounds());
+
+			self.controlSelect = new L.Control.GeoJSONSelector(self.selectionLayer, {
+				zoomToLayer: false,
 				//listOnlyVisibleLayers: true
 			}).on('change', function(e) {
 
 				if(e.selected) {
+
+					let props = e.layers[0].feature.properties;
 				
+					self.map.fitBounds(e.layers[0].getBounds());
 					//TODO if only is a municipality level
 					
+					//is a municipality level
+					if(props.id_prov) {
+						
+						self.selection = _.extend(self.selection, {
+							municipality: props.id,
+							municipalities: e.layers
+						});						
+					}
 					//is a province level
-					if(e.layers[0].feature.properties.id_reg) {
-						self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
-						//geoLayer.remove()
+					else if(props.id_reg) {
+
+						self.selection = _.extend(self.selection, {
+							province: props.id,
+							provinces: e.layers
+						});
 					}
 					else {
-
-						self.selection = {
-							region: e.layers[0].feature.properties.id,
-							regions: json
-						};
 						
-						var url = L.Util.template(urls.province, {
-							region: self.selection.region
-						});
-						
-						//console.log('GEJSON',url);
+						self.selection = _.extend(self.selection, {
+							region: props.id,
+							regions: e.layers
+						});						
+					}
 
-						$.getJSON(url, function(json) {
-							console.log(json)
-							geoLayer.clearLayers().addData(json);
-							geoSelect.reload(geoLayer);
-						});
+					$.getJSON(self.getGeoUrl(), function(json) {
+
+						console.log('GEOJSON',self.selection, json.features[0].properties);
+						
+						self.selectionLayer.clearLayers().addData(json);
+
+						self.map.fitBounds(self.selectionLayer.getBounds());
+
+						self.controlSelect.reload(self.selectionLayer);
+
+						if(props.id_prov) {
+
+							self.onSelect( L.featureGroup(e.layers).toGeoJSON(), self.map);
+						}
 
 						self.update();
-					}
+					});
+
+					
+					
 				}
+				//else
+					//TODO return to up level
 
 			}).addTo(self.map);
 
-			self.map.setMaxBounds( geoLayer.getBounds().pad(0.5) );
-
-			self.map.fitBounds(geoLayer.getBounds());
-
-			self.map.on('click', function(e) {
-				self.map.fitBounds(geoLayer.getBounds())
-			});
+			//self.map.setMaxBounds( self.selectionLayer.getBounds().pad(0.5) );
 		});
 
 		this.tmpl_bread_admin = H.compile($('#tmpl_bread_admin').html());
@@ -52708,8 +52748,10 @@ module.exports = {
 	},
 
 	update: function() {
+
+		var self = this;
 		
-		$('#geo_selection').text( JSON.stringify(this.selection) );
+		//$('#geo_selection').text( JSON.stringify(this.selection) );
 
 		var breadData = _.extend({}, this.selection, {
 			region_label: this.regions && _.filter(this.regions.features, function(f){ return f.properties.id == this.selection.region })[0].properties.name,
@@ -52800,15 +52842,16 @@ module.exports = {
 
 		var self = this;
 
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
+		self.map.addControl(L.control.zoom({position:'topright'}));
 
-		this.selectionLayer = L.featureGroup().addTo(this.map);
+		self.selectionLayer = L.featureGroup().addTo(self.map);
 
-		this.config.draw.edit.featureGroup = this.selectionLayer;
+		self.config.draw.edit.featureGroup = self.selectionLayer;
 
-		var drawControl = new L.Control.Draw(this.config.draw);
+		var drawControl = new L.Control.Draw(self.config.draw);
 
-		drawControl.addTo(this.map);
+		drawControl.addTo(self.map);
 
 		//DRAW EVENTS
 		self.map.on('draw:created', function (e) {
@@ -52875,7 +52918,8 @@ module.exports = {
 
 		var self = this;
 		
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
+		self.map.addControl(L.control.zoom({position:'topright'}));
 
 		var gpsControl = new L.Control.Gps({
 			position: 'topleft',
@@ -52892,9 +52936,9 @@ module.exports = {
 			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.map);
 		})
 
-		gpsControl.addTo(this.map);
+		gpsControl.addTo(self.map);
 
-		return this;
+		return self;
 	}
 }
 },{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":151,"jquery":53,"leaflet-gps":59}],149:[function(require,module,exports){

@@ -14,7 +14,8 @@ module.exports = {
 
 		var self = this;
 		
-		this.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts() );
+		self.map.addControl(L.control.zoom({position:'topright'}));
 
 		var gpsControl = new L.Control.Gps({
 			position: 'topleft',
@@ -31,8 +32,8 @@ module.exports = {
 			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.map);
 		})
 
-		gpsControl.addTo(this.map);
+		gpsControl.addTo(self.map);
 
-		return this;
+		return self;
 	}
 }
