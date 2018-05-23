@@ -61790,7 +61790,7 @@ module.exports = {
 		//TODO
 		//
 
-		var tmplUrl = 'http://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
 			params = {
 				filter: 'amenity=school',
 				bbox: this.polyToBbox(geoArea)
