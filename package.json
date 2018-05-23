@@ -4,6 +4,7 @@
   "description": "mappa delle scuole",
   "main": "main.js",
   "scripts": {
+    "build": "browserify src/main.js -o bundle.js",
     "start": "watchify -p browserify-livereload src/main.js -o bundle.js"
   },
   "author": {
