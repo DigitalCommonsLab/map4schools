@@ -51472,22 +51472,31 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
 
-//var radar = require('...');
+var bttable = require('bootstrap-table');
 //https://github.com/wenzhixin/bootstrap-table
-//require('../node_modules/... .min.css');
+require('../node_modules/bootstrap-table/dist/bootstrap-table.min.css');
 
 module.exports = {
   	
-  	chart: null,
+  	table: null,
 
-	init: function(el) {
+  	onSelect: function(e){ console.log('onClickRow',e); },
+
+	init: function(el, opts) {
 
 		var self = this;
 
+//TODO move to submit event
 		this.chart = $(el);
+
+		//onClickRow: opts && opts.onSelect,
+	},
+
+	update: function(data) {
+		//this.chart.reload()
 	}
-};
-},{"./utils":150,"jquery":53,"underscore":140}],144:[function(require,module,exports){
+}
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":150,"bootstrap-table":3,"jquery":53,"underscore":140}],144:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
