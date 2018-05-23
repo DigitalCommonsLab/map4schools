@@ -21,6 +21,10 @@
 	margin:3px 9px;
 }
 
+.geojson-list-item {
+	min-width: 50px;
+}
+
 .leaflet-control-gps.leaflet-control a {
 	margin: 4px;
 	background-color: #fff;

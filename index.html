@@ -9,68 +9,44 @@
 	<div class="container">		
 
 		<div class="row">
-		    <div class="col-sm-7">
+		    <div class="col-md-8">
 		    	<h2>Zona geografica</h2>
-				<div class="row">
-					<div class="col-sm">
-				    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
-						     <li class="nav-item">
-						          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
-						     </li>
-						     <li class="nav-item">
-						          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
-						     </li>
-						     <li class="nav-item">
-						          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
-						     </li>
-						</ul>
-						<div class="tab-content">
-						  <div class="tab-pane active" id="tab_admin" role="tabpanel">
-						  	<nav id="breadcrumb" aria-label="breadcrumb">
-						  		<!-- TMPLS -->
-							</nav>
-						  	<div id="map_admin" class="map"></div>
-						  </div>
-						  <div class="tab-pane" id="tab_area" role="tabpanel">
-						  	<div id="map_area" class="map"></div>
-						  </div>
-						  <div class="tab-pane" id="tab_gps" role="tabpanel">
-						  	<div id="map_gps" class="map"></div>
-						  </div>
-						</div>
-					</div>
+				
+		    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
+				     <li class="nav-item">
+				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Regione/Provincia/Comune</a>
+				     </li>
+				     <li class="nav-item">
+				          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
+				     </li>
+				     <li class="nav-item">
+				          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
+				     </li>
+				</ul>
+				<div class="tab-content">
+				  <div class="tab-pane active" id="tab_admin" role="tabpanel">
+				  	<nav id="breadcrumb" aria-label="breadcrumb">
+				  		<!-- TMPLS -->
+					</nav>
+				  	<div id="map_admin" class="map"></div>
+				  </div>
+				  <div class="tab-pane" id="tab_area" role="tabpanel">
+				  	<div id="map_area" class="map"></div>
+				  </div>
+				  <div class="tab-pane" id="tab_gps" role="tabpanel">
+				  	<div id="map_gps" class="map"></div>
+				  </div>
 				</div>
-				<!-- <div class="row">
-					<label>Selected</label>
-					<pre id="geo_selection"></pre>
-				</div> -->
-		    </div>
-		    <div class="col-sm-5">
-		    	<!-- <div class="row">
-			    	<div class="col-sm">
-				    	<h2>Tipologia Scuola</h2>
-				    	<form>
-						  <div class="form-group">
-						    <label for="sel_level">Livello istruzione</label>
-							<select id="sel_level" class="custom-select">
-								
-							</select>
-							<small class="float-right"><a href="https://wiki.openstreetmap.org/wiki/Key:isced:level">isced:level</a></small>
-						  </div>
-						  <button type="submit" class="btn btn-primary">Submit</button>
-						</form>
-					</div>
-			  	</div> -->
-			  	<div class="row">
-			    	<div id="table" class="col-sm">
-		      			<h2>Scuole<b></b></h2>
-		      			<br /><br />
-		 				<table id="table_selection" class="table">
-						</table>
-					</div>
+			</div>
+		    <div class="col-md-4">
+		    	<div id="table" class="col-sm">
+	      			<h2>Scuole<b></b></h2>
+	      			<br /><br />
+	 				<table id="table_selection" class="table">
+					</table>
 				</div>
 		    </div>
-		  </div>
+		</div>
 	</div>
 	
 	<hr />
@@ -78,7 +54,7 @@
 	<div id="charts" style="" class="container">		
 		<h2>Grafici Parametri Scuola<b></b></h2>
 		<div class="row">
-			<div class="col-sm-5">
+			<div class="col-md-5">
 				<div class="card" >
 				  <div class="card-body">
 				    <h5 class="card-title">Autovalutazione performance della scuola</h5>
@@ -93,7 +69,7 @@
 				  </div>
 				</div>
 			</div>
-			<div class="col-sm-4">				
+			<div class="col-md-4">				
 				<div class="card" >				  
 				  <div class="card-body">
 				    <h5 class="card-title">Distribuzione per genere e anno di corso</h5>
@@ -108,7 +84,7 @@
 				  </div>
 				</div>
 			</div>
-			<div class="col-sm-3">				
+			<div class="col-md-3">				
 				<div class="card" >				  
 				  <div class="card-body">
 				    <h5 class="card-title">Distribuzione eta' per anno scolastico</h5>
