@@ -27,8 +27,8 @@ var mapGps = require('./map_gps');
 var table = require('./table');
 
 var chartRadar = require('./chart_radar');
-//var chartBarsVert = require('./chart_bar_vert');
-//var chartBarsOriz = require('./chart_bar_oriz');
+var chartVert = require('./chart_vert');
+//var chartOriz = require('./chart_oriz');
 
 $(function() {
 
@@ -83,17 +83,17 @@ $(function() {
 		gps: mapGps.init('map_gps', { onSelect: loadSelection })
 	};
 
-	var activeMap = maps.admin;
+	var mapActive = maps.admin;
 
-	//for debug
-	window.map = activeMap;
-
-	chartRadar.init('#chart_radar');
+	var charts = {
+		radar: chartRadar.init('#chart_radar'),
+		vert: chartVert.init('#chart_vert')
+	};
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			activeMap.layerData.eachLayer(function(layer) {
+			mapActive.layerData.eachLayer(function(layer) {
 				
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
@@ -104,7 +104,8 @@ $(function() {
 
 			$('#charts').show();
 
-			chartRadar.update(row);
+			charts.radar.update(row);
+			charts.vert.update(row);
 		}
 	});
 
@@ -114,11 +115,11 @@ $(function() {
 			map = maps[ mapId ];
 
 
-		activeMap = map;
+		mapActive = map;
 
-		console.log('activeMap',activeMap.map.getContainer())
+		console.log('mapActive',mapActive.map.getContainer())
 
-		activeMap.map.invalidateSize(false);
+		mapActive.map.invalidateSize(false);
 		
 	});
 });

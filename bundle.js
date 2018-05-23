@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}tr:hover{cursor:pointer}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
@@ -60965,8 +60980,6 @@ var utils = require('./utils');
 
 var RadarChart = require('./lib/radarChart');
 
-window.d3= d3;
-
 module.exports = {
   	
   	chart: null,
@@ -60975,6 +60988,7 @@ module.exports = {
 
 	init: function(el, opts) {
 		this.el =  el;
+		return this;
 	},
 
 	formatData: function(data) {
@@ -61034,7 +61048,49 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart":145,"./utils":152,"d3":9,"jquery":54,"underscore":141}],145:[function(require,module,exports){
+},{"./lib/radarChart":146,"./utils":154,"d3":9,"jquery":54,"underscore":141}],145:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var d3 = require('d3');
+var utils = require('./utils');
+
+var StackedChart = require('./lib/stackedChart');
+
+module.exports = {
+  	
+  	chart: null,
+
+  	//onSelect: function(e){ console.log('onClickRow',e); }
+
+	init: function(el, opts) {
+		this.el =  el;
+		return this;
+	},
+
+	formatData: function(data) {
+
+		function val() {
+			return _.random(1,100);
+		}
+		//_.shuffle(_.range(3.2,4.8,0.4))[0]
+		//
+		var data = _.map(_.range(1,5), function(i) {
+			return [{x: 1, y: val()},{x: 2, y: val()},{x: 3, y: val()},{x: 4, y: val()},{x: 5, y: val()}];
+		});
+
+		return data;
+	},
+
+	update: function(data) {
+
+		//console.log('StackedChart update', data)
+
+		/*this.chart = StackedChart(this.el, this.formatData(data), {
+		});*/
+	}
+}
+},{"./lib/stackedChart":147,"./utils":154,"d3":9,"jquery":54,"underscore":141}],146:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -61052,16 +61108,16 @@ module.exports = function(id, data, options) {
 	 w: 600,				//Width of the circle
 	 h: 600,				//Height of the circle
 	 margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins of the SVG
-	 levels: 3,				//How many levels or inner circles should there be drawn
-	 maxValue: 0, 			//What is the value that the biggest circle will represent
-	 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
-	 wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
-	 opacityArea: 0.35, 	//The opacity of the area of the blob
-	 dotRadius: 4, 			//The size of the colored circles of each blog
-	 opacityCircles: 0.1, 	//The opacity of the circles of each blob
-	 strokeWidth: 2, 		//The width of the stroke around each blob
-	 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
-	 color: d3.scale.category10()	//Color function
+		 levels: 3,				//How many levels or inner circles should there be drawn
+		 maxValue: 0, 			//What is the value that the biggest circle will represent
+		 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
+		 wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
+		 opacityArea: 0.35, 	//The opacity of the area of the blob
+		 dotRadius: 4, 			//The size of the colored circles of each blog
+		 opacityCircles: 0.1, 	//The opacity of the circles of each blob
+		 strokeWidth: 2, 		//The width of the stroke around each blob
+		 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
+		 color: d3.scale.category10()	//Color function
 	};
 	
 	//Put all of the options into a variable called cfg
@@ -61305,7 +61361,71 @@ module.exports = function(id, data, options) {
 	
 }//RadarChart
 
-},{}],146:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
+/*
+	source: http://bl.ocks.org/puzzler10/2226e8d73c8f10dcdac7c77357838ba2
+ */
+module.exports = function(id, data, options) {
+		
+	var svgWidth = 900,
+		svgHeight = 500;
+		
+	var margin = {top: 20, right: 50, bottom: 30, left: 20},
+	svgWidth = 960 - margin.left - margin.right,
+	svgHeight = 500 - margin.top - margin.bottom;
+
+	stack = d3.layout.stack()
+	layers = stack(data)
+
+	//colour scale
+	var c10 = d3.scale.category10();
+
+	//see http://stackoverflow.com/questions/37688982/nesting-d3-max-with-array-of-arrays/37689132?noredirect=1#comment62916776_37689132
+	//for details on the logic behind this
+	max_y = d3.max(layers, function(d) {
+	    return d3.max(d, function(d) 
+		{
+			return d.y0 + d.y;
+		});
+	})
+
+	var yScale = d3.scale.linear()
+					.domain([0,	max_y])
+					.range([svgHeight,0]);
+
+	var yAxis = d3.svg.axis()
+					.ticks(5)
+					.scale(yScale)
+					.orient("right");
+					
+
+	var svg = d3.select(id).append("svg")
+				.attr("width", svgWidth + margin.left + margin.right)
+				.attr("height", svgHeight+ margin.top + margin.bottom)
+
+	var groups = svg.selectAll("g")
+					.data(layers)
+					.enter()
+					.append("g")
+					.style("fill", function (d,i) {return c10(i)});
+					
+	var rects = groups.selectAll("rect")
+			.data(function(d) {return d} )
+			.enter()
+			.append("rect")
+			.attr("x", function(d) {return (d.x * 100) +70})
+			.attr("y", function(d) {return yScale(d.y0 + d.y)} )
+			.attr("width", 100)
+			.attr("height", function (d) {return yScale(d.y0) - yScale(d.y + d.y0)});	
+
+	//add y axis
+	svg.append("g")
+		.attr("class", "y axis")
+		.attr("transform", "translate(" + (svgWidth -100) +",0)")
+		.call(yAxis)
+		.style("stroke", "black");
+};
+},{}],148:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61335,8 +61455,8 @@ var mapGps = require('./map_gps');
 var table = require('./table');
 
 var chartRadar = require('./chart_radar');
-//var chartBarsVert = require('./chart_bar_vert');
-//var chartBarsOriz = require('./chart_bar_oriz');
+var chartVert = require('./chart_vert');
+//var chartOriz = require('./chart_oriz');
 
 $(function() {
 
@@ -61391,17 +61511,17 @@ $(function() {
 		gps: mapGps.init('map_gps', { onSelect: loadSelection })
 	};
 
-	var activeMap = maps.admin;
+	var mapActive = maps.admin;
 
-	//for debug
-	window.map = activeMap;
-
-	chartRadar.init('#chart_radar');
+	var charts = {
+		radar: chartRadar.init('#chart_radar'),
+		vert: chartVert.init('#chart_vert')
+	};
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			activeMap.layerData.eachLayer(function(layer) {
+			mapActive.layerData.eachLayer(function(layer) {
 				
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
@@ -61412,7 +61532,8 @@ $(function() {
 
 			$('#charts').show();
 
-			chartRadar.update(row);
+			charts.radar.update(row);
+			charts.vert.update(row);
 		}
 	});
 
@@ -61422,15 +61543,15 @@ $(function() {
 			map = maps[ mapId ];
 
 
-		activeMap = map;
+		mapActive = map;
 
-		console.log('activeMap',activeMap.map.getContainer())
+		console.log('mapActive',mapActive.map.getContainer())
 
-		activeMap.map.invalidateSize(false);
+		mapActive.map.invalidateSize(false);
 		
 	});
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./chart_radar":144,"./map_admin":147,"./map_area":148,"./map_gps":149,"./overpass":150,"./table":151,"./utils":152,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],147:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./chart_radar":144,"./chart_vert":145,"./map_admin":149,"./map_area":150,"./map_gps":151,"./overpass":152,"./table":153,"./utils":154,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61594,7 +61715,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":152,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],148:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":154,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],150:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -61712,7 +61833,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":55,"./utils":152,"jquery":54,"leaflet-draw":56}],149:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":55,"./utils":154,"jquery":54,"leaflet-draw":56}],151:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -61779,7 +61900,7 @@ module.exports = {
 		}).addTo(this.map);
 	}*/
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":152,"jquery":54,"leaflet-gps":60}],150:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":154,"jquery":54,"leaflet-gps":60}],152:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -61864,7 +61985,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":152,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],151:[function(require,module,exports){
+},{"./utils":154,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],153:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61933,7 +62054,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":152,"bootstrap-table":3,"jquery":54,"underscore":141}],152:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":154,"bootstrap-table":3,"jquery":54,"underscore":141}],154:[function(require,module,exports){
 
 module.exports = {
   
@@ -62067,4 +62188,4 @@ module.exports = {
 
 };
 
-},{}]},{},[146]);
+},{}]},{},[148]);

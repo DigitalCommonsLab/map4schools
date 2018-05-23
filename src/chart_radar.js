@@ -6,8 +6,6 @@ var utils = require('./utils');
 
 var RadarChart = require('./lib/radarChart');
 
-window.d3= d3;
-
 module.exports = {
   	
   	chart: null,
@@ -16,6 +14,7 @@ module.exports = {
 
 	init: function(el, opts) {
 		this.el =  el;
+		return this;
 	},
 
 	formatData: function(data) {
