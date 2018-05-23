@@ -13,6 +13,7 @@ module.exports = {
 	
 	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
 	onSelect: function(e){ console.log('onSelect',e); },
 
 	selectionLayer: null,
@@ -42,23 +43,23 @@ module.exports = {
 		
 		self.$breadcrumb = $('#breadcrumb');
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
-		self.map.addControl(L.control.zoom({ position:'topright'}));
+			.on('popupopen', function(e) {
+			    var p = self.map.project(e.popup._latlng);
+			    p.y -= e.popup._container.clientHeight/2;
+			    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
+			    self.map.panTo(self.map.unproject(p),{animate: true});
+			})
+			.addControl(L.control.zoom({ position:'topright'}));
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
 				l.bindTooltip(f.properties.name);
 			}
 		}).addTo(self.map);
-
-		self.map.on('popupopen', function(e) {
-		    var p = self.map.project(e.popup._latlng);
-		    p.y -= e.popup._container.clientHeight/2;
-		    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
-		    self.map.panTo(self.map.unproject(p),{animate: true});
-		});
 
 		$.getJSON(self.getGeoUrl(self.selection), function(json) {
 
@@ -112,7 +113,7 @@ module.exports = {
 
 						if(selectedProps.id_prov) {
 
-							self.onSelect(selectedGeo, self.map);
+							self.onSelect.call(self, selectedGeo);
 						}
 
 						

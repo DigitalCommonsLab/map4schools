@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}tr:hover{cursor:pointer}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
@@ -61009,15 +61024,13 @@ module.exports = {
 		axes.push(axesData);
 
 		axes.push(axesMean);
-		
-		console.log('formatData',axes)
 
 		return axes;
 	},
 
 	update: function(data) {
 
-		console.log('RadarChart update', data)
+		//console.log('RadarChart update', data)
 
 		var margin = {top: 100, right: 100, bottom: 100, left: 100},
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
@@ -61347,12 +61360,23 @@ $(function() {
 		map_popup: H.compile($('#tmpl_popup').html())
 	};
 
-	function loadSelection(geoArea, map) {
+	function loadSelection(geoArea) {
 
-		var self = this;
-		
-		if(!map.layerData) {
-			map.layerData = L.geoJSON([], {
+		var self = this,
+			map = self.map;
+
+		if(!self.layerData) {
+			self.layerData = L.geoJSON([], {
+				pointToLayer: function(f, ll) {
+					return L.circleMarker(ll, {
+						radius: 5,
+						weight: 2,
+						color: '#c00',
+						fillColor:'#f00',
+						fillOpacity:0.8,
+						opacity:0.8
+					})
+				},
 				onEachFeature: function(feature, layer) {
 					var p = feature.properties;
 
@@ -61369,7 +61393,7 @@ $(function() {
 		//load geojson from area
 		overpass.search(geoArea, function(geoRes) {
 
-			map.layerData.clearLayers().addData(geoRes);
+			self.layerData.clearLayers().addData(geoRes);
 
 			table.update(geoRes);
 		});
@@ -61382,32 +61406,43 @@ $(function() {
 		gps: mapGps.init('map_gps', { onSelect: loadSelection })
 	};
 
-	window.maps = maps;
+	var activeMap = maps.admin;
+
+	//for debug
+	window.map = activeMap;
 
 	chartRadar.init('#chart_radar');
 
 	table.init('#table_selection', {
-		onSelect: function(e) {			
+		onSelect: function(row) {
 
-			maps.admin.map.layerData.eachLayer(function(layer) {
+			activeMap.layerData.eachLayer(function(layer) {
 				
-				if(layer.feature.id==e.id) {
+				if(layer.feature.id==row.id) {
 					layer.openPopup();
 				}
 			});
 
-			$('#charts h2 b').text(': '+e.name)
+			$('#charts h2 b').text(': '+row.name)
 
 			$('#charts').show();
 
-			chartRadar.update(e);
+			chartRadar.update(row);
 		}
 	});
 
-	$('#tabs_maps a').on('shown.bs.tab', function(event) {
-		_.each(maps, function(m) {
-			m.map.invalidateSize(false);
-		});
+	$('#tabs_maps a').on('shown.bs.tab', function(e) {
+
+		var mapId = $(e.target).attr('href').split('_')[1],
+			map = maps[ mapId ];
+
+
+		activeMap = map;
+
+		console.log('activeMap',activeMap.map.getContainer())
+
+		activeMap.map.invalidateSize(false);
+		
 	});
 });
 },{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./chart_radar":144,"./map_admin":147,"./map_area":148,"./map_gps":149,"./overpass":150,"./table":151,"./utils":152,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],147:[function(require,module,exports){
@@ -61426,6 +61461,7 @@ module.exports = {
 	
 	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
 	onSelect: function(e){ console.log('onSelect',e); },
 
 	selectionLayer: null,
@@ -61455,23 +61491,23 @@ module.exports = {
 		
 		self.$breadcrumb = $('#breadcrumb');
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 		
 		self.map = L.map(el, utils.getMapOpts() )
-		self.map.addControl(L.control.zoom({ position:'topright'}));
+			.on('popupopen', function(e) {
+			    var p = self.map.project(e.popup._latlng);
+			    p.y -= e.popup._container.clientHeight/2;
+			    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
+			    self.map.panTo(self.map.unproject(p),{animate: true});
+			})
+			.addControl(L.control.zoom({ position:'topright'}));
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
 				l.bindTooltip(f.properties.name);
 			}
 		}).addTo(self.map);
-
-		self.map.on('popupopen', function(e) {
-		    var p = self.map.project(e.popup._latlng);
-		    p.y -= e.popup._container.clientHeight/2;
-		    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
-		    self.map.panTo(self.map.unproject(p),{animate: true});
-		});
 
 		$.getJSON(self.getGeoUrl(self.selection), function(json) {
 
@@ -61525,7 +61561,7 @@ module.exports = {
 
 						if(selectedProps.id_prov) {
 
-							self.onSelect(selectedGeo, self.map);
+							self.onSelect.call(self, selectedGeo);
 						}
 
 						
@@ -61585,6 +61621,7 @@ module.exports = {
   	
   	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
   	onSelect: function(e){ console.log('onSelect',e); },
   	
   	selectionLayer: null,
@@ -61628,6 +61665,7 @@ module.exports = {
 
 		var self = this;
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
@@ -61676,7 +61714,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON(), self.map);
+                self.onSelect.call(self, self.selectionLayer.toGeoJSON());
             })
             .on('draw:deleted', function (e) {
                 
@@ -61702,12 +61740,14 @@ module.exports = {
   	
   	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
   	onSelect: function(e){ console.log('onSelect',e); },
 
 	init: function(el, opts) {
 
 		var self = this;
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
@@ -61725,7 +61765,7 @@ module.exports = {
 			var bb = self.map.getBounds().pad(-0.8),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.map);
+			self.onSelect.call(self, L.featureGroup([poly]).toGeoJSON() );
 		})
 
 		gpsControl.addTo(self.map);

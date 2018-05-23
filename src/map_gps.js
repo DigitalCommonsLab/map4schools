@@ -10,12 +10,14 @@ module.exports = {
   	
   	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
   	onSelect: function(e){ console.log('onSelect',e); },
 
 	init: function(el, opts) {
 
 		var self = this;
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
@@ -33,7 +35,7 @@ module.exports = {
 			var bb = self.map.getBounds().pad(-0.8),
 				poly = utils.createPolygonFromBounds(bb);
 
-			self.onSelect( L.featureGroup([poly]).toGeoJSON(), self.map);
+			self.onSelect.call(self, L.featureGroup([poly]).toGeoJSON() );
 		})
 
 		gpsControl.addTo(self.map);

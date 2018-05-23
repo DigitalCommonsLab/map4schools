@@ -50,15 +50,13 @@ module.exports = {
 		axes.push(axesData);
 
 		axes.push(axesMean);
-		
-		console.log('formatData',axes)
 
 		return axes;
 	},
 
 	update: function(data) {
 
-		console.log('RadarChart update', data)
+		//console.log('RadarChart update', data)
 
 		var margin = {top: 100, right: 100, bottom: 100, left: 100},
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,

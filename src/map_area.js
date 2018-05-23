@@ -9,6 +9,7 @@ module.exports = {
   	
   	map: null,
 
+	onInit: function(e){ console.log('onInit',e); },
   	onSelect: function(e){ console.log('onSelect',e); },
   	
   	selectionLayer: null,
@@ -52,6 +53,7 @@ module.exports = {
 
 		var self = this;
 
+		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 
 		self.map = L.map(el, utils.getMapOpts() );
@@ -100,7 +102,7 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect( self.selectionLayer.toGeoJSON(), self.map);
+                self.onSelect.call(self, self.selectionLayer.toGeoJSON());
             })
             .on('draw:deleted', function (e) {
                 
