@@ -29,6 +29,13 @@
 	margin: 4px;
 	background-color: #fff;
 }
+.leaflet-control-gps .gps-button {
+	background-image: url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg);
+}
+.leaflet-retina .leaflet-draw-toolbar a {
+    background-image: url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);
+    background-image: linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg);
+}
 
 tr:hover {
 	cursor: pointer
