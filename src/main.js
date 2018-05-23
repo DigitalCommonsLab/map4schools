@@ -3,6 +3,7 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
+window._ = _;
 var H = require('handlebars');
 //var csv = require('jquery-csv');
 var popper = require('popper.js');
@@ -73,6 +74,8 @@ $(function() {
 
 	window.maps = maps;
 
+	chartRadar.init('#chart_radar');
+
 	table.init('#table_selection', {
 		onSelect: function(e) {			
 
@@ -86,6 +89,8 @@ $(function() {
 			$('#charts h2 b').text(': '+e.name)
 
 			$('#charts').show();
+
+			chartRadar.update(e);
 		}
 	});
 
