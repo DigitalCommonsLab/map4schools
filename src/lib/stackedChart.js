@@ -52,7 +52,7 @@ module.exports = function(id, data, options) {
 			.append("rect")
 			.attr("x", function(d) {return (d.x * 50) })
 			.attr("y", function(d) {return yScale(d.y0 + d.y)} )
-			.attr("width", 50)
+			.attr("width", 40)
 			.attr("height", function (d) {return yScale(d.y0) - yScale(d.y + d.y0)});	
 
 	//add y axis
