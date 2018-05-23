@@ -61075,8 +61075,8 @@ module.exports = {
 		}
 		//_.shuffle(_.range(3.2,4.8,0.4))[0]
 		//
-		var data = _.map(_.range(1,5), function(i) {
-			return [{x: 1, y: val()},{x: 2, y: val()},{x: 3, y: val()},{x: 4, y: val()},{x: 5, y: val()}];
+		var data = _.map(_.range(1,3), function(i) {
+			return [{x: 1, y: val() },{x: 2, y: val() },{x: 3, y: val() },{x: 4, y: val() },{x: 5, y: val() }];
 		});
 
 		return data;
@@ -61086,8 +61086,9 @@ module.exports = {
 
 		//console.log('StackedChart update', data)
 
-		/*this.chart = StackedChart(this.el, this.formatData(data), {
-		});*/
+		this.chart = StackedChart(this.el, this.formatData(data), {
+			//
+		});
 	}
 }
 },{"./lib/stackedChart":147,"./utils":154,"d3":9,"jquery":54,"underscore":141}],146:[function(require,module,exports){
@@ -61105,9 +61106,9 @@ module.exports = {
 module.exports = function(id, data, options) {
 
 	var cfg = {
-	 w: 600,				//Width of the circle
-	 h: 600,				//Height of the circle
-	 margin: {top: 20, right: 20, bottom: 20, left: 20}, //The margins of the SVG
+	 w: 400,				//Width of the circle
+	 h: 400,				//Height of the circle
+	 margin: {top: 0, right: 0, bottom: 0, left: 0}, //The margins of the SVG
 		 levels: 3,				//How many levels or inner circles should there be drawn
 		 maxValue: 0, 			//What is the value that the biggest circle will represent
 		 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
@@ -61367,12 +61368,12 @@ module.exports = function(id, data, options) {
  */
 module.exports = function(id, data, options) {
 		
-	var svgWidth = 900,
-		svgHeight = 500;
+	var svgWidth = 400,
+		svgHeight = 200;
 		
-	var margin = {top: 20, right: 50, bottom: 30, left: 20},
-	svgWidth = 960 - margin.left - margin.right,
-	svgHeight = 500 - margin.top - margin.bottom;
+	var margin = {top: 0, right: 0, bottom: 0, left: 0},
+	svgWidth = svgWidth - margin.left - margin.right,
+	svgHeight = svgHeight - margin.top - margin.bottom;
 
 	stack = d3.layout.stack()
 	layers = stack(data)
@@ -61398,6 +61399,7 @@ module.exports = function(id, data, options) {
 					.scale(yScale)
 					.orient("right");
 					
+	d3.select(id).select("svg").remove();
 
 	var svg = d3.select(id).append("svg")
 				.attr("width", svgWidth + margin.left + margin.right)
@@ -61413,17 +61415,17 @@ module.exports = function(id, data, options) {
 			.data(function(d) {return d} )
 			.enter()
 			.append("rect")
-			.attr("x", function(d) {return (d.x * 100) +70})
+			.attr("x", function(d) {return (d.x * 50) })
 			.attr("y", function(d) {return yScale(d.y0 + d.y)} )
-			.attr("width", 100)
+			.attr("width", 50)
 			.attr("height", function (d) {return yScale(d.y0) - yScale(d.y + d.y0)});	
 
 	//add y axis
-	svg.append("g")
+/*	svg.append("g")
 		.attr("class", "y axis")
-		.attr("transform", "translate(" + (svgWidth -100) +",0)")
+		//.attr("transform", "translate(" + (svgWidth -50) +",0)")
 		.call(yAxis)
-		.style("stroke", "black");
+		.style("stroke", "black");*/
 };
 },{}],148:[function(require,module,exports){
 

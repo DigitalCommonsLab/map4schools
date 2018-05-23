@@ -3,12 +3,12 @@
  */
 module.exports = function(id, data, options) {
 		
-	var svgWidth = 900,
-		svgHeight = 500;
+	var svgWidth = 400,
+		svgHeight = 200;
 		
-	var margin = {top: 20, right: 50, bottom: 30, left: 20},
-	svgWidth = 960 - margin.left - margin.right,
-	svgHeight = 500 - margin.top - margin.bottom;
+	var margin = {top: 0, right: 0, bottom: 0, left: 0},
+	svgWidth = svgWidth - margin.left - margin.right,
+	svgHeight = svgHeight - margin.top - margin.bottom;
 
 	stack = d3.layout.stack()
 	layers = stack(data)
@@ -34,6 +34,7 @@ module.exports = function(id, data, options) {
 					.scale(yScale)
 					.orient("right");
 					
+	d3.select(id).select("svg").remove();
 
 	var svg = d3.select(id).append("svg")
 				.attr("width", svgWidth + margin.left + margin.right)
@@ -49,15 +50,15 @@ module.exports = function(id, data, options) {
 			.data(function(d) {return d} )
 			.enter()
 			.append("rect")
-			.attr("x", function(d) {return (d.x * 100) +70})
+			.attr("x", function(d) {return (d.x * 50) })
 			.attr("y", function(d) {return yScale(d.y0 + d.y)} )
-			.attr("width", 100)
+			.attr("width", 50)
 			.attr("height", function (d) {return yScale(d.y0) - yScale(d.y + d.y0)});	
 
 	//add y axis
-	svg.append("g")
+/*	svg.append("g")
 		.attr("class", "y axis")
-		.attr("transform", "translate(" + (svgWidth -100) +",0)")
+		//.attr("transform", "translate(" + (svgWidth -50) +",0)")
 		.call(yAxis)
-		.style("stroke", "black");
+		.style("stroke", "black");*/
 };

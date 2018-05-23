@@ -24,8 +24,8 @@ module.exports = {
 		}
 		//_.shuffle(_.range(3.2,4.8,0.4))[0]
 		//
-		var data = _.map(_.range(1,5), function(i) {
-			return [{x: 1, y: val()},{x: 2, y: val()},{x: 3, y: val()},{x: 4, y: val()},{x: 5, y: val()}];
+		var data = _.map(_.range(1,3), function(i) {
+			return [{x: 1, y: val() },{x: 2, y: val() },{x: 3, y: val() },{x: 4, y: val() },{x: 5, y: val() }];
 		});
 
 		return data;
@@ -35,7 +35,8 @@ module.exports = {
 
 		//console.log('StackedChart update', data)
 
-		/*this.chart = StackedChart(this.el, this.formatData(data), {
-		});*/
+		this.chart = StackedChart(this.el, this.formatData(data), {
+			//
+		});
 	}
 }
