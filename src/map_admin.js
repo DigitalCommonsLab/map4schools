@@ -70,7 +70,7 @@ module.exports = {
 			self.controlSelect = new L.Control.GeoJSONSelector(self.selectionLayer, {
 				zoomToLayer: false,
 				//listOnlyVisibleLayers: true
-			}).on('change', function(e) {
+			}).on('selector:change', function(e) {
 
 				
 
