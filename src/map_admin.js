@@ -3,7 +3,10 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
 var utils = require('./utils');
-var Select = require('leaflet-geojson-selector');
+
+//var Select = require('leaflet-geojson-selector');
+var Select = require('./lib/leaflet-geojson-selector');
+
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
 var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
@@ -53,7 +56,7 @@ module.exports = {
 			    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
 			    self.map.panTo(self.map.unproject(p),{animate: true});
 			})
-			.addControl(L.control.zoom({ position:'topright'}));
+			.addControl(L.control.zoom({ position:'topright' }));
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
@@ -72,7 +75,10 @@ module.exports = {
 				//listOnlyVisibleLayers: true
 			}).on('selector:change', function(e) {
 
-				
+console.log('selected', e.selected)
+
+				L.DomEvent.stop(e);
+				//L.DomEvent.stopPropagation(e);
 
 				if(e.selected) {
 

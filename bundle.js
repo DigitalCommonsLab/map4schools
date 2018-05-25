@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
@@ -305,7 +320,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require('_process'),"/node_modules/amdefine/amdefine.js")
-},{"_process":69,"path":67}],3:[function(require,module,exports){
+},{"_process":68,"path":66}],3:[function(require,module,exports){
 /**
  * @author zhixin wen <wenzhixin2010@gmail.com>
  * version: 1.12.1
@@ -7535,7 +7550,7 @@ var css = "/*!\n * Bootstrap v4.1.1 (https://getbootstrap.com/)\n * Copyright 20
 })));
 
 
-},{"jquery":54,"popper.js":68}],7:[function(require,module,exports){
+},{"jquery":54,"popper.js":67}],7:[function(require,module,exports){
 'use strict';
 // For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
 
@@ -17185,7 +17200,7 @@ function rad(_) {
     return _ * Math.PI / 180;
 }
 
-},{"wgs84":143}],11:[function(require,module,exports){
+},{"wgs84":142}],11:[function(require,module,exports){
 var geojsonArea = require('geojson-area');
 
 module.exports = rewind;
@@ -35667,443 +35682,8 @@ this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e)
 },{}],57:[function(require,module,exports){
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],58:[function(require,module,exports){
-/* 
- * Leaflet GeoJSON Selector v0.4.2 - 2018-05-25 
- * 
- * Copyright 2018 Stefano Cudini 
- * stefano.cudini@gmail.com 
- * http://labs.easyblog.it/ 
- * 
- * Licensed under the MIT license. 
- * 
- * Demo: 
- * http://labs.easyblog.it/maps/leaflet-geojson-selector/ 
- * 
- * Source: 
- * git@github.com:stefanocudini/leaflet-geojson-selector.git 
- * 
- */
-/*
-	Name				Data passed			   Description
-
-	Managed Events:
-	 selector:change	{selected, layers}     fired after checked item in list, selected is true if any layer is selected
-
-	Public methods:
- 	 reload()			{layer}				   load or reload a geojson layer
-
-*/
-(function (factory) {
-    if(typeof define === 'function' && define.amd) {
-    //AMD
-        define(['leaflet'], factory);
-    } else if(typeof module !== 'undefined') {
-    // Node/CommonJS
-        module.exports = factory(require('leaflet'));
-    } else {
-    // Browser globals
-        if(typeof window.L === 'undefined')
-            throw 'Leaflet must be loaded first';
-        factory(window.L);
-    }
-})(function (L) {
-
-L.Control.GeoJSONSelector = L.Control.extend({
-
-	includes: L.version[0]==='1' ? L.Evented.prototype : L.Mixin.Events,
-
-	options: {
-		collapsed: false,				//collapse panel list
-		position: 'bottomleft',			//position of panel list
-		
-		listLabel: 'properties.name',	//GeoJSON property to generate items list
-		listSortBy: null,				//GeoJSON property to sort items list, default listLabel
-		listItemBuild: null,			//function list item builder
-		
-		activeListFromLayer: true,		//highlight of list item on layer hover
-		//TODO activeLayerFromList: true,	//highlight of layer on list item hover
-		zoomToLayer: false,
-		
-		listOnlyVisibleLayers: false,	//show list of item of layers visible in map canvas
-
-		multiple: false,				//active multiple selection
-		//TODO
-
-		style: {
-			color:'#00f',
-			fillColor:'#08f',
-			fillOpacity: 0.4,
-			opacity: 1,
-			weight: 1
-		},
-		activeClass: 'active',			//css class name for active list items
-		activeStyle: {					//style for Active GeoJSON feature
-			color:'#00f',
-			fillColor:'#fc0',
-			fillOpacity: 0.6,
-			opacity: 1,
-			weight: 1
-		},
-		selectClass: 'selected',
-		selectStyle: {
-			color:'#00f',
-			fillColor:'#f80',
-			fillOpacity: 0.8,
-			opacity: 1,
-			weight: 1
-		}
-	},
-
-	initialize: function(layer, options) {
-		var opt = L.Util.setOptions(this, options || {});
-
-		this.options.listSortBy = this.options.listSortBy || this.options.listLabel;
-
-		if(this.options.listItemBuild)
-			this._itemBuild = this.options.listItemBuild;
-
-		this._layer = layer;
-	},
-
-	onAdd: function (map) {
-
-		var container = L.DomUtil.create('div', 'geojson-list');
-
-		this._baseName = 'geojson-list';
-
-		this._map = map;
-
-		this._container = container;
-
-		this._id = this._baseName + L.stamp(this._container);
-
-		this._list = L.DomUtil.create('ul', 'geojson-list-group', container);
-
-		this._items = [];
-
-		L.DomEvent
-			.on(container, 'mouseover', function (e) {
-				map.scrollWheelZoom.disable();
-			})
-			.on(container, 'mouseout', function (e) {
-				map.scrollWheelZoom.enable();
-			});
-
-		if(this.options.listOnlyVisibleLayers)
-			map.on('moveend', this._updateListVisible, this);
-
-		map.whenReady(function(e) {
-			container.style.height = (map.getSize().y)+'px';
-		});
-
-		this._initToggle();
-		this._updateList();
-
-		return container;
-	},
-	
-	onRemove: function(map) {
-		map.off('moveend', this._updateList, this);	
-	},
-
-	reload: function(layer) {
-
-		//TODO off events
-
-		this._layer = layer;
-
-		this._updateList();
-
-		return this;
-	},
-
-	_getPath: function(obj, prop) {
-		var parts = prop.split('.'),
-			last = parts.pop(),
-			len = parts.length,
-			cur = parts[0],
-			i = 1;
-
-		if(len > 0)
-			while((obj = obj[cur]) && i < len)
-				cur = parts[i++];
-
-		if(obj)
-			return obj[last];
-	},
-
-	_itemBuild: function(layer) {
-
-		return this._getPath(layer.feature, this.options.listLabel) || '&nbsp;';
-	},
-
-	_selectItem: function(item, selected) {
-
-		for (var i = 0; i < this._items.length; i++)
-			L.DomUtil.removeClass(this._items[i], this.options.selectClass);
-
-		if(selected)
-			L.DomUtil.addClass(item, this.options.selectClass );
-	},
-
-	_selectLayer: function(layer, selected) {
-
-		for(var i = 0; i < this._items.length; i++)
-			if(this._items[i].layer.setStyle)
-				this._items[i].layer.setStyle( this.options.style );
-		
-		if(selected && layer.setStyle)
-			layer.setStyle( this.options.selectStyle );
-	},	
-
-	_createItem: function(layer) {
-
-		var that = this,
-			item = L.DomUtil.create('li','geojson-list-item'),
-			label = document.createElement('label'),
-			inputType = this.options.multiple ? 'checkbox' : 'radio',
-			input = this._createInputElement(inputType, this._id, false),
-			html = this._itemBuild.call(this, layer);
-
-		label.innerHTML = html;
-		label.insertBefore(input, label.firstChild);
-		item.appendChild(label);
-
-		item.layer = layer;
-		layer.itemList = item;
-		layer.itemLabel = label;
-
-		L.DomEvent
-			//.disableClickPropagation(item)
-			.on(label, 'click', L.DomEvent.stop, this)
-			.on(label, 'click', function(e) {
-
-				if(that.options.zoomToLayer)
-					that._moveTo( layer );
-				//TODO zoom to bbox for multiple layers
-
-				input.checked = !input.checked;
-
-				item.selected = input.checked;
-
-				that._selectItem(item, input.checked);
-				that._selectLayer(layer, input.checked);		
-
-				that.fire('selector:change', {
-					selected: input.checked,
-					layers: [layer]
-				});
-
-			}, this);
-
-		L.DomEvent
-			.on(item, 'mouseover', function(e) {
-				
-				L.DomUtil.addClass(e.target, this.options.activeClass);
-
-				for (var i = 0; i < that._items.length; i++)
-					if(!that._items[i])
-						that._items[i].layer.setStyle( that.options.activeStyle );						
-
-			}, this)
-			.on(item, 'mouseout', function(e) {
-
-				L.DomUtil.removeClass(e.target, that.options.activeClass);
-
-				for (var i = 0; i < that._items.length; i++)
-					if(!that._items[i])
-						that._items[i].layer.setStyle( that.options.style );						
-
-			}, this);
-
-		this._items.push( item );
-
-		return item;
-	},
-
-	// IE7 bugs out if you create a radio dynamically, so you have to do it this hacky way (see http://bit.ly/PqYLBe)
-	_createInputElement: function (type, name, checked) {
-
-		var radioHtml = '<input type="'+type+'" name="' + name + '"';
-		if (checked)
-			radioHtml += ' checked="checked"';
-		radioHtml += '/>';
-
-		var radioFragment = document.createElement('div');
-		radioFragment.innerHTML = radioHtml;
-
-		return radioFragment.firstChild;
-	},
-
-	_updateList: function() {
-	
-		var that = this,
-			layers = [],
-			sortProp = this.options.listSortBy;
-
-		//TODO SORTby
-
-		//this._list.style.minWidth = '';
-		this._list.innerHTML = '';
-		this._layer.eachLayer(function(layer) {
-
-			layers.push( layer );
-
-			if(layer.setStyle)
-				layer.setStyle( that.options.style );
-
-			if(that.options.activeListFromLayer) {
-				layer
-				.on('click', L.DomEvent.stop)
-				.on('click', function(e) {
-					layer.itemLabel.click();
-				})
-				.on('mouseover', function(e) {
-	
-					if(layer.setStyle)
-						layer.setStyle( that.options.activeStyle );
-
-					L.DomUtil.addClass(layer.itemList, that.options.activeClass);
-				})
-				.on('mouseout', function(e) {
-
-					if(layer.setStyle)
-						layer.setStyle( that.options.style );
-
-					L.DomUtil.removeClass(layer.itemList, that.options.activeClass);
-				});
-			}
-		});
-
-		layers.sort(function(a, b) {
-			var ap = that._getPath(a.feature, sortProp),
-				bp = that._getPath(b.feature, sortProp);
-
-			if(ap < bp)
-				return -1;
-			if(ap > bp)
-				return 1;
-			return 0;
-		});
-
-		for (var i=0; i<layers.length; i++)
-			this._list.appendChild( this._createItem( layers[i] ) );
-	},
-
-	_updateListVisible: function() {
-
-		var that = this,
-			layerbb, visible;
-		
-		this._layer.eachLayer(function(layer) {
-
-			if(layer.getBounds)
-				visible = that._map.getBounds().intersects( layer.getBounds() );
-			else if(layer.getLatLng)
-				visible = that._map.getBounds().contains( layer.getLatLng() );
-
-			layer.itemList.style.display = visible ? 'block':'none';
-		});
-	},
-
-	_initToggle: function () {
-
-		/* inspired by L.Control.Layers */
-
-		var container = this._container;
-
-		//Makes this work on IE10 Touch devices by stopping it from firing a mouseout event when the touch is released
-		container.setAttribute('aria-haspopup', true);
-
-		if (!L.Browser.touch) {
-			L.DomEvent
-				.disableClickPropagation(container);
-				//.disableScrollPropagation(container);
-		} else {
-			L.DomEvent.on(container, 'click', L.DomEvent.stopPropagation);
-		}
-
-		if (this.options.collapsed)
-		{
-			this._collapse();
-
-			if (!L.Browser.android) {
-				L.DomEvent
-					.on(container, 'mouseover', this._expand, this)
-					.on(container, 'mouseout', this._collapse, this);
-			}
-			var link = this._button = L.DomUtil.create('a', 'geojson-list-toggle', container);
-			link.href = '#';
-			link.title = 'List GeoJSON';
-
-			if (L.Browser.touch) {
-				L.DomEvent
-					.on(link, 'click', L.DomEvent.stop)
-					.on(link, 'click', this._expand, this);
-			}
-			else {
-				L.DomEvent.on(link, 'focus', this._expand, this);
-			}
-
-			this._map.on('click', this._collapse, this);
-			// TODO keyboard accessibility
-		}
-	},
-
-	_expand: function () {
-		this._container.className = this._container.className.replace(' geojson-list-collapsed', '');
-	},
-
-	_collapse: function () {
-		L.DomUtil.addClass(this._container, 'geojson-list-collapsed');
-	},
-
-    _moveTo: function(layer) {
-
-    	var pos = this.options.position,
-    		w = this._map._controlCorners[ pos ].clientWidth;
-
-		var psize = new L.Point(
-				this._container.clientWidth,
-				this._container.clientHeight),
-			fitOpts = {
-				paddingTopLeft: null,
-				paddingBottomRight: null
-			};
-
-		/*var ne = this._map.containerPointToLatLng( L.point(psize.x, 0) ),
-			sw = this._map.containerPointToLatLng( L.point(msize.x, psize.y) ),
-			bb = L.latLngBounds(sw, ne);
-		*/
-		/*L.rectangle(bb).addTo(this._map);
-		L.marker(bb.getCenter()).addTo(this._map);
-		*/
-
-		if (pos.indexOf('right') !== -1) {
-			fitOpts.paddingBottomRight = L.point(psize.x, 0);
-		}
-		else if (pos.indexOf('left') !== -1) {
-			fitOpts.paddingTopLeft = L.point(psize.x, 0);
-		}
-
-    	if(layer.getBounds)
-			this._map.fitBounds(layer.getBounds(), fitOpts);
-
-		else if(layer.getLatLng)
-			this._map.setView( layer.getLatLng() );
-
-    }
-});
-
-L.control.geoJsonSelector = function (layer, options) {
-    return new L.Control.GeoJSONSelector(layer, options);
-};
-
-});
-
-},{"leaflet":61}],59:[function(require,module,exports){
 var css = ".leaflet-container .leaflet-control-gps{position:relative;float:left;background:#fff;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;background-color:rgba(255,255,255,.8);z-index:1000;border:2px solid rgba(0,0,0,.2);background-clip:padding-box;margin-left:10px;margin-top:10px}.leaflet-control-gps .gps-button{display:block;float:left;width:22px;height:22px;background-image:url(node_modules/leaflet-gps/images/gps-icon.svg);background-repeat:no-repeat;background-position:1px 1px;background-color:#fff;border-radius:4px;padding:2px;margin:2px}.leaflet-control-gps .gps-button.active:hover,.leaflet-control-gps .gps-button:hover{background-color:#f4f4f4}.leaflet-control-gps .gps-button.loading,.leaflet-control-gps .gps-button.loading:hover{background-position:1px -28px}.leaflet-control-gps .gps-button.active{background-position:1px -52px}.leaflet-control-gps .gps-button.disabled{background-position:1px -24px}.leaflet-control-gps .gps-alert{position:absolute;left:34px;bottom:-1px;width:220px;padding:2px;line-height:1em;color:#e00;border:2px solid rgba(0,0,0,.2);background-color:rgba(255,255,255,.75);border-radius:4px}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-gps/dist/leaflet-gps.min.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],60:[function(require,module,exports){
+},{"browserify-css":7}],59:[function(require,module,exports){
 /* 
  * Leaflet Control GPS v1.7.3 - 2018-05-18 
  * 
@@ -36360,7 +35940,7 @@ return L.Control.Gps;
 });
 
 
-},{"leaflet":61}],61:[function(require,module,exports){
+},{"leaflet":60}],60:[function(require,module,exports){
 /* @preserve
  * Leaflet 1.3.1, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2017 Vladimir Agafonkin, (c) 2010-2011 CloudMade
@@ -50164,12 +49744,12 @@ exports.map = createMap;
 })));
 
 
-},{}],62:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var css = ".leaflet-image-layer,.leaflet-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane,.leaflet-pane>canvas,.leaflet-pane>svg,.leaflet-tile,.leaflet-tile-container,.leaflet-zoom-box{position:absolute;left:0;top:0}.leaflet-container{overflow:hidden}.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}.leaflet-marker-icon,.leaflet-marker-shadow{display:block}.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-overlay-pane svg,.leaflet-container .leaflet-shadow-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer{max-width:none!important;max-height:none!important}.leaflet-container.leaflet-touch-zoom{-ms-touch-action:pan-x pan-y;touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{-ms-touch-action:pinch-zoom;touch-action:none;touch-action:pinch-zoom}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action:none;touch-action:none}.leaflet-container{-webkit-tap-highlight-color:transparent}.leaflet-container a{-webkit-tap-highlight-color:rgba(51,181,229,.4)}.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}.leaflet-zoom-box{width:0;height:0;-moz-box-sizing:border-box;box-sizing:border-box;z-index:800}.leaflet-overlay-pane svg{-moz-user-select:none}.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}.leaflet-vml-shape{width:1px;height:1px}.lvml{behavior:url(#default#VML);display:inline-block;position:absolute}.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}.leaflet-bottom,.leaflet-top{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}.leaflet-fade-anim .leaflet-tile{will-change:opacity}.leaflet-fade-anim .leaflet-popup{opacity:0;-webkit-transition:opacity .2s linear;-moz-transition:opacity .2s linear;-o-transition:opacity .2s linear;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}.leaflet-zoom-animated{-webkit-transform-origin:0 0;-ms-transform-origin:0 0;transform-origin:0 0}.leaflet-zoom-anim .leaflet-zoom-animated{will-change:transform}.leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition:-webkit-transform .25s cubic-bezier(0,0,.25,1);-moz-transition:-moz-transform .25s cubic-bezier(0,0,.25,1);-o-transition:-o-transform .25s cubic-bezier(0,0,.25,1);transition:transform .25s cubic-bezier(0,0,.25,1)}.leaflet-pan-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-tile{-webkit-transition:none;-moz-transition:none;-o-transition:none;transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:-webkit-grab;cursor:-moz-grab}.leaflet-crosshair,.leaflet-crosshair .leaflet-interactive{cursor:crosshair}.leaflet-control,.leaflet-popup-pane{cursor:auto}.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive,.leaflet-dragging .leaflet-marker-draggable{cursor:move;cursor:-webkit-grabbing;cursor:-moz-grabbing}.leaflet-image-layer,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}.leaflet-image-layer.leaflet-interactive,.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:visiblePainted;pointer-events:auto}.leaflet-container{background:#ddd;outline:0}.leaflet-container a{color:#0078a8}.leaflet-container a.leaflet-active{outline:2px solid orange}.leaflet-zoom-box{border:2px dotted #38f;background:rgba(255,255,255,.5)}.leaflet-container{font:12px/1.5 \"Helvetica Neue\",Arial,Helvetica,sans-serif}.leaflet-bar{box-shadow:0 1px 5px rgba(0,0,0,.65);border-radius:4px}.leaflet-bar a,.leaflet-bar a:hover{background-color:#fff;border-bottom:1px solid #ccc;width:26px;height:26px;line-height:26px;display:block;text-align:center;text-decoration:none;color:#000}.leaflet-bar a,.leaflet-control-layers-toggle{background-position:50% 50%;background-repeat:no-repeat;display:block}.leaflet-bar a:hover{background-color:#f4f4f4}.leaflet-bar a:first-child{border-top-left-radius:4px;border-top-right-radius:4px}.leaflet-bar a:last-child{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom:none}.leaflet-bar a.leaflet-disabled{cursor:default;background-color:#f4f4f4;color:#bbb}.leaflet-touch .leaflet-bar a{width:30px;height:30px;line-height:30px}.leaflet-touch .leaflet-bar a:first-child{border-top-left-radius:2px;border-top-right-radius:2px}.leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius:2px;border-bottom-right-radius:2px}.leaflet-control-zoom-in,.leaflet-control-zoom-out{font:bold 18px 'Lucida Console',Monaco,monospace;text-indent:1px}.leaflet-touch .leaflet-control-zoom-in,.leaflet-touch .leaflet-control-zoom-out{font-size:22px}.leaflet-control-layers{box-shadow:0 1px 5px rgba(0,0,0,.4);background:#fff;border-radius:5px}.leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers.png);width:36px;height:36px}.leaflet-retina .leaflet-control-layers-toggle{background-image:url(node_modules/leaflet/dist/images/layers-2x.png);background-size:26px 26px}.leaflet-touch .leaflet-control-layers-toggle{width:44px;height:44px}.leaflet-control-layers .leaflet-control-layers-list,.leaflet-control-layers-expanded .leaflet-control-layers-toggle{display:none}.leaflet-control-layers-expanded .leaflet-control-layers-list{display:block;position:relative}.leaflet-control-layers-expanded{padding:6px 10px 6px 6px;color:#333;background:#fff}.leaflet-control-layers-scrollbar{overflow-y:scroll;overflow-x:hidden;padding-right:5px}.leaflet-control-layers-selector{margin-top:2px;position:relative;top:1px}.leaflet-control-layers label{display:block}.leaflet-control-layers-separator{height:0;border-top:1px solid #ddd;margin:5px -10px 5px -6px}.leaflet-default-icon-path{background-image:url(node_modules/leaflet/dist/images/marker-icon.png)}.leaflet-container .leaflet-control-attribution{background:#fff;background:rgba(255,255,255,.7);margin:0}.leaflet-control-attribution,.leaflet-control-scale-line{padding:0 5px;color:#333}.leaflet-control-attribution a{text-decoration:none}.leaflet-control-attribution a:hover{text-decoration:underline}.leaflet-container .leaflet-control-attribution,.leaflet-container .leaflet-control-scale{font-size:11px}.leaflet-left .leaflet-control-scale{margin-left:5px}.leaflet-bottom .leaflet-control-scale{margin-bottom:5px}.leaflet-control-scale-line{border:2px solid #777;border-top:none;line-height:1.1;padding:2px 5px 1px;font-size:11px;white-space:nowrap;overflow:hidden;-moz-box-sizing:border-box;box-sizing:border-box;background:#fff;background:rgba(255,255,255,.5)}.leaflet-control-scale-line:not(:first-child){border-top:2px solid #777;border-bottom:none;margin-top:-2px}.leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom:2px solid #777}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-attribution,.leaflet-touch .leaflet-control-layers{box-shadow:none}.leaflet-touch .leaflet-bar,.leaflet-touch .leaflet-control-layers{border:2px solid rgba(0,0,0,.2);background-clip:padding-box}.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:12px}.leaflet-popup-content{margin:13px 19px;line-height:1.4}.leaflet-popup-content p{margin:18px 0}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);-o-transform:rotate(45deg);transform:rotate(45deg)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#fff;color:#333;box-shadow:0 3px 14px rgba(0,0,0,.4)}.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;padding:4px 4px 0 0;border:none;text-align:center;width:18px;height:14px;font:16px/14px Tahoma,Verdana,sans-serif;color:#c3c3c3;text-decoration:none;font-weight:700;background:0 0}.leaflet-container a.leaflet-popup-close-button:hover{color:#999}.leaflet-popup-scrolled{overflow:auto;border-bottom:1px solid #ddd;border-top:1px solid #ddd}.leaflet-oldie .leaflet-popup-content-wrapper{zoom:1}.leaflet-oldie .leaflet-popup-tip{width:24px;margin:0 auto}.leaflet-oldie .leaflet-popup-tip-container{margin-top:-1px}.leaflet-oldie .leaflet-control-layers,.leaflet-oldie .leaflet-control-zoom,.leaflet-oldie .leaflet-popup-content-wrapper,.leaflet-oldie .leaflet-popup-tip{border:1px solid #999}.leaflet-div-icon{background:#fff;border:1px solid #666}.leaflet-tooltip{position:absolute;padding:6px;background-color:#fff;border:1px solid #fff;border-radius:3px;color:#222;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.4)}.leaflet-tooltip.leaflet-clickable{cursor:pointer;pointer-events:auto}.leaflet-tooltip-bottom:before,.leaflet-tooltip-left:before,.leaflet-tooltip-right:before,.leaflet-tooltip-top:before{position:absolute;pointer-events:none;border:6px solid transparent;background:0 0;content:\"\"}.leaflet-tooltip-bottom{margin-top:6px}.leaflet-tooltip-top{margin-top:-6px}.leaflet-tooltip-bottom:before,.leaflet-tooltip-top:before{left:50%;margin-left:-6px}.leaflet-tooltip-top:before{bottom:0;margin-bottom:-12px;border-top-color:#fff}.leaflet-tooltip-bottom:before{top:0;margin-top:-12px;margin-left:-6px;border-bottom-color:#fff}.leaflet-tooltip-left{margin-left:-6px}.leaflet-tooltip-right{margin-left:6px}.leaflet-tooltip-left:before,.leaflet-tooltip-right:before{top:50%;margin-top:-6px}.leaflet-tooltip-left:before{right:0;margin-right:-12px;border-left-color:#fff}.leaflet-tooltip-right:before{left:0;margin-left:-12px;border-right-color:#fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet/dist/leaflet.css" }, { "insertAt": "bottom" })); module.exports = css;
-},{"browserify-css":7}],63:[function(require,module,exports){
+},{"browserify-css":7}],62:[function(require,module,exports){
 module.exports = require('./polygon-features.json')
 
-},{"./polygon-features.json":64}],64:[function(require,module,exports){
+},{"./polygon-features.json":63}],63:[function(require,module,exports){
 module.exports=[
     {
         "key": "building",
@@ -50328,7 +49908,7 @@ module.exports=[
     }
 ]
 
-},{}],65:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var _ = require("./lodash.custom.js");
 var rewind = require("geojson-rewind");
 
@@ -51395,7 +50975,7 @@ osmtogeojson.toGeojson = osmtogeojson;
 
 module.exports = osmtogeojson;
 
-},{"./lodash.custom.js":66,"geojson-rewind":11,"osm-polygon-features":63}],66:[function(require,module,exports){
+},{"./lodash.custom.js":65,"geojson-rewind":11,"osm-polygon-features":62}],65:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -55102,7 +54682,7 @@ module.exports = osmtogeojson;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -55330,7 +54910,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require('_process'))
-},{"_process":69}],68:[function(require,module,exports){
+},{"_process":68}],67:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
@@ -57862,7 +57442,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],69:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -58048,7 +57628,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],70:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /* global window, exports, define */
 
 !function() {
@@ -58268,7 +57848,7 @@ process.umask = function() { return 0; };
     /* eslint-enable quote-props */
 }()
 
-},{}],71:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 var trim = require('./trim');
 var decap = require('./decapitalize');
 
@@ -58284,7 +57864,7 @@ module.exports = function camelize(str, decapitalize) {
   }
 };
 
-},{"./decapitalize":80,"./trim":133}],72:[function(require,module,exports){
+},{"./decapitalize":79,"./trim":132}],71:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function capitalize(str, lowercaseRest) {
@@ -58294,14 +57874,14 @@ module.exports = function capitalize(str, lowercaseRest) {
   return str.charAt(0).toUpperCase() + remainingChars;
 };
 
-},{"./helper/makeString":90}],73:[function(require,module,exports){
+},{"./helper/makeString":89}],72:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function chars(str) {
   return makeString(str).split('');
 };
 
-},{"./helper/makeString":90}],74:[function(require,module,exports){
+},{"./helper/makeString":89}],73:[function(require,module,exports){
 module.exports = function chop(str, step) {
   if (str == null) return [];
   str = String(str);
@@ -58309,7 +57889,7 @@ module.exports = function chop(str, step) {
   return step > 0 ? str.match(new RegExp('.{1,' + step + '}', 'g')) : [str];
 };
 
-},{}],75:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var camelize = require('./camelize');
 var makeString = require('./helper/makeString');
@@ -58319,14 +57899,14 @@ module.exports = function classify(str) {
   return capitalize(camelize(str.replace(/[\W_]/g, ' ')).replace(/\s/g, ''));
 };
 
-},{"./camelize":71,"./capitalize":72,"./helper/makeString":90}],76:[function(require,module,exports){
+},{"./camelize":70,"./capitalize":71,"./helper/makeString":89}],75:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function clean(str) {
   return trim(str).replace(/\s\s+/g, ' ');
 };
 
-},{"./trim":133}],77:[function(require,module,exports){
+},{"./trim":132}],76:[function(require,module,exports){
 
 var makeString = require('./helper/makeString');
 
@@ -58350,7 +57930,7 @@ module.exports = function cleanDiacritics(str) {
   });
 };
 
-},{"./helper/makeString":90}],78:[function(require,module,exports){
+},{"./helper/makeString":89}],77:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, substr) {
@@ -58362,14 +57942,14 @@ module.exports = function(str, substr) {
   return str.split(substr).length - 1;
 };
 
-},{"./helper/makeString":90}],79:[function(require,module,exports){
+},{"./helper/makeString":89}],78:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function dasherize(str) {
   return trim(str).replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase();
 };
 
-},{"./trim":133}],80:[function(require,module,exports){
+},{"./trim":132}],79:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function decapitalize(str) {
@@ -58377,7 +57957,7 @@ module.exports = function decapitalize(str) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 };
 
-},{"./helper/makeString":90}],81:[function(require,module,exports){
+},{"./helper/makeString":89}],80:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 function getIndent(str) {
@@ -58407,7 +57987,7 @@ module.exports = function dedent(str, pattern) {
   return str.replace(reg, '');
 };
 
-},{"./helper/makeString":90}],82:[function(require,module,exports){
+},{"./helper/makeString":89}],81:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -58422,7 +58002,7 @@ module.exports = function endsWith(str, ends, position) {
   return position >= 0 && str.indexOf(ends, position) === position;
 };
 
-},{"./helper/makeString":90,"./helper/toPositive":92}],83:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/toPositive":91}],82:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var escapeChars = require('./helper/escapeChars');
 
@@ -58441,7 +58021,7 @@ module.exports = function escapeHTML(str) {
   });
 };
 
-},{"./helper/escapeChars":87,"./helper/makeString":90}],84:[function(require,module,exports){
+},{"./helper/escapeChars":86,"./helper/makeString":89}],83:[function(require,module,exports){
 module.exports = function() {
   var result = {};
 
@@ -58453,7 +58033,7 @@ module.exports = function() {
   return result;
 };
 
-},{}],85:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function adjacent(str, direction) {
@@ -58464,7 +58044,7 @@ module.exports = function adjacent(str, direction) {
   return str.slice(0, -1) + String.fromCharCode(str.charCodeAt(str.length - 1) + direction);
 };
 
-},{"./makeString":90}],86:[function(require,module,exports){
+},{"./makeString":89}],85:[function(require,module,exports){
 var escapeRegExp = require('./escapeRegExp');
 
 module.exports = function defaultToWhiteSpace(characters) {
@@ -58476,7 +58056,7 @@ module.exports = function defaultToWhiteSpace(characters) {
     return '[' + escapeRegExp(characters) + ']';
 };
 
-},{"./escapeRegExp":88}],87:[function(require,module,exports){
+},{"./escapeRegExp":87}],86:[function(require,module,exports){
 /* We're explicitly defining the list of entities we want to escape.
 nbsp is an HTML entity, but we don't want to escape all space characters in a string, hence its omission in this map.
 
@@ -58497,14 +58077,14 @@ var escapeChars = {
 
 module.exports = escapeChars;
 
-},{}],88:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 var makeString = require('./makeString');
 
 module.exports = function escapeRegExp(str) {
   return makeString(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 };
 
-},{"./makeString":90}],89:[function(require,module,exports){
+},{"./makeString":89}],88:[function(require,module,exports){
 /*
 We're explicitly defining the list of entities that might see in escape HTML strings
 */
@@ -58525,7 +58105,7 @@ var htmlEntities = {
 
 module.exports = htmlEntities;
 
-},{}],90:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 /**
  * Ensure some object is a coerced to a string
  **/
@@ -58534,7 +58114,7 @@ module.exports = function makeString(object) {
   return '' + object;
 };
 
-},{}],91:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 module.exports = function strRepeat(str, qty){
   if (qty < 1) return '';
   var result = '';
@@ -58545,12 +58125,12 @@ module.exports = function strRepeat(str, qty){
   return result;
 };
 
-},{}],92:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 module.exports = function toPositive(number) {
   return number < 0 ? 0 : (+number || 0);
 };
 
-},{}],93:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 var capitalize = require('./capitalize');
 var underscored = require('./underscored');
 var trim = require('./trim');
@@ -58559,7 +58139,7 @@ module.exports = function humanize(str) {
   return capitalize(trim(underscored(str).replace(/_id$/, '').replace(/_/g, ' ')));
 };
 
-},{"./capitalize":72,"./trim":133,"./underscored":135}],94:[function(require,module,exports){
+},{"./capitalize":71,"./trim":132,"./underscored":134}],93:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function include(str, needle) {
@@ -58567,7 +58147,7 @@ module.exports = function include(str, needle) {
   return makeString(str).indexOf(needle) !== -1;
 };
 
-},{"./helper/makeString":90}],95:[function(require,module,exports){
+},{"./helper/makeString":89}],94:[function(require,module,exports){
 /*
 * Underscore.string
 * (c) 2010 Esa-Matti Suuronen <esa-matti aet suuronen dot org>
@@ -58712,21 +58292,21 @@ for (var method in prototypeMethods) prototype2method(prototypeMethods[method]);
 
 module.exports = s;
 
-},{"./camelize":71,"./capitalize":72,"./chars":73,"./chop":74,"./classify":75,"./clean":76,"./cleanDiacritics":77,"./count":78,"./dasherize":79,"./decapitalize":80,"./dedent":81,"./endsWith":82,"./escapeHTML":83,"./exports":84,"./helper/escapeRegExp":88,"./humanize":93,"./include":94,"./insert":96,"./isBlank":97,"./join":98,"./levenshtein":99,"./lines":100,"./lpad":101,"./lrpad":102,"./ltrim":103,"./map":104,"./naturalCmp":105,"./numberFormat":106,"./pad":107,"./pred":108,"./prune":109,"./quote":110,"./repeat":111,"./replaceAll":112,"./reverse":113,"./rpad":114,"./rtrim":115,"./slugify":116,"./splice":117,"./sprintf":118,"./startsWith":119,"./strLeft":120,"./strLeftBack":121,"./strRight":122,"./strRightBack":123,"./stripTags":124,"./succ":125,"./surround":126,"./swapCase":127,"./titleize":128,"./toBoolean":129,"./toNumber":130,"./toSentence":131,"./toSentenceSerial":132,"./trim":133,"./truncate":134,"./underscored":135,"./unescapeHTML":136,"./unquote":137,"./vsprintf":138,"./words":139,"./wrap":140}],96:[function(require,module,exports){
+},{"./camelize":70,"./capitalize":71,"./chars":72,"./chop":73,"./classify":74,"./clean":75,"./cleanDiacritics":76,"./count":77,"./dasherize":78,"./decapitalize":79,"./dedent":80,"./endsWith":81,"./escapeHTML":82,"./exports":83,"./helper/escapeRegExp":87,"./humanize":92,"./include":93,"./insert":95,"./isBlank":96,"./join":97,"./levenshtein":98,"./lines":99,"./lpad":100,"./lrpad":101,"./ltrim":102,"./map":103,"./naturalCmp":104,"./numberFormat":105,"./pad":106,"./pred":107,"./prune":108,"./quote":109,"./repeat":110,"./replaceAll":111,"./reverse":112,"./rpad":113,"./rtrim":114,"./slugify":115,"./splice":116,"./sprintf":117,"./startsWith":118,"./strLeft":119,"./strLeftBack":120,"./strRight":121,"./strRightBack":122,"./stripTags":123,"./succ":124,"./surround":125,"./swapCase":126,"./titleize":127,"./toBoolean":128,"./toNumber":129,"./toSentence":130,"./toSentenceSerial":131,"./trim":132,"./truncate":133,"./underscored":134,"./unescapeHTML":135,"./unquote":136,"./vsprintf":137,"./words":138,"./wrap":139}],95:[function(require,module,exports){
 var splice = require('./splice');
 
 module.exports = function insert(str, i, substr) {
   return splice(str, i, 0, substr);
 };
 
-},{"./splice":117}],97:[function(require,module,exports){
+},{"./splice":116}],96:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function isBlank(str) {
   return (/^\s*$/).test(makeString(str));
 };
 
-},{"./helper/makeString":90}],98:[function(require,module,exports){
+},{"./helper/makeString":89}],97:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var slice = [].slice;
 
@@ -58737,7 +58317,7 @@ module.exports = function join() {
   return args.join(makeString(separator));
 };
 
-},{"./helper/makeString":90}],99:[function(require,module,exports){
+},{"./helper/makeString":89}],98:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 /**
@@ -58791,27 +58371,27 @@ module.exports = function levenshtein(str1, str2) {
   return nextCol;
 };
 
-},{"./helper/makeString":90}],100:[function(require,module,exports){
+},{"./helper/makeString":89}],99:[function(require,module,exports){
 module.exports = function lines(str) {
   if (str == null) return [];
   return String(str).split(/\r\n?|\n/);
 };
 
-},{}],101:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lpad(str, length, padStr) {
   return pad(str, length, padStr);
 };
 
-},{"./pad":107}],102:[function(require,module,exports){
+},{"./pad":106}],101:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function lrpad(str, length, padStr) {
   return pad(str, length, padStr, 'both');
 };
 
-},{"./pad":107}],103:[function(require,module,exports){
+},{"./pad":106}],102:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimLeft = String.prototype.trimLeft;
@@ -58823,7 +58403,7 @@ module.exports = function ltrim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],104:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],103:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function(str, callback) {
@@ -58834,7 +58414,7 @@ module.exports = function(str, callback) {
   return str.replace(/./g, callback);
 };
 
-},{"./helper/makeString":90}],105:[function(require,module,exports){
+},{"./helper/makeString":89}],104:[function(require,module,exports){
 module.exports = function naturalCmp(str1, str2) {
   if (str1 == str2) return 0;
   if (!str1) return -1;
@@ -58865,7 +58445,7 @@ module.exports = function naturalCmp(str1, str2) {
   return str1 < str2 ? -1 : 1;
 };
 
-},{}],106:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 module.exports = function numberFormat(number, dec, dsep, tsep) {
   if (isNaN(number) || number == null) return '';
 
@@ -58879,7 +58459,7 @@ module.exports = function numberFormat(number, dec, dsep, tsep) {
   return fnums.replace(/(\d)(?=(?:\d{3})+$)/g, '$1' + tsep) + decimals;
 };
 
-},{}],107:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -58907,14 +58487,14 @@ module.exports = function pad(str, length, padStr, type) {
   }
 };
 
-},{"./helper/makeString":90,"./helper/strRepeat":91}],108:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/strRepeat":90}],107:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, -1);
 };
 
-},{"./helper/adjacent":85}],109:[function(require,module,exports){
+},{"./helper/adjacent":84}],108:[function(require,module,exports){
 /**
  * _s.prune: a more elegant version of truncate
  * prune extra chars, never leaving a half-chopped word.
@@ -58943,14 +58523,14 @@ module.exports = function prune(str, length, pruneStr) {
   return (template + pruneStr).length > str.length ? str : str.slice(0, template.length) + pruneStr;
 };
 
-},{"./helper/makeString":90,"./rtrim":115}],110:[function(require,module,exports){
+},{"./helper/makeString":89,"./rtrim":114}],109:[function(require,module,exports){
 var surround = require('./surround');
 
 module.exports = function quote(str, quoteChar) {
   return surround(str, quoteChar || '"');
 };
 
-},{"./surround":126}],111:[function(require,module,exports){
+},{"./surround":125}],110:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var strRepeat = require('./helper/strRepeat');
 
@@ -58968,7 +58548,7 @@ module.exports = function repeat(str, qty, separator) {
   return repeat.join(separator);
 };
 
-},{"./helper/makeString":90,"./helper/strRepeat":91}],112:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/strRepeat":90}],111:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function replaceAll(str, find, replace, ignorecase) {
@@ -58978,21 +58558,21 @@ module.exports = function replaceAll(str, find, replace, ignorecase) {
   return makeString(str).replace(reg, replace);
 };
 
-},{"./helper/makeString":90}],113:[function(require,module,exports){
+},{"./helper/makeString":89}],112:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function reverse(str) {
   return chars(str).reverse().join('');
 };
 
-},{"./chars":73}],114:[function(require,module,exports){
+},{"./chars":72}],113:[function(require,module,exports){
 var pad = require('./pad');
 
 module.exports = function rpad(str, length, padStr) {
   return pad(str, length, padStr, 'right');
 };
 
-},{"./pad":107}],115:[function(require,module,exports){
+},{"./pad":106}],114:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrimRight = String.prototype.trimRight;
@@ -59004,7 +58584,7 @@ module.exports = function rtrim(str, characters) {
   return str.replace(new RegExp(characters + '+$'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],116:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],115:[function(require,module,exports){
 var trim = require('./trim');
 var dasherize = require('./dasherize');
 var cleanDiacritics = require('./cleanDiacritics');
@@ -59013,7 +58593,7 @@ module.exports = function slugify(str) {
   return trim(dasherize(cleanDiacritics(str).replace(/[^\w\s-]/g, '-').toLowerCase()), '-');
 };
 
-},{"./cleanDiacritics":77,"./dasherize":79,"./trim":133}],117:[function(require,module,exports){
+},{"./cleanDiacritics":76,"./dasherize":78,"./trim":132}],116:[function(require,module,exports){
 var chars = require('./chars');
 
 module.exports = function splice(str, i, howmany, substr) {
@@ -59022,13 +58602,13 @@ module.exports = function splice(str, i, howmany, substr) {
   return arr.join('');
 };
 
-},{"./chars":73}],118:[function(require,module,exports){
+},{"./chars":72}],117:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').sprintf,
   'sprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":70,"util-deprecate":142}],119:[function(require,module,exports){
+},{"sprintf-js":69,"util-deprecate":141}],118:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var toPositive = require('./helper/toPositive');
 
@@ -59039,7 +58619,7 @@ module.exports = function startsWith(str, starts, position) {
   return str.lastIndexOf(starts, position) === position;
 };
 
-},{"./helper/makeString":90,"./helper/toPositive":92}],120:[function(require,module,exports){
+},{"./helper/makeString":89,"./helper/toPositive":91}],119:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeft(str, sep) {
@@ -59049,7 +58629,7 @@ module.exports = function strLeft(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":90}],121:[function(require,module,exports){
+},{"./helper/makeString":89}],120:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strLeftBack(str, sep) {
@@ -59059,7 +58639,7 @@ module.exports = function strLeftBack(str, sep) {
   return~ pos ? str.slice(0, pos) : str;
 };
 
-},{"./helper/makeString":90}],122:[function(require,module,exports){
+},{"./helper/makeString":89}],121:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRight(str, sep) {
@@ -59069,7 +58649,7 @@ module.exports = function strRight(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":90}],123:[function(require,module,exports){
+},{"./helper/makeString":89}],122:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function strRightBack(str, sep) {
@@ -59079,26 +58659,26 @@ module.exports = function strRightBack(str, sep) {
   return~ pos ? str.slice(pos + sep.length, str.length) : str;
 };
 
-},{"./helper/makeString":90}],124:[function(require,module,exports){
+},{"./helper/makeString":89}],123:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function stripTags(str) {
   return makeString(str).replace(/<\/?[^>]+>/g, '');
 };
 
-},{"./helper/makeString":90}],125:[function(require,module,exports){
+},{"./helper/makeString":89}],124:[function(require,module,exports){
 var adjacent = require('./helper/adjacent');
 
 module.exports = function succ(str) {
   return adjacent(str, 1);
 };
 
-},{"./helper/adjacent":85}],126:[function(require,module,exports){
+},{"./helper/adjacent":84}],125:[function(require,module,exports){
 module.exports = function surround(str, wrapper) {
   return [wrapper, str, wrapper].join('');
 };
 
-},{}],127:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function swapCase(str) {
@@ -59107,7 +58687,7 @@ module.exports = function swapCase(str) {
   });
 };
 
-},{"./helper/makeString":90}],128:[function(require,module,exports){
+},{"./helper/makeString":89}],127:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function titleize(str) {
@@ -59116,7 +58696,7 @@ module.exports = function titleize(str) {
   });
 };
 
-},{"./helper/makeString":90}],129:[function(require,module,exports){
+},{"./helper/makeString":89}],128:[function(require,module,exports){
 var trim = require('./trim');
 
 function boolMatch(s, matchers) {
@@ -59138,14 +58718,14 @@ module.exports = function toBoolean(str, trueValues, falseValues) {
   if (boolMatch(str, falseValues || ['false', '0'])) return false;
 };
 
-},{"./trim":133}],130:[function(require,module,exports){
+},{"./trim":132}],129:[function(require,module,exports){
 module.exports = function toNumber(num, precision) {
   if (num == null) return 0;
   var factor = Math.pow(10, isFinite(precision) ? precision : 0);
   return Math.round(num * factor) / factor;
 };
 
-},{}],131:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var rtrim = require('./rtrim');
 
 module.exports = function toSentence(array, separator, lastSeparator, serial) {
@@ -59159,14 +58739,14 @@ module.exports = function toSentence(array, separator, lastSeparator, serial) {
   return a.length ? a.join(separator) + lastSeparator + lastMember : lastMember;
 };
 
-},{"./rtrim":115}],132:[function(require,module,exports){
+},{"./rtrim":114}],131:[function(require,module,exports){
 var toSentence = require('./toSentence');
 
 module.exports = function toSentenceSerial(array, sep, lastSep) {
   return toSentence(array, sep, lastSep, true);
 };
 
-},{"./toSentence":131}],133:[function(require,module,exports){
+},{"./toSentence":130}],132:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var defaultToWhiteSpace = require('./helper/defaultToWhiteSpace');
 var nativeTrim = String.prototype.trim;
@@ -59178,7 +58758,7 @@ module.exports = function trim(str, characters) {
   return str.replace(new RegExp('^' + characters + '+|' + characters + '+$', 'g'), '');
 };
 
-},{"./helper/defaultToWhiteSpace":86,"./helper/makeString":90}],134:[function(require,module,exports){
+},{"./helper/defaultToWhiteSpace":85,"./helper/makeString":89}],133:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 
 module.exports = function truncate(str, length, truncateStr) {
@@ -59188,14 +58768,14 @@ module.exports = function truncate(str, length, truncateStr) {
   return str.length > length ? str.slice(0, length) + truncateStr : str;
 };
 
-},{"./helper/makeString":90}],135:[function(require,module,exports){
+},{"./helper/makeString":89}],134:[function(require,module,exports){
 var trim = require('./trim');
 
 module.exports = function underscored(str) {
   return trim(str).replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
 };
 
-},{"./trim":133}],136:[function(require,module,exports){
+},{"./trim":132}],135:[function(require,module,exports){
 var makeString = require('./helper/makeString');
 var htmlEntities = require('./helper/htmlEntities');
 
@@ -59217,7 +58797,7 @@ module.exports = function unescapeHTML(str) {
   });
 };
 
-},{"./helper/htmlEntities":89,"./helper/makeString":90}],137:[function(require,module,exports){
+},{"./helper/htmlEntities":88,"./helper/makeString":89}],136:[function(require,module,exports){
 module.exports = function unquote(str, quoteChar) {
   quoteChar = quoteChar || '"';
   if (str[0] === quoteChar && str[str.length - 1] === quoteChar)
@@ -59225,13 +58805,13 @@ module.exports = function unquote(str, quoteChar) {
   else return str;
 };
 
-},{}],138:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 var deprecate = require('util-deprecate');
 
 module.exports = deprecate(require('sprintf-js').vsprintf,
   'vsprintf() will be removed in the next major release, use the sprintf-js package instead.');
 
-},{"sprintf-js":70,"util-deprecate":142}],139:[function(require,module,exports){
+},{"sprintf-js":69,"util-deprecate":141}],138:[function(require,module,exports){
 var isBlank = require('./isBlank');
 var trim = require('./trim');
 
@@ -59240,7 +58820,7 @@ module.exports = function words(str, delimiter) {
   return trim(str, delimiter).split(delimiter || /\s+/);
 };
 
-},{"./isBlank":97,"./trim":133}],140:[function(require,module,exports){
+},{"./isBlank":96,"./trim":132}],139:[function(require,module,exports){
 // Wrap
 // wraps a string by a certain width
 
@@ -59344,7 +58924,7 @@ module.exports = function wrap(str, options){
   }
 };
 
-},{"./helper/makeString":90}],141:[function(require,module,exports){
+},{"./helper/makeString":89}],140:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -60894,7 +60474,7 @@ module.exports = function wrap(str, options){
   }
 }.call(this));
 
-},{}],142:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 (function (global){
 
 /**
@@ -60965,12 +60545,12 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],143:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module.exports.RADIUS = 6378137;
 module.exports.FLATTENING = 1/298.257223563;
 module.exports.POLAR_RADIUS = 6356752.3142;
 
-},{}],144:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61047,7 +60627,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart":146,"./utils":154,"d3":9,"jquery":54,"underscore":141}],145:[function(require,module,exports){
+},{"./lib/radarChart":146,"./utils":154,"d3":9,"jquery":54,"underscore":140}],144:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61090,7 +60670,442 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/stackedChart":147,"./utils":154,"d3":9,"jquery":54,"underscore":141}],146:[function(require,module,exports){
+},{"./lib/stackedChart":147,"./utils":154,"d3":9,"jquery":54,"underscore":140}],145:[function(require,module,exports){
+/* 
+ * Leaflet GeoJSON Selector v0.4.2 - 2018-05-25 
+ * 
+ * Copyright 2018 Stefano Cudini 
+ * stefano.cudini@gmail.com 
+ * http://labs.easyblog.it/ 
+ * 
+ * Licensed under the MIT license. 
+ * 
+ * Demo: 
+ * http://labs.easyblog.it/maps/leaflet-geojson-selector/ 
+ * 
+ * Source: 
+ * git@github.com:stefanocudini/leaflet-geojson-selector.git 
+ * 
+ */
+/*
+	Name				Data passed			   Description
+
+	Managed Events:
+	 selector:change	{selected, layers}     fired after checked item in list, selected is true if any layer is selected
+
+	Public methods:
+ 	 reload()			{layer}				   load or reload a geojson layer
+
+*/
+(function (factory) {
+    if(typeof define === 'function' && define.amd) {
+    //AMD
+        define(['leaflet'], factory);
+    } else if(typeof module !== 'undefined') {
+    // Node/CommonJS
+        module.exports = factory(require('leaflet'));
+    } else {
+    // Browser globals
+        if(typeof window.L === 'undefined')
+            throw 'Leaflet must be loaded first';
+        factory(window.L);
+    }
+})(function (L) {
+
+L.Control.GeoJSONSelector = L.Control.extend({
+
+	includes: L.version[0]==='1' ? L.Evented.prototype : L.Mixin.Events,
+
+	options: {
+		collapsed: false,				//collapse panel list
+		position: 'bottomleft',			//position of panel list
+		
+		listLabel: 'properties.name',	//GeoJSON property to generate items list
+		listSortBy: null,				//GeoJSON property to sort items list, default listLabel
+		listItemBuild: null,			//function list item builder
+		
+		activeListFromLayer: true,		//highlight of list item on layer hover
+		//TODO activeLayerFromList: true,	//highlight of layer on list item hover
+		zoomToLayer: false,
+		
+		listOnlyVisibleLayers: false,	//show list of item of layers visible in map canvas
+
+		multiple: false,				//active multiple selection
+		//TODO
+
+		style: {
+			color:'#00f',
+			fillColor:'#08f',
+			fillOpacity: 0.4,
+			opacity: 1,
+			weight: 1
+		},
+		activeClass: 'active',			//css class name for active list items
+		activeStyle: {					//style for Active GeoJSON feature
+			color:'#00f',
+			fillColor:'#fc0',
+			fillOpacity: 0.6,
+			opacity: 1,
+			weight: 1
+		},
+		selectClass: 'selected',
+		selectStyle: {
+			color:'#00f',
+			fillColor:'#f80',
+			fillOpacity: 0.8,
+			opacity: 1,
+			weight: 1
+		}
+	},
+
+	initialize: function(layer, options) {
+		var opt = L.Util.setOptions(this, options || {});
+
+		this.options.listSortBy = this.options.listSortBy || this.options.listLabel;
+
+		if(this.options.listItemBuild)
+			this._itemBuild = this.options.listItemBuild;
+
+		this._layer = layer;
+	},
+
+	onAdd: function (map) {
+
+		var container = L.DomUtil.create('div', 'geojson-list');
+
+		this._baseName = 'geojson-list';
+
+		this._map = map;
+
+		this._container = container;
+
+		this._id = this._baseName + L.stamp(this._container);
+
+		this._list = L.DomUtil.create('ul', 'geojson-list-group', container);
+
+		this._items = [];
+
+		L.DomEvent
+			.on(container, 'mouseover', function (e) {
+				map.scrollWheelZoom.disable();
+			})
+			.on(container, 'mouseout', function (e) {
+				map.scrollWheelZoom.enable();
+			});
+
+		if(this.options.listOnlyVisibleLayers)
+			map.on('moveend', this._updateListVisible, this);
+
+		map.whenReady(function(e) {
+			container.style.height = (map.getSize().y)+'px';
+		});
+
+		this._initToggle();
+		this._updateList();
+
+		return container;
+	},
+	
+	onRemove: function(map) {
+		map.off('moveend', this._updateList, this);	
+	},
+
+	reload: function(layer) {
+
+		//TODO off events
+
+		this._layer = layer;
+
+		this._updateList();
+
+		return this;
+	},
+
+	_getPath: function(obj, prop) {
+		var parts = prop.split('.'),
+			last = parts.pop(),
+			len = parts.length,
+			cur = parts[0],
+			i = 1;
+
+		if(len > 0)
+			while((obj = obj[cur]) && i < len)
+				cur = parts[i++];
+
+		if(obj)
+			return obj[last];
+	},
+
+	_itemBuild: function(layer) {
+
+		return this._getPath(layer.feature, this.options.listLabel) || '&nbsp;';
+	},
+
+	_selectItem: function(item, selected) {
+
+		for (var i = 0; i < this._items.length; i++)
+			L.DomUtil.removeClass(this._items[i], this.options.selectClass);
+
+		if(selected)
+			L.DomUtil.addClass(item, this.options.selectClass );
+	},
+
+	_selectLayer: function(layer, selected) {
+
+		for(var i = 0; i < this._items.length; i++)
+			if(this._items[i].layer.setStyle)
+				this._items[i].layer.setStyle( this.options.style );
+		
+		if(selected && layer.setStyle)
+			layer.setStyle( this.options.selectStyle );
+	},	
+
+	_createItem: function(layer) {
+
+		var that = this,
+			item = L.DomUtil.create('li','geojson-list-item'),
+			label = document.createElement('label'),
+			inputType = this.options.multiple ? 'checkbox' : 'radio',
+			input = this._createInputElement(inputType, this._id, false),
+			html = this._itemBuild.call(this, layer);
+
+		label.innerHTML = html;
+		label.insertBefore(input, label.firstChild);
+		item.appendChild(label);
+
+		item.layer = layer;
+		layer.itemList = item;
+		layer.itemLabel = label;
+
+		L.DomEvent
+			//.disableClickPropagation(item)
+			.on(label, 'click', L.DomEvent.stop, this)
+			.on(label, 'click', function(e) {
+
+				if(that.options.zoomToLayer)
+					that._moveTo( layer );
+				//TODO zoom to bbox for multiple layers
+
+				input.checked = !input.checked;
+
+				item.selected = input.checked;
+
+				that._selectItem(item, input.checked);
+				that._selectLayer(layer, input.checked);		
+
+				that.fire('selector:change', {
+					selected: input.checked,
+					layers: [layer]
+				});
+
+			}, this);
+
+		L.DomEvent
+			.on(item, 'mouseover', function(e) {
+				
+				L.DomUtil.addClass(e.target, this.options.activeClass);
+
+				for (var i = 0; i < that._items.length; i++)
+					if(!that._items[i])
+						that._items[i].layer.setStyle( that.options.activeStyle );						
+
+			}, this)
+			.on(item, 'mouseout', function(e) {
+
+				L.DomUtil.removeClass(e.target, that.options.activeClass);
+
+				for (var i = 0; i < that._items.length; i++)
+					if(!that._items[i])
+						that._items[i].layer.setStyle( that.options.style );						
+
+			}, this);
+
+		this._items.push( item );
+
+		return item;
+	},
+
+	// IE7 bugs out if you create a radio dynamically, so you have to do it this hacky way (see http://bit.ly/PqYLBe)
+	_createInputElement: function (type, name, checked) {
+
+		var radioHtml = '<input type="'+type+'" name="' + name + '"';
+		if (checked)
+			radioHtml += ' checked="checked"';
+		radioHtml += '/>';
+
+		var radioFragment = document.createElement('div');
+		radioFragment.innerHTML = radioHtml;
+
+		return radioFragment.firstChild;
+	},
+
+	_updateList: function() {
+	
+		var that = this,
+			layers = [],
+			sortProp = this.options.listSortBy;
+
+		//TODO SORTby
+
+		//this._list.style.minWidth = '';
+		this._list.innerHTML = '';
+		this._layer.eachLayer(function(layer) {
+
+			layers.push( layer );
+
+			if(layer.setStyle)
+				layer.setStyle( that.options.style );
+
+			if(that.options.activeListFromLayer) {
+				layer
+				.on('click', L.DomEvent.stop)
+				.on('click', function(e) {
+					layer.itemLabel.click();
+				})
+				.on('mouseover', function(e) {
+	
+					if(layer.setStyle)
+						layer.setStyle( that.options.activeStyle );
+
+					L.DomUtil.addClass(layer.itemList, that.options.activeClass);
+				})
+				.on('mouseout', function(e) {
+
+					if(layer.setStyle)
+						layer.setStyle( that.options.style );
+
+					L.DomUtil.removeClass(layer.itemList, that.options.activeClass);
+				});
+			}
+		});
+
+		layers.sort(function(a, b) {
+			var ap = that._getPath(a.feature, sortProp),
+				bp = that._getPath(b.feature, sortProp);
+
+			if(ap < bp)
+				return -1;
+			if(ap > bp)
+				return 1;
+			return 0;
+		});
+
+		for (var i=0; i<layers.length; i++)
+			this._list.appendChild( this._createItem( layers[i] ) );
+	},
+
+	_updateListVisible: function() {
+
+		var that = this,
+			layerbb, visible;
+		
+		this._layer.eachLayer(function(layer) {
+
+			if(layer.getBounds)
+				visible = that._map.getBounds().intersects( layer.getBounds() );
+			else if(layer.getLatLng)
+				visible = that._map.getBounds().contains( layer.getLatLng() );
+
+			layer.itemList.style.display = visible ? 'block':'none';
+		});
+	},
+
+	_initToggle: function () {
+
+		/* inspired by L.Control.Layers */
+
+		var container = this._container;
+
+		//Makes this work on IE10 Touch devices by stopping it from firing a mouseout event when the touch is released
+		container.setAttribute('aria-haspopup', true);
+
+		if (!L.Browser.touch) {
+			L.DomEvent
+				.disableClickPropagation(container);
+				//.disableScrollPropagation(container);
+		} else {
+			L.DomEvent.on(container, 'click', L.DomEvent.stopPropagation);
+		}
+
+		if (this.options.collapsed)
+		{
+			this._collapse();
+
+			if (!L.Browser.android) {
+				L.DomEvent
+					.on(container, 'mouseover', this._expand, this)
+					.on(container, 'mouseout', this._collapse, this);
+			}
+			var link = this._button = L.DomUtil.create('a', 'geojson-list-toggle', container);
+			link.href = '#';
+			link.title = 'List GeoJSON';
+
+			if (L.Browser.touch) {
+				L.DomEvent
+					.on(link, 'click', L.DomEvent.stop)
+					.on(link, 'click', this._expand, this);
+			}
+			else {
+				L.DomEvent.on(link, 'focus', this._expand, this);
+			}
+
+			this._map.on('click', this._collapse, this);
+			// TODO keyboard accessibility
+		}
+	},
+
+	_expand: function () {
+		this._container.className = this._container.className.replace(' geojson-list-collapsed', '');
+	},
+
+	_collapse: function () {
+		L.DomUtil.addClass(this._container, 'geojson-list-collapsed');
+	},
+
+    _moveTo: function(layer) {
+
+    	var pos = this.options.position,
+    		w = this._map._controlCorners[ pos ].clientWidth;
+
+		var psize = new L.Point(
+				this._container.clientWidth,
+				this._container.clientHeight),
+			fitOpts = {
+				paddingTopLeft: null,
+				paddingBottomRight: null
+			};
+
+		/*var ne = this._map.containerPointToLatLng( L.point(psize.x, 0) ),
+			sw = this._map.containerPointToLatLng( L.point(msize.x, psize.y) ),
+			bb = L.latLngBounds(sw, ne);
+		*/
+		/*L.rectangle(bb).addTo(this._map);
+		L.marker(bb.getCenter()).addTo(this._map);
+		*/
+
+		if (pos.indexOf('right') !== -1) {
+			fitOpts.paddingBottomRight = L.point(psize.x, 0);
+		}
+		else if (pos.indexOf('left') !== -1) {
+			fitOpts.paddingTopLeft = L.point(psize.x, 0);
+		}
+
+    	if(layer.getBounds)
+			this._map.fitBounds(layer.getBounds(), fitOpts);
+
+		else if(layer.getLatLng)
+			this._map.setView( layer.getLatLng() );
+
+    }
+});
+
+L.control.geoJsonSelector = function (layer, options) {
+    return new L.Control.GeoJSONSelector(layer, options);
+};
+
+});
+
+},{"leaflet":60}],146:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -61552,13 +61567,16 @@ $(function() {
 		
 	});
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./chart_radar":144,"./chart_vert":145,"./map_admin":149,"./map_area":150,"./map_gps":151,"./overpass":152,"./table":153,"./utils":154,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],149:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":61,"./chart_radar":143,"./chart_vert":144,"./map_admin":149,"./map_area":150,"./map_gps":151,"./overpass":152,"./table":153,"./utils":154,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":60,"popper.js":67,"underscore":140,"underscore.string":94}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
 var utils = require('./utils');
-var Select = require('leaflet-geojson-selector');
+
+//var Select = require('leaflet-geojson-selector');
+var Select = require('./lib/leaflet-geojson-selector');
+
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
 var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
@@ -61608,7 +61626,7 @@ module.exports = {
 			    p.x -= self.controlSelect._container.clientWidth - e.popup._container.clientWidth/2;
 			    self.map.panTo(self.map.unproject(p),{animate: true});
 			})
-			.addControl(L.control.zoom({ position:'topright'}));
+			.addControl(L.control.zoom({ position:'topright' }));
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
@@ -61627,7 +61645,10 @@ module.exports = {
 				//listOnlyVisibleLayers: true
 			}).on('selector:change', function(e) {
 
-				
+console.log('selected', e.selected)
+
+				L.DomEvent.stop(e);
+				//L.DomEvent.stopPropagation(e);
 
 				if(e.selected) {
 
@@ -61716,7 +61737,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":154,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],150:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./lib/leaflet-geojson-selector":145,"./utils":154,"handlebars":42,"jquery":54,"underscore":140}],150:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -61901,7 +61922,7 @@ module.exports = {
 		}).addTo(this.map);
 	}*/
 }
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":154,"jquery":54,"leaflet-gps":60}],152:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":58,"./utils":154,"jquery":54,"leaflet-gps":59}],152:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -61986,7 +62007,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":154,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],153:[function(require,module,exports){
+},{"./utils":154,"geojson-utils":12,"jquery":54,"osmtogeojson":64,"underscore":140}],153:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -62055,7 +62076,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":154,"bootstrap-table":3,"jquery":54,"underscore":141}],154:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":154,"bootstrap-table":3,"jquery":54,"underscore":140}],154:[function(require,module,exports){
 
 module.exports = {
   
