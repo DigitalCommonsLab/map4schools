@@ -1,9 +1,8 @@
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
+//var L = require('leaflet');
 var Gps = require('leaflet-gps');
-//var Search = require('leaflet-search');
-//require('../node_modules/leaflet-search/dist/leaflet-search.min.css');
 require('../node_modules/leaflet-gps/dist/leaflet-gps.min.css');
 
 module.exports = {
@@ -23,10 +22,10 @@ module.exports = {
 		self.map = L.map(el, utils.getMapOpts() );
 		self.map.addControl(L.control.zoom({position:'topright'}));
 
-		var gpsControl = new L.Control.Gps({
+		var gpsControl = new Gps({
 			position: 'topleft',
 			maxZoom: 14,
-			autoCenter:true
+			autoCenter: true
 		})
 		.on('gps:located', function(e) {
 			//	e.marker.bindPopup(e.latlng.toString()).openPopup()
@@ -40,27 +39,6 @@ module.exports = {
 
 		gpsControl.addTo(self.map);
 
-		return self;
+		return this;
 	}
-/*	,initSearch: function() {
-	
-		L.control.search({
-			layer: geo,
-			propertyName: 'name',
-			marker: false,
-			initial: false,
-			casesensitive: false,
-			buildTip: function(text, val) {
-				var name = val.layer.feature.properties.name;
-				return '<a href="#">'+name+'</a>';
-			},
-			moveToLocation: function(latlng, title, map) {
-				//var zoom = map.getBoundsZoom(latlng.layer.getBounds());
-	  			//map.setView(latlng, zoom); // access the zoom
-	  			latlng.layer.fire('click')
-			}
-		}).on('search:locationfound', function(e) {
-			e.layer.openTooltip();
-		}).addTo(this.map);
-	}*/
-}
+};

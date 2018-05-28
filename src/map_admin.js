@@ -3,9 +3,9 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
 var utils = require('./utils');
-
-//var Select = require('leaflet-geojson-selector');
-var Select = require('./lib/leaflet-geojson-selector');
+//var L = require('leaflet');
+var Selector = require('leaflet-geojson-selector');
+//var Selector = require('./lib/leaflet-geojson-selector/src/leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
@@ -70,7 +70,7 @@ module.exports = {
 
 			self.map.fitBounds(self.selectionLayer.getBounds());
 
-			self.controlSelect = new L.Control.GeoJSONSelector(self.selectionLayer, {
+			self.controlSelect = new Selector(self.selectionLayer, {
 				zoomToLayer: false,
 				//listOnlyVisibleLayers: true
 			}).on('selector:change', function(e) {

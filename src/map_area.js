@@ -1,8 +1,8 @@
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
+//var L = require('leaflet');
 var Draw = require('leaflet-draw');
-
 require('../node_modules/leaflet-draw/dist/leaflet.draw.css');
 
 module.exports = {
