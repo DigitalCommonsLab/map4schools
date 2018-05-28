@@ -61646,18 +61646,15 @@ module.exports = {
 				zoomToLayer: false,
 				//listOnlyVisibleLayers: true
 			}).on('selector:change', function(e) {
-
-console.log('selected', e.selected)
-
 				L.DomEvent.stop(e);
-				//L.DomEvent.stopPropagation(e);
 
 				if(e.selected) {
 
 					let selectedGeo = L.featureGroup(e.layers).toGeoJSON();
+
 					let selectedProps = selectedGeo.features[0].properties;
 				
-					self.map.fitBounds(e.layers[0].getBounds());
+					self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 					//TODO if only is a municipality level
 					
 					//is a municipality level
@@ -61693,21 +61690,14 @@ console.log('selected', e.selected)
 
 							self.onSelect.call(self, selectedGeo);
 						}
-
-						
 					});
 
-					
 					self.update();
 				}
-				//else
-					//TODO return to up level
 
 			}).addTo(self.map);
 
 			self.update();
-
-			//self.map.setMaxBounds( self.selectionLayer.getBounds().pad(0.5) );
 		});
 
 		self.$breadcrumb.on('click','a', function(e) {
