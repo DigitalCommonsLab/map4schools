@@ -61648,70 +61648,84 @@ module.exports = {
 			}).on('selector:change', function(e) {
 				L.DomEvent.stop(e);
 
-				if(e.selected) {
-
-					let selectedGeo = L.featureGroup(e.layers).toGeoJSON();
-
-					let selectedProps = selectedGeo.features[0].properties;
-				
-					self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
-					//TODO if only is a municipality level
-					
-					//is a municipality level
-					if(selectedProps.id_prov) {
-						
-						self.selection = _.extend(self.selection, {
-							municipality: selectedGeo.features[0]
-						});						
-					}
-					//is a province level
-					else if(selectedProps.id_reg) {
-
-						self.selection = _.extend(self.selection, {
-							province: selectedGeo.features[0]
-						});
-					}
-					else {
-						
-						self.selection = _.extend(self.selection, {
-							region: selectedGeo.features[0]
-						});						
-					}
-
-					$.getJSON(self.getGeoUrl(self.selection), function(json) {
-						
-						self.selectionLayer.clearLayers().addData(json);
-
-						self.map.fitBounds(self.selectionLayer.getBounds());
-
-						self.controlSelect.reload(self.selectionLayer);
-
-						if(selectedProps.id_prov) {
-
-							self.onSelect.call(self, selectedGeo);
-						}
-					});
-
-					self.update();
-				}
+				if(e.selected)
+					self.update( L.featureGroup(e.layers).toGeoJSON() );
 
 			}).addTo(self.map);
-
-			self.update();
 		});
 
 		self.$breadcrumb.on('click','a', function(e) {
 			var sel = $(e.target).data();
 
-			console.log(sel);
+			console.log('CLICK SELECTION',sel, self.selection);
+
+			if(sel.municipality){
+				self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
+			}
+			
+			else if(sel.province) {
+				self.selection.municipality = null;
+				self.update( L.geoJson([self.selection.province]).toGeoJSON() )
+			}
+			
+			else if(sel.region){
+				self.selection.municipality = null;
+				self.selection.province = null;
+				self.update( L.geoJson([self.selection.region]).toGeoJSON() )
+			}
+			
 		});
 
 		return this;
 	},
 
-	update: function() {
+	update: function(selectedGeo) {
+
+		console.log('UPDATE', selectedGeo)
 
 		var self = this;
+
+		let selectedProps = selectedGeo.features[0].properties;
+	
+		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
+		//TODO if only is a municipality level
+		
+		self.selectionLayer.clearLayers()
+
+		//is a municipality level
+		if(selectedProps.id_prov) {
+			
+			self.selection = _.extend(self.selection, {
+				municipality: selectedGeo.features[0]
+			});						
+		}
+		//is a province level
+		else if(selectedProps.id_reg) {
+
+			self.selection = _.extend(self.selection, {
+				province: selectedGeo.features[0]
+			});
+		}
+		else {
+			
+			self.selection = _.extend(self.selection, {
+				region: selectedGeo.features[0]
+			});						
+		}
+
+		$.getJSON(self.getGeoUrl(self.selection), function(json) {
+			
+			self.selectionLayer.addData(json);
+
+			self.map.fitBounds(self.selectionLayer.getBounds());
+
+			self.controlSelect.reload(self.selectionLayer);
+
+			if(selectedProps.id_prov) {
+
+				self.onSelect.call(self, selectedGeo);
+			}
+		});
 
 		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
 	},
