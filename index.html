@@ -111,10 +111,14 @@
 			<li class="breadcrumb-item" aria-current="page">
 				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}" data-municipality="{{municipality.properties.id}}">{{municipality.properties.name}}</a>
 			</li>
+			{{else}}
+			<li class="breadcrumb-item" aria-current="page"><i>comuni</i></li>
 			{{/if}}
+		{{else}}
+			<li class="breadcrumb-item" aria-current="page"><i>province</i></li>
 		{{/if}}
 	{{else}}
-	<li class="breadcrumb-item" aria-current="page"><i>Seleziona una regione</i></li>
+	<li class="breadcrumb-item" aria-current="page"><i>regioni</i></li>
 	{{/if}}
 </ol>
 </script>
