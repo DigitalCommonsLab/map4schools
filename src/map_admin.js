@@ -85,8 +85,6 @@ module.exports = {
 		self.$breadcrumb.on('click','a', function(e) {
 			var sel = $(e.target).data();
 
-			console.log('CLICK SELECTION',sel, self.selection);
-
 			if(sel.municipality){
 				self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
 			}
@@ -108,8 +106,6 @@ module.exports = {
 	},
 
 	update: function(selectedGeo) {
-
-		console.log('UPDATE', selectedGeo)
 
 		var self = this;
 
