@@ -188,10 +188,7 @@ module.exports = {
 
 			self.controlSelect.reload(self.selectionLayer);
 
-			//municipality level
-			if(selectedProps && (selectedProps.id_reg || selectedProps.id_prov)) {
-				self.onSelect.call(self, selectedGeo);
-			}
+			self.onSelect.call(self, selectedGeo);
 		});
 
 		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
@@ -215,7 +212,6 @@ module.exports = {
   	loadGeojson: function(cb) {
   		
   		var url = this.getGeoUrl(this.selection);
-console.log('loadGeojson', url)
 
 		if(!localStorage[url]) {
 			$.getJSON(url, function(json) {

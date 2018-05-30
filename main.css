@@ -6,7 +6,8 @@
 
 .breadcrumb-item + .breadcrumb-item::before,
 .breadcrumb > li:before {
-    content: "► ";
+    content: "►";
+    padding-right: 0;
 }
 
 .breadcrumb > li:first-child:before {

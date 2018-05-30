@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{background:rgba(255,255,255,1)}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{background:rgba(255,255,255,1)}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -61511,13 +61511,18 @@ $(function() {
 			}).addTo(map);
 		}
 
-		//load geojson from area
-		overpass.search(geoArea, function(geoRes) {
+		console.log(geoArea)
+					//municipality level
+		self.layerData.clearLayers();
 
-			self.layerData.clearLayers().addData(geoRes);
+		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {
+			overpass.search(geoArea, function(geoRes) {
 
-			table.update(geoRes);
-		});
+				self.layerData.addData(geoRes);
+
+				table.update(geoRes);
+			});
+		}
 	}
 
 	//init maps
@@ -61755,10 +61760,7 @@ module.exports = {
 
 			self.controlSelect.reload(self.selectionLayer);
 
-			//municipality level
-			if(selectedProps && (selectedProps.id_reg || selectedProps.id_prov)) {
-				self.onSelect.call(self, selectedGeo);
-			}
+			self.onSelect.call(self, selectedGeo);
 		});
 
 		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
@@ -61782,7 +61784,6 @@ module.exports = {
   	loadGeojson: function(cb) {
   		
   		var url = this.getGeoUrl(this.selection);
-console.log('loadGeojson', url)
 
 		if(!localStorage[url]) {
 			$.getJSON(url, function(json) {

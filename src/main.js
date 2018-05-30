@@ -69,13 +69,18 @@ $(function() {
 			}).addTo(map);
 		}
 
-		//load geojson from area
-		overpass.search(geoArea, function(geoRes) {
+		console.log(geoArea)
+					//municipality level
+		self.layerData.clearLayers();
 
-			self.layerData.clearLayers().addData(geoRes);
+		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {
+			overpass.search(geoArea, function(geoRes) {
 
-			table.update(geoRes);
-		});
+				self.layerData.addData(geoRes);
+
+				table.update(geoRes);
+			});
+		}
 	}
 
 	//init maps
