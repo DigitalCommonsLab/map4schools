@@ -61608,7 +61608,7 @@ module.exports = {
 		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
 		selector: {
 			zoomToLayer: true,
-			//listOnlyVisibleLayers: true
+			listOnlyVisibleLayers: true,
 			activeListFromLayer:true,
 			activeLayerFromList:true,
 			style: {
@@ -61758,17 +61758,15 @@ module.exports = {
 			self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 		}
 		
-		//TODO if only is a municipality level
-		//
-		
-		self.loadGeojson(function(json) {
-			
-			self.selectionLayer.clearLayers().addData(json);
+		if(!self.selection.municipality)
+		{
+			self.loadGeojson(function(json) {
 
-			self.controlSelect.reload(self.selectionLayer);
-
-			self.onSelect.call(self, selectedGeo);
-		});
+				self.selectionLayer.clearLayers().addData(json);
+				self.controlSelect.reload(self.selectionLayer);
+				self.onSelect.call(self, selectedGeo);
+			});
+		}
 
 		self.$breadcrumb.html( self.tmpls.bread_admin(self.selection) );
 	},
