@@ -17,8 +17,17 @@
     color: inherit;
 }
 
+.leaflet-tooltip {
+	font-size: 14px;
+/*	font-weight: bold*/
+}
+
 .leaflet-popup-content {
 	margin:3px 9px;
+}
+
+.geojson-list-item {
+	background: rgba(255,255,255,1);
 }
 
 .geojson-list-item {
@@ -39,4 +48,9 @@
 
 tr:hover {
 	cursor: pointer
+}
+
+.leaflet-control-gps .gps-button {
+	width: 25px;
+	height: 25px;
 }

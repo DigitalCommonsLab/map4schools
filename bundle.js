@@ -1,5 +1,20 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{background:rgba(255,255,255,1)}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -35668,7 +35683,7 @@ this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e)
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],58:[function(require,module,exports){
 /* 
- * Leaflet GeoJSON Selector v0.4.3 - 2018-05-28 
+ * Leaflet GeoJSON Selector v0.4.4 - 2018-05-30 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -35839,11 +35854,15 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 	_selectItem: function(item, selected) {
 
-		for (var i = 0; i < this._items.length; i++)
+		for (var i = 0; i < this._items.length; i++){
+			delete this._items[i].selected;
 			L.DomUtil.removeClass(this._items[i], this.options.selectClass);
+		}
 
-		if(selected)
+		if(selected){
+			item.selected = selected;
 			L.DomUtil.addClass(item, this.options.selectClass );
+		}
 	},
 
 	_selectLayer: function(layer, selected) {
@@ -35858,7 +35877,7 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 	_createItem: function(layer) {
 
-		var that = this,
+		var self = this,
 			item = L.DomUtil.create('li','geojson-list-item'),
 			label = document.createElement('label'),
 			inputType = this.options.multiple ? 'checkbox' : 'radio',
@@ -35869,6 +35888,7 @@ L.Control.GeoJSONSelector = L.Control.extend({
 		label.insertBefore(input, label.firstChild);
 		item.appendChild(label);
 
+		//JOIN list and layers
 		item.layer = layer;
 		layer.itemList = item;
 		layer.itemLabel = label;
@@ -35878,18 +35898,16 @@ L.Control.GeoJSONSelector = L.Control.extend({
 			.on(label, 'click', L.DomEvent.stop, this)
 			.on(label, 'click', function(e) {
 
-				if(that.options.zoomToLayer)
-					that._moveTo( layer );
+				if(self.options.zoomToLayer)
+					self._moveTo( layer );
 				//TODO zoom to bbox for multiple layers
 
 				input.checked = !input.checked;
 
-				item.selected = input.checked;
+				self._selectItem(item, input.checked);
+				self._selectLayer(layer, input.checked);		
 
-				that._selectItem(item, input.checked);
-				that._selectLayer(layer, input.checked);		
-
-				that.fire('selector:change', {
+				self.fire('selector:change', {
 					selected: input.checked,
 					layers: [layer]
 				});
@@ -35901,18 +35919,18 @@ L.Control.GeoJSONSelector = L.Control.extend({
 				
 				L.DomUtil.addClass(e.target, this.options.activeClass);
 
-				for (var i = 0; i < that._items.length; i++)
-					if(!that._items[i])
-						that._items[i].layer.setStyle( that.options.activeStyle );						
+				for (var i = 0; i < self._items.length; i++)
+					if(!self._items[i])
+						self._items[i].layer.setStyle( self.options.activeStyle );
 
 			}, this)
 			.on(item, 'mouseout', function(e) {
 
-				L.DomUtil.removeClass(e.target, that.options.activeClass);
+				L.DomUtil.removeClass(e.target, self.options.activeClass);
 
-				for (var i = 0; i < that._items.length; i++)
-					if(!that._items[i])
-						that._items[i].layer.setStyle( that.options.style );						
+				for (var i = 0; i < self._items.length; i++)
+					if(!self._items[i])
+						self._items[i].layer.setStyle( self.options.style );						
 
 			}, this);
 
@@ -35937,7 +35955,7 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 	_updateList: function() {
 	
-		var that = this,
+		var self = this,
 			layers = [],
 			sortProp = this.options.listSortBy;
 
@@ -35950,34 +35968,28 @@ L.Control.GeoJSONSelector = L.Control.extend({
 			layers.push( layer );
 
 			if(layer.setStyle)
-				layer.setStyle( that.options.style );
+				layer.setStyle( self.options.style );
 
-			if(that.options.activeListFromLayer) {
+			if(self.options.activeListFromLayer) {
 				layer
 				.on('click', L.DomEvent.stop)
 				.on('click', function(e) {
-					layer.itemLabel.click();
+					e.target.itemLabel.click();
 				})
 				.on('mouseover', function(e) {
-	
-					if(layer.setStyle)
-						layer.setStyle( that.options.activeStyle );
-
-					L.DomUtil.addClass(layer.itemList, that.options.activeClass);
+					e.target.setStyle( self.options.activeStyle );
+					//TODO L.DomUtil.addClass(e.target.itemList, self.options.activeClass);
 				})
 				.on('mouseout', function(e) {
-
-					if(layer.setStyle)
-						layer.setStyle( that.options.style );
-
-					L.DomUtil.removeClass(layer.itemList, that.options.activeClass);
+					e.target.setStyle(e.target.itemList.selected ? self.options.selectStyle : self.options.style );
+					//TODO L.DomUtil.removeClass(e.target.itemList, self.options.activeClass);
 				});
 			}
 		});
 
 		layers.sort(function(a, b) {
-			var ap = that._getPath(a.feature, sortProp),
-				bp = that._getPath(b.feature, sortProp);
+			var ap = self._getPath(a.feature, sortProp),
+				bp = self._getPath(b.feature, sortProp);
 
 			if(ap < bp)
 				return -1;
@@ -35992,15 +36004,15 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 	_updateListVisible: function() {
 
-		var that = this,
+		var self = this,
 			layerbb, visible;
 		
 		this._layer.eachLayer(function(layer) {
 
 			if(layer.getBounds)
-				visible = that._map.getBounds().intersects( layer.getBounds() );
+				visible = self._map.getBounds().intersects( layer.getBounds() );
 			else if(layer.getLatLng)
-				visible = that._map.getBounds().contains( layer.getLatLng() );
+				visible = self._map.getBounds().contains( layer.getLatLng() );
 
 			layer.itemList.style.display = visible ? 'block':'none';
 		});
@@ -61446,8 +61458,6 @@ require('../node_modules/leaflet/dist/leaflet.css');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 
-require('../main.css');
-
 var utils = require('./utils');
 var overpass = require('./overpass');
 
@@ -61460,6 +61470,8 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
+
+require('../main.css');
 
 $(function() {
 
@@ -61545,10 +61557,7 @@ $(function() {
 		var mapId = $(e.target).attr('href').split('_')[1],
 			map = maps[ mapId ];
 
-
 		mapActive = map;
-
-		console.log('mapActive',mapActive.map.getContainer())
 
 		mapActive.map.invalidateSize(false);
 		
@@ -61562,11 +61571,10 @@ var H = require('handlebars');
 var utils = require('./utils');
 //var L = require('leaflet');
 var Selector = require('leaflet-geojson-selector');
-//var Selector = require('./lib/leaflet-geojson-selector/src/leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
+var baseUrl = 'https://unpkg.com/confini-istat@1.1.0/geojson/';
 //var baseUrl = 'data/confini-istat/geojson/';
 
 module.exports = {
@@ -61584,6 +61592,34 @@ module.exports = {
 		municipality: null
 	},
 
+	config: {
+		selector: {
+			zoomToLayer: true,
+			//listOnlyVisibleLayers: true
+			style: {
+				color:'#00f',
+				fillColor:'#08f',
+				fillOpacity: 0.2,
+				opacity: 0.6,
+				weight: 1
+			},
+			activeStyle: {
+				color:'#00f',
+				fillColor:'#fc0',
+				fillOpacity: 0.4,
+				opacity: 0.6,
+				weight: 1
+			},
+			selectStyle: {
+				color:'#00f',
+				fillColor:'#f80',
+				fillOpacity: 0.4,
+				opacity: 0.6,
+				weight: 1
+			}		
+		}
+	},
+
 	//TODO
 	/* getMarkerById(id) {
 		return L.marker
@@ -61596,7 +61632,7 @@ module.exports = {
 		self.tmpls = {
 			url_region: H.compile(baseUrl + 'regions.json'),
 			url_province: H.compile(baseUrl + '{{region.properties.id}}/provinces.json'),
-			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json'),
+			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};
@@ -61617,24 +61653,23 @@ module.exports = {
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
-				l.bindTooltip(f.properties.name);
+				l.bindTooltip(f.properties.name, {sticky: true, direction:'top'});
 			}
 		}).addTo(self.map);
 
-		$.getJSON(self.getGeoUrl(self.selection), function(json) {
+		self.loadGeojson(function(json) {
 
 			self.selectionLayer.addData(json);
 
 			self.map.fitBounds(self.selectionLayer.getBounds());
 
-			self.controlSelect = new Selector(self.selectionLayer, {
-				zoomToLayer: false,
-				//listOnlyVisibleLayers: true
-			}).on('selector:change', function(e) {
-				L.DomEvent.stop(e);
-
-				if(e.selected)
-					self.update( L.featureGroup(e.layers).toGeoJSON() );
+			self.controlSelect = new Selector(self.selectionLayer, self.config.selector)
+				.on('selector:change', function(e) {
+					L.DomEvent.stop(e);
+					
+					if(e.selected) {
+						self.update( L.featureGroup(e.layers).toGeoJSON() );
+					}
 
 			}).addTo(self.map);
 		});
@@ -61643,7 +61678,7 @@ module.exports = {
 			var sel = $(e.target).data();
 
 			if(sel.municipality){
-				self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
+				//self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
 			}
 			
 			else if(sel.province) {
@@ -61667,11 +61702,6 @@ module.exports = {
 		var self = this;
 
 		let selectedProps = selectedGeo.features[0].properties;
-	
-		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
-		//TODO if only is a municipality level
-		
-		self.selectionLayer.clearLayers()
 
 		//is a municipality level
 		if(selectedProps.id_prov) {
@@ -61694,16 +61724,20 @@ module.exports = {
 			});						
 		}
 
-		$.getJSON(self.getGeoUrl(self.selection), function(json) {
+		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
+		//TODO if only is a municipality level
+		self.selectionLayer.clearLayers();
+		self.loadGeojson(function(json) {
 			
 			self.selectionLayer.addData(json);
 
-			self.map.fitBounds(self.selectionLayer.getBounds());
-
+			//self.map.fitBounds(self.selectionLayer.getBounds());
+//console.log(selectedProps)
+			//if(!selectedProps.id_prov)
 			self.controlSelect.reload(self.selectionLayer);
 
-			if(selectedProps.id_prov) {
-
+			//municipality level
+			if(selectedProps.id_reg || selectedProps.id_prov) {
 				self.onSelect.call(self, selectedGeo);
 			}
 		});
@@ -61721,7 +61755,31 @@ module.exports = {
 
 		else
 			return this.tmpls.url_region(sel);
-	}
+	},
+
+  	loadGeojson: function(cb) {
+  		
+  		var url = this.getGeoUrl(this.selection);
+
+		if(!localStorage[url]) {
+			$.getJSON(url, function(json) {
+	  			
+	  			try {
+  					localStorage.setItem(url, JSON.stringify(json));
+				}
+				catch (e) {
+  					localStorage.clear();
+  					localStorage.setItem(url, JSON.stringify(json));
+  				}
+
+	  			cb(json);
+	  		});
+	  	}
+	  	else
+	  	{
+	  		cb(JSON.parse( localStorage[url]) )
+	  	}
+  	}	
 };
 
 },{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":154,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],150:[function(require,module,exports){
@@ -61907,7 +61965,13 @@ module.exports = {
 		if(!localStorage[url]) {
 	  		$.getJSON(url, function(json) {
 	  			
-	  			localStorage[url] = JSON.stringify(json);
+	  			try {
+  					localStorage.setItem(url, JSON.stringify(json));
+				}
+				catch (e) {
+  					localStorage.clear();
+  					localStorage.setItem(url, JSON.stringify(json));
+  				}
 
 	  			cb(json);
 	  		});

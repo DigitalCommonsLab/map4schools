@@ -5,11 +5,10 @@ var H = require('handlebars');
 var utils = require('./utils');
 //var L = require('leaflet');
 var Selector = require('leaflet-geojson-selector');
-//var Selector = require('./lib/leaflet-geojson-selector/src/leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-var baseUrl = 'https://unpkg.com/confini-istat@1.0.0/geojson/';
+var baseUrl = 'https://unpkg.com/confini-istat@1.1.0/geojson/';
 //var baseUrl = 'data/confini-istat/geojson/';
 
 module.exports = {
@@ -27,6 +26,34 @@ module.exports = {
 		municipality: null
 	},
 
+	config: {
+		selector: {
+			zoomToLayer: true,
+			//listOnlyVisibleLayers: true
+			style: {
+				color:'#00f',
+				fillColor:'#08f',
+				fillOpacity: 0.2,
+				opacity: 0.6,
+				weight: 1
+			},
+			activeStyle: {
+				color:'#00f',
+				fillColor:'#fc0',
+				fillOpacity: 0.4,
+				opacity: 0.6,
+				weight: 1
+			},
+			selectStyle: {
+				color:'#00f',
+				fillColor:'#f80',
+				fillOpacity: 0.4,
+				opacity: 0.6,
+				weight: 1
+			}		
+		}
+	},
+
 	//TODO
 	/* getMarkerById(id) {
 		return L.marker
@@ -39,7 +66,7 @@ module.exports = {
 		self.tmpls = {
 			url_region: H.compile(baseUrl + 'regions.json'),
 			url_province: H.compile(baseUrl + '{{region.properties.id}}/provinces.json'),
-			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/muncipalities.json'),
+			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};
@@ -60,24 +87,23 @@ module.exports = {
 
 		self.selectionLayer = L.geoJson(null, {
 			onEachFeature: function(f,l) {
-				l.bindTooltip(f.properties.name);
+				l.bindTooltip(f.properties.name, {sticky: true, direction:'top'});
 			}
 		}).addTo(self.map);
 
-		$.getJSON(self.getGeoUrl(self.selection), function(json) {
+		self.loadGeojson(function(json) {
 
 			self.selectionLayer.addData(json);
 
 			self.map.fitBounds(self.selectionLayer.getBounds());
 
-			self.controlSelect = new Selector(self.selectionLayer, {
-				zoomToLayer: false,
-				//listOnlyVisibleLayers: true
-			}).on('selector:change', function(e) {
-				L.DomEvent.stop(e);
-
-				if(e.selected)
-					self.update( L.featureGroup(e.layers).toGeoJSON() );
+			self.controlSelect = new Selector(self.selectionLayer, self.config.selector)
+				.on('selector:change', function(e) {
+					L.DomEvent.stop(e);
+					
+					if(e.selected) {
+						self.update( L.featureGroup(e.layers).toGeoJSON() );
+					}
 
 			}).addTo(self.map);
 		});
@@ -86,7 +112,7 @@ module.exports = {
 			var sel = $(e.target).data();
 
 			if(sel.municipality){
-				self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
+				//self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
 			}
 			
 			else if(sel.province) {
@@ -110,11 +136,6 @@ module.exports = {
 		var self = this;
 
 		let selectedProps = selectedGeo.features[0].properties;
-	
-		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
-		//TODO if only is a municipality level
-		
-		self.selectionLayer.clearLayers()
 
 		//is a municipality level
 		if(selectedProps.id_prov) {
@@ -137,16 +158,20 @@ module.exports = {
 			});						
 		}
 
-		$.getJSON(self.getGeoUrl(self.selection), function(json) {
+		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
+		//TODO if only is a municipality level
+		self.selectionLayer.clearLayers();
+		self.loadGeojson(function(json) {
 			
 			self.selectionLayer.addData(json);
 
-			self.map.fitBounds(self.selectionLayer.getBounds());
-
+			//self.map.fitBounds(self.selectionLayer.getBounds());
+//console.log(selectedProps)
+			//if(!selectedProps.id_prov)
 			self.controlSelect.reload(self.selectionLayer);
 
-			if(selectedProps.id_prov) {
-
+			//municipality level
+			if(selectedProps.id_reg || selectedProps.id_prov) {
 				self.onSelect.call(self, selectedGeo);
 			}
 		});
@@ -164,5 +189,29 @@ module.exports = {
 
 		else
 			return this.tmpls.url_region(sel);
-	}
+	},
+
+  	loadGeojson: function(cb) {
+  		
+  		var url = this.getGeoUrl(this.selection);
+
+		if(!localStorage[url]) {
+			$.getJSON(url, function(json) {
+	  			
+	  			try {
+  					localStorage.setItem(url, JSON.stringify(json));
+				}
+				catch (e) {
+  					localStorage.clear();
+  					localStorage.setItem(url, JSON.stringify(json));
+  				}
+
+	  			cb(json);
+	  		});
+	  	}
+	  	else
+	  	{
+	  		cb(JSON.parse( localStorage[url]) )
+	  	}
+  	}	
 };

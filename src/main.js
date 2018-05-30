@@ -16,8 +16,6 @@ require('../node_modules/leaflet/dist/leaflet.css');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 
-require('../main.css');
-
 var utils = require('./utils');
 var overpass = require('./overpass');
 
@@ -30,6 +28,8 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
+
+require('../main.css');
 
 $(function() {
 
@@ -115,10 +115,7 @@ $(function() {
 		var mapId = $(e.target).attr('href').split('_')[1],
 			map = maps[ mapId ];
 
-
 		mapActive = map;
-
-		console.log('mapActive',mapActive.map.getContainer())
 
 		mapActive.map.invalidateSize(false);
 		

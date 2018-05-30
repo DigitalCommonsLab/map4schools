@@ -17,7 +17,13 @@ module.exports = {
 		if(!localStorage[url]) {
 	  		$.getJSON(url, function(json) {
 	  			
-	  			localStorage[url] = JSON.stringify(json);
+	  			try {
+  					localStorage.setItem(url, JSON.stringify(json));
+				}
+				catch (e) {
+  					localStorage.clear();
+  					localStorage.setItem(url, JSON.stringify(json));
+  				}
 
 	  			cb(json);
 	  		});
