@@ -8,9 +8,6 @@ var Selector = require('leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-var baseUrl = 'https://unpkg.com/confini-istat@1.1.0/geojson/';
-//var baseUrl = 'data/confini-istat/geojson/';
-
 module.exports = {
 	
 	map: null,
@@ -27,6 +24,7 @@ module.exports = {
 	},
 
 	config: {
+		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
 		selector: {
 			zoomToLayer: true,
 			//listOnlyVisibleLayers: true
@@ -64,9 +62,9 @@ module.exports = {
 		var self = this;
 
 		self.tmpls = {
-			url_region: H.compile(baseUrl + 'regions.json'),
-			url_province: H.compile(baseUrl + '{{region.properties.id}}/provinces.json'),
-			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
+			url_region: H.compile(this.config.baseUrlGeojson + 'regions.json'),
+			url_province: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/provinces.json'),
+			url_municipality: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};

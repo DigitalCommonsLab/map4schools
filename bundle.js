@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"► \"}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{background:rgba(255,255,255,1)}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
@@ -61559,9 +61574,6 @@ var Selector = require('leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
 
-var baseUrl = 'https://unpkg.com/confini-istat@1.1.0/geojson/';
-//var baseUrl = 'data/confini-istat/geojson/';
-
 module.exports = {
 	
 	map: null,
@@ -61578,6 +61590,7 @@ module.exports = {
 	},
 
 	config: {
+		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
 		selector: {
 			zoomToLayer: true,
 			//listOnlyVisibleLayers: true
@@ -61615,9 +61628,9 @@ module.exports = {
 		var self = this;
 
 		self.tmpls = {
-			url_region: H.compile(baseUrl + 'regions.json'),
-			url_province: H.compile(baseUrl + '{{region.properties.id}}/provinces.json'),
-			url_municipality: H.compile(baseUrl + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
+			url_region: H.compile(this.config.baseUrlGeojson + 'regions.json'),
+			url_province: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/provinces.json'),
+			url_municipality: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
 			//TODO FIXME municipalities
 			bread_admin: H.compile($('#tmpl_bread_admin').html()),
 		};
