@@ -119,17 +119,13 @@ module.exports = {
 			.on('click','a', function(e) {
 				var sel = $(e.target).data();
 
-				console.log('click tab sel:', sel);
-
 				if(sel.municipality) {
 					self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
 				}
-				
 				else if(sel.province) {
 					self.selection.municipality = null;
 					self.update( L.geoJson([self.selection.province]).toGeoJSON() )
 				}
-				
 				else if(sel.region) {
 					self.selection.municipality = null;
 					self.selection.province = null;

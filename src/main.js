@@ -69,8 +69,6 @@ $(function() {
 			}).addTo(map);
 		}
 
-		console.log(geoArea)
-					//municipality level
 		self.layerData.clearLayers();
 
 		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {

@@ -27,12 +27,16 @@
 	margin:3px 9px;
 }
 
-.geojson-list-item {
-	background: rgba(255,255,255,1);
+.geojson-list.leaflet-control {
+	min-width: 100px;
 }
 
 .geojson-list-item {
-	min-width: 50px;
+	background: rgba(255,255,255,0.8);
+}
+
+.geojson-list.leaflet-control {
+	min-width: 220px;
 }
 
 .leaflet-control-gps.leaflet-control a {

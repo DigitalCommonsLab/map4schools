@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list-item{background:rgba(255,255,255,1)}.geojson-list-item{min-width:50px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list.leaflet-control{min-width:100px}.geojson-list-item{background:rgba(255,255,255,.8)}.geojson-list.leaflet-control{min-width:220px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -61511,8 +61511,6 @@ $(function() {
 			}).addTo(map);
 		}
 
-		console.log(geoArea)
-					//municipality level
 		self.layerData.clearLayers();
 
 		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {
@@ -61691,17 +61689,13 @@ module.exports = {
 			.on('click','a', function(e) {
 				var sel = $(e.target).data();
 
-				console.log('click tab sel:', sel);
-
 				if(sel.municipality) {
 					self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
 				}
-				
 				else if(sel.province) {
 					self.selection.municipality = null;
 					self.update( L.geoJson([self.selection.province]).toGeoJSON() )
 				}
-				
 				else if(sel.region) {
 					self.selection.municipality = null;
 					self.selection.province = null;
