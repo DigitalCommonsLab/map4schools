@@ -61471,6 +61471,7 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
 
+//include after other modules
 require('../main.css');
 
 $(function() {
@@ -61584,6 +61585,7 @@ module.exports = {
 	selectionLayer: null,
 
 	selection: {
+		country: null,
 		region: null,
 		province: null,
 		municipality: null
@@ -61628,6 +61630,7 @@ module.exports = {
 		var self = this;
 
 		self.tmpls = {
+			url_country: H.compile(this.config.baseUrlGeojson + 'regions.json'),
 			url_region: H.compile(this.config.baseUrlGeojson + 'regions.json'),
 			url_province: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/provinces.json'),
 			url_municipality: H.compile(this.config.baseUrlGeojson + '{{region.properties.id}}/{{province.properties.id}}/municipalities.json'),
@@ -61655,7 +61658,13 @@ module.exports = {
 			}
 		}).addTo(self.map);
 
+
 		self.loadGeojson(function(json) {
+			
+			//NASTY PATCH for country level..
+			self.selection.country = L.extend({},json);
+			self.selection.country.properties = { id:1, name: "Italia"};
+			self.selection.country.features = [json.features]
 
 			self.selectionLayer.addData(json);
 
@@ -61672,70 +61681,82 @@ module.exports = {
 			}).addTo(self.map);
 		});
 
-		self.$breadcrumb.on('click','a', function(e) {
-			var sel = $(e.target).data();
+		self.$breadcrumb
+			.html(self.tmpls.bread_admin(self.selection))
+			.on('click','a', function(e) {
+				var sel = $(e.target).data();
 
-			if(sel.municipality){
-				//self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
-			}
-			
-			else if(sel.province) {
-				self.selection.municipality = null;
-				self.update( L.geoJson([self.selection.province]).toGeoJSON() )
-			}
-			
-			else if(sel.region){
-				self.selection.municipality = null;
-				self.selection.province = null;
-				self.update( L.geoJson([self.selection.region]).toGeoJSON() )
-			}
-			
-		});
+				console.log('click tab sel:', sel);
+
+				if(sel.municipality) {
+					self.update( L.geoJson([self.selection.municipality]).toGeoJSON() )
+				}
+				
+				else if(sel.province) {
+					self.selection.municipality = null;
+					self.update( L.geoJson([self.selection.province]).toGeoJSON() )
+				}
+				
+				else if(sel.region) {
+					self.selection.municipality = null;
+					self.selection.province = null;
+					self.update( L.geoJson([self.selection.region]).toGeoJSON() )
+				}
+				else if(sel.country) {
+					self.selection.municipality = null;
+					self.selection.province = null;
+					self.selection.region = null;
+					self.update( L.geoJson(self.selection.country.features).toGeoJSON() );
+					//NASTY PATCH for country level..
+					self.map.fitBounds(L.geoJson(self.selection.country.features[0]).getBounds());
+				}
+			});
 
 		return this;
 	},
 
 	update: function(selectedGeo) {
 
-		var self = this;
+		var self = this,
+			selectedProps;
 
-		let selectedProps = selectedGeo.features[0].properties;
+		if(selectedGeo.features[0] && selectedGeo.features[0].properties)
+		{
+			selectedProps = selectedGeo.features[0].properties;
 
-		//is a municipality level
-		if(selectedProps.id_prov) {
+			//is a municipality level
+			if(selectedProps.id_prov) {
+				
+				self.selection = _.extend(self.selection, {
+					municipality: selectedGeo.features[0]
+				});						
+			}
+			//is a province level
+			else if(selectedProps.id_reg) {
+
+				self.selection = _.extend(self.selection, {
+					province: selectedGeo.features[0]
+				});
+			}
+			else {
+				self.selection = _.extend(self.selection, {
+					region: selectedGeo.features[0]
+				});						
+			}
 			
-			self.selection = _.extend(self.selection, {
-				municipality: selectedGeo.features[0]
-			});						
+			self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 		}
-		//is a province level
-		else if(selectedProps.id_reg) {
-
-			self.selection = _.extend(self.selection, {
-				province: selectedGeo.features[0]
-			});
-		}
-		else {
-			
-			self.selection = _.extend(self.selection, {
-				region: selectedGeo.features[0]
-			});						
-		}
-
-		self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
+		
 		//TODO if only is a municipality level
-		self.selectionLayer.clearLayers();
+		
 		self.loadGeojson(function(json) {
 			
-			self.selectionLayer.addData(json);
+			self.selectionLayer.clearLayers().addData(json);
 
-			//self.map.fitBounds(self.selectionLayer.getBounds());
-//console.log(selectedProps)
-			//if(!selectedProps.id_prov)
 			self.controlSelect.reload(self.selectionLayer);
 
 			//municipality level
-			if(selectedProps.id_reg || selectedProps.id_prov) {
+			if(selectedProps && (selectedProps.id_reg || selectedProps.id_prov)) {
 				self.onSelect.call(self, selectedGeo);
 			}
 		});
@@ -61751,13 +61772,17 @@ module.exports = {
 		else if(sel.region && !sel.province)
 			return this.tmpls.url_province(sel);
 
-		else
+		else if(sel.country && !sel.region)
 			return this.tmpls.url_region(sel);
+
+		else// if(!sel.country)
+			return this.tmpls.url_country(sel);
 	},
 
   	loadGeojson: function(cb) {
   		
   		var url = this.getGeoUrl(this.selection);
+console.log('loadGeojson', url)
 
 		if(!localStorage[url]) {
 			$.getJSON(url, function(json) {

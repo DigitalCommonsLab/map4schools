@@ -99,6 +99,9 @@
 <!-- DYNAMIC TEMAPLATES -->
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
 <ol class="breadcrumb">
+	<li class="breadcrumb-item">
+		<a href="#" data-country="{{country.properties.id}}">regioni {{country.properties.name}}</a>
+	</li>
 	{{#if region}}
 		<li class="breadcrumb-item">
 			<a href="#" data-region="{{region.properties.id}}">regione {{region.properties.name}}</a>
@@ -111,23 +114,15 @@
 			<li class="breadcrumb-item" aria-current="page">
 				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}" data-municipality="{{municipality.properties.id}}">comune di {{municipality.properties.name}}</a>
 			</li>
-			{{else}}
-				<!-- <li class="breadcrumb-item" aria-current="page"><i>comuni</i></li> -->
 			{{/if}}
-		{{else}}
-			<!-- <li class="breadcrumb-item" aria-current="page"><i>province</i></li> -->
 		{{/if}}
-	{{else}}
-	<li class="breadcrumb-item" aria-current="page"><i>regioni</i></li>
 	{{/if}}
 </ol>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <ul class="list-group">
-	{{#if operator}}<li class="list-group-item">Operatore {{operator}}</li>{{/if}}
 	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
-	{{#if isced:level}}<li class="list-group-item">Livello {{isced:level}}</li>{{/if}}
 </ul>
 <br />
 <!--div class="btn-group btn-group-xs" role="group">

@@ -29,6 +29,7 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
 
+//include after other modules
 require('../main.css');
 
 $(function() {
