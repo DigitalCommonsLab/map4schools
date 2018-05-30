@@ -34,7 +34,10 @@
 .geojson-list-item {
 	background: rgba(255,255,255,0.8);
 }
-
+.geojson-list-item > label {
+	margin: 0;
+	padding-bottom: 2px;
+}
 .geojson-list.leaflet-control {
 	min-width: 220px;
 }

@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list.leaflet-control{min-width:100px}.geojson-list-item{background:rgba(255,255,255,.8)}.geojson-list.leaflet-control{min-width:220px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:400px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list.leaflet-control{min-width:100px}.geojson-list-item{background:rgba(255,255,255,.8)}.geojson-list-item>label{margin:0;padding-bottom:2px}.geojson-list.leaflet-control{min-width:220px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -35683,7 +35683,7 @@ this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e)
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, { "href": "node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],58:[function(require,module,exports){
 /* 
- * Leaflet GeoJSON Selector v0.4.4 - 2018-05-30 
+ * Leaflet GeoJSON Selector v0.4.5 - 2018-05-30 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -35736,7 +35736,7 @@ L.Control.GeoJSONSelector = L.Control.extend({
 		listItemBuild: null,			//function list item builder
 		
 		activeListFromLayer: true,		//highlight of list item on layer hover
-		//TODO activeLayerFromList: true,	//highlight of layer on list item hover
+		activeLayerFromList: true,	//highlight of layer on list item hover
 		zoomToLayer: false,
 		
 		listOnlyVisibleLayers: false,	//show list of item of layers visible in map canvas
@@ -35922,6 +35922,9 @@ L.Control.GeoJSONSelector = L.Control.extend({
 				for (var i = 0; i < self._items.length; i++)
 					if(!self._items[i])
 						self._items[i].layer.setStyle( self.options.activeStyle );
+				
+				if(self.options.activeLayerFromList)
+					item.layer.fire('mouseover');
 
 			}, this)
 			.on(item, 'mouseout', function(e) {
@@ -35930,7 +35933,10 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 				for (var i = 0; i < self._items.length; i++)
 					if(!self._items[i])
-						self._items[i].layer.setStyle( self.options.style );						
+						self._items[i].layer.setStyle( self.options.style );
+
+				if(self.options.activeLayerFromList)
+					item.layer.fire('mouseout');
 
 			}, this);
 
@@ -35970,7 +35976,7 @@ L.Control.GeoJSONSelector = L.Control.extend({
 			if(layer.setStyle)
 				layer.setStyle( self.options.style );
 
-			if(self.options.activeListFromLayer) {
+			
 				layer
 				.on('click', L.DomEvent.stop)
 				.on('click', function(e) {
@@ -35978,13 +35984,17 @@ L.Control.GeoJSONSelector = L.Control.extend({
 				})
 				.on('mouseover', function(e) {
 					e.target.setStyle( self.options.activeStyle );
-					//TODO L.DomUtil.addClass(e.target.itemList, self.options.activeClass);
+					
+					if(self.options.activeListFromLayer)
+						L.DomUtil.addClass(e.target.itemList, self.options.activeClass);
 				})
 				.on('mouseout', function(e) {
 					e.target.setStyle(e.target.itemList.selected ? self.options.selectStyle : self.options.style );
-					//TODO L.DomUtil.removeClass(e.target.itemList, self.options.activeClass);
+					
+					if(self.options.activeListFromLayer)
+						L.DomUtil.removeClass(e.target.itemList, self.options.activeClass);
 				});
-			}
+			
 		});
 
 		layers.sort(function(a, b) {
@@ -61599,6 +61609,8 @@ module.exports = {
 		selector: {
 			zoomToLayer: true,
 			//listOnlyVisibleLayers: true
+			activeListFromLayer:true,
+			activeLayerFromList:true,
 			style: {
 				color:'#00f',
 				fillColor:'#08f',
@@ -61728,7 +61740,7 @@ module.exports = {
 				
 				self.selection = _.extend(self.selection, {
 					municipality: selectedGeo.features[0]
-				});						
+				});
 			}
 			//is a province level
 			else if(selectedProps.id_reg) {
@@ -61747,6 +61759,7 @@ module.exports = {
 		}
 		
 		//TODO if only is a municipality level
+		//
 		
 		self.loadGeojson(function(json) {
 			

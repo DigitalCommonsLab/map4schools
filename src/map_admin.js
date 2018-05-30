@@ -29,6 +29,8 @@ module.exports = {
 		selector: {
 			zoomToLayer: true,
 			//listOnlyVisibleLayers: true
+			activeListFromLayer:true,
+			activeLayerFromList:true,
 			style: {
 				color:'#00f',
 				fillColor:'#08f',
@@ -158,7 +160,7 @@ module.exports = {
 				
 				self.selection = _.extend(self.selection, {
 					municipality: selectedGeo.features[0]
-				});						
+				});
 			}
 			//is a province level
 			else if(selectedProps.id_reg) {
@@ -177,6 +179,7 @@ module.exports = {
 		}
 		
 		//TODO if only is a municipality level
+		//
 		
 		self.loadGeojson(function(json) {
 			
