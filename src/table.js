@@ -40,14 +40,10 @@ module.exports = {
 			        field: 'website',
 			        title: 'Sito Web'
 			    },
-/*			    {
+			    {
 			        field: 'operator',
 			        title: 'Operatore'
-			    },
-		    	{
-			        field: 'id',
-			        title: 'Id'
-			    }*/			    
+			    }
 		    ]
 		});
 	},
