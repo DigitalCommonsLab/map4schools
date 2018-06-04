@@ -148,6 +148,17 @@ module.exports = {
 		return this;
 	},
 
+
+	getTitle: function(selection) {
+
+		if( selection && 
+			selection.municipality && 
+			selection.municipality.properties.name )
+			return 'Comune di '+ selection.municipality.properties.name;
+		else
+			return '';
+	},
+
 	update: function(selectedGeo) {
 
 		var self = this,
@@ -179,7 +190,11 @@ module.exports = {
 			
 			self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 		}
-		
+
+		selectedGeo.properties = {
+			title: self.getTitle(self.selection)
+		};
+
 		if(self.selection.municipality)
 		{
 			self.onSelect.call(self, selectedGeo);

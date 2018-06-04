@@ -15,6 +15,11 @@ module.exports = {
   	selectionLayer: null,
 
   	config: {
+  		titles: {
+	  		rectangle: "Rettangolare",
+	  		polygon: "Poligonale",
+	  		circle: "Circolare",
+	  	},
   		draw: {
 		    position: 'topleft',
 		    draw: {
@@ -68,9 +73,12 @@ module.exports = {
 		drawControl.addTo(self.map);
 
 		//DRAW EVENTS
+		//TODO MOVE IT OUTSIDE 
 		self.map.on('draw:created', function (e) {
                 var type = e.layerType,
                     layer = e.layer;
+
+                var selectedGeo;
 
                 //crea un polygono dal cerchio
                 if (type === 'circle') {
@@ -102,7 +110,13 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect.call(self, self.selectionLayer.toGeoJSON());
+				selectedGeo = self.selectionLayer.toGeoJSON();
+
+				selectedGeo.properties = {
+					title: self.getTitle(type)
+				};				
+
+                self.onSelect.call(self, selectedGeo);
             })
             .on('draw:deleted', function (e) {
                 
@@ -112,5 +126,9 @@ module.exports = {
             });
 
 		return this;
+	},
+
+	getTitle: function(type) {
+		return 'Area '+ this.config.titles[ type ];
 	}
 };

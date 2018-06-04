@@ -84,7 +84,7 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table h2 b').text(geoRes.features.length+" risultati");
+			$('#table h2 b').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 	
 	}

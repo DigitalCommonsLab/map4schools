@@ -24,7 +24,7 @@ module.exports = {
 
 		var gpsControl = new Gps({
 			position: 'topleft',
-			maxZoom: 14,
+			//maxZoom: 14,
 			autoCenter: true
 		})
 		.on('gps:located', function(e) {
@@ -32,13 +32,26 @@ module.exports = {
 			//console.log(e.latlng);
 			
 			var bb = self.map.getBounds().pad(-0.8),
-				poly = utils.createPolygonFromBounds(bb);
+				poly = utils.createPolygonFromBounds(bb),
+				selectedGeo = L.featureGroup([poly]).toGeoJSON();
 
-			self.onSelect.call(self, L.featureGroup([poly]).toGeoJSON() );
+			selectedGeo.properties = {
+				title: self.getTitle(bb)
+			};
+
+			self.onSelect.call(self, selectedGeo);
 		})
 
 		gpsControl.addTo(self.map);
 
 		return this;
-	}
+	},
+
+	getTitle: function(bb) {
+		var a = bb.getSouthWest(),
+			b = bb.getNorthEast(),
+			dist = a.distanceTo(b)/2;
+
+		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
+	}	
 };

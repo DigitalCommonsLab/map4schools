@@ -6,6 +6,22 @@ _.mixin({str: S});
 
 module.exports = {
   
+    humanDist: function(d, sign) {
+        sign = sign || false;
+        var len='',unit='',s='';
+        d= parseInt(d);
+        if(d < 2000){
+            d = d.toFixed(0);
+            unit = 'm';
+        }else{
+            d = (d/1000).toFixed(1);
+            unit = 'km';
+        }
+        if(sign)
+            s = d>0 ? '+' : '';
+        return s + d +unit;
+    },
+
 	randomColor: function(str) {
 		var letters = '0123456789ABCDEF';
 		var color = '#';
@@ -30,7 +46,7 @@ module.exports = {
 
         if(true || !localStorage[url]) {
             $.getJSON(url, function(json) {
-                console.log(url,json)
+                
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
                 }

@@ -14,7 +14,7 @@
   document.head.appendChild(socket)
 }());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-var css = ".map{width:100%;height:360px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list.leaflet-control{min-width:100px}.geojson-list-item{background:rgba(255,255,255,.8)}.geojson-list-item>label{margin:0;padding-bottom:2px}.geojson-list.leaflet-control{min-width:220px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
+var css = ".map{width:100%;height:360px}.breadcrumb-item+.breadcrumb-item::before,.breadcrumb>li:before{content:\"►\";padding-right:0}.breadcrumb>li:first-child:before{content:none}.leaflet-container a{color:inherit}.leaflet-tooltip{font-size:14px}.leaflet-popup-content{margin:3px 9px}.geojson-list.leaflet-control{min-width:100px}.geojson-list-item{background:rgba(255,255,255,.8)}.geojson-list-item>label{margin:0;padding-bottom:2px}.geojson-list.leaflet-control{min-width:220px}.leaflet-control-gps.leaflet-control a{margin:4px;background-color:#fff}.leaflet-control-gps .gps-button{background-image:url(https://unpkg.com/leaflet-gps@1.7.3/images/gps-icon.svg)}.leaflet-retina .leaflet-draw-toolbar a{background-image:url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet-2x.png);background-image:linear-gradient(transparent,transparent),url(https://unpkg.com/leaflet-draw@1.0.2/dist/images/spritesheet.svg)}tr:hover{cursor:pointer}.leaflet-control-gps .gps-button{width:25px;height:25px}h2 b{vertical-align:middle;font-size:16px}"; (require("browserify-css").createStyle(css, { "href": "main.css" }, { "insertAt": "bottom" })); module.exports = css;
 },{"browserify-css":7}],2:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -61536,7 +61536,7 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table h2 b').text(geoRes.features.length+" risultati");
+			$('#table h2 b').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 	
 	}
@@ -61736,6 +61736,17 @@ module.exports = {
 		return this;
 	},
 
+
+	getTitle: function(selection) {
+
+		if( selection && 
+			selection.municipality && 
+			selection.municipality.properties.name )
+			return 'Comune di '+ selection.municipality.properties.name;
+		else
+			return '';
+	},
+
 	update: function(selectedGeo) {
 
 		var self = this,
@@ -61767,7 +61778,11 @@ module.exports = {
 			
 			self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 		}
-		
+
+		selectedGeo.properties = {
+			title: self.getTitle(self.selection)
+		};
+
 		if(self.selection.municipality)
 		{
 			self.onSelect.call(self, selectedGeo);
@@ -61833,6 +61848,11 @@ module.exports = {
   	selectionLayer: null,
 
   	config: {
+  		titles: {
+	  		rectangle: "Rettangolare",
+	  		polygon: "Poligonale",
+	  		circle: "Circolare",
+	  	},
   		draw: {
 		    position: 'topleft',
 		    draw: {
@@ -61886,9 +61906,12 @@ module.exports = {
 		drawControl.addTo(self.map);
 
 		//DRAW EVENTS
+		//TODO MOVE IT OUTSIDE 
 		self.map.on('draw:created', function (e) {
                 var type = e.layerType,
                     layer = e.layer;
+
+                var selectedGeo;
 
                 //crea un polygono dal cerchio
                 if (type === 'circle') {
@@ -61920,7 +61943,13 @@ module.exports = {
                     .addLayer(self.filterPolygon)
                     .setStyle(self.config.draw.draw.polygon.shapeOptions);
 
-                self.onSelect.call(self, self.selectionLayer.toGeoJSON());
+				selectedGeo = self.selectionLayer.toGeoJSON();
+
+				selectedGeo.properties = {
+					title: self.getTitle(type)
+				};				
+
+                self.onSelect.call(self, selectedGeo);
             })
             .on('draw:deleted', function (e) {
                 
@@ -61930,6 +61959,10 @@ module.exports = {
             });
 
 		return this;
+	},
+
+	getTitle: function(type) {
+		return 'Area '+ this.config.titles[ type ];
 	}
 };
 
@@ -61960,7 +61993,7 @@ module.exports = {
 
 		var gpsControl = new Gps({
 			position: 'topleft',
-			maxZoom: 14,
+			//maxZoom: 14,
 			autoCenter: true
 		})
 		.on('gps:located', function(e) {
@@ -61968,15 +62001,28 @@ module.exports = {
 			//console.log(e.latlng);
 			
 			var bb = self.map.getBounds().pad(-0.8),
-				poly = utils.createPolygonFromBounds(bb);
+				poly = utils.createPolygonFromBounds(bb),
+				selectedGeo = L.featureGroup([poly]).toGeoJSON();
 
-			self.onSelect.call(self, L.featureGroup([poly]).toGeoJSON() );
+			selectedGeo.properties = {
+				title: self.getTitle(bb)
+			};
+
+			self.onSelect.call(self, selectedGeo);
 		})
 
 		gpsControl.addTo(self.map);
 
 		return this;
-	}
+	},
+
+	getTitle: function(bb) {
+		var a = bb.getSouthWest(),
+			b = bb.getNorthEast(),
+			dist = a.distanceTo(b)/2;
+
+		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
+	}	
 };
 },{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":154,"jquery":54,"leaflet-gps":60}],152:[function(require,module,exports){
 
@@ -62113,6 +62159,22 @@ _.mixin({str: S});
 
 module.exports = {
   
+    humanDist: function(d, sign) {
+        sign = sign || false;
+        var len='',unit='',s='';
+        d= parseInt(d);
+        if(d < 2000){
+            d = d.toFixed(0);
+            unit = 'm';
+        }else{
+            d = (d/1000).toFixed(1);
+            unit = 'km';
+        }
+        if(sign)
+            s = d>0 ? '+' : '';
+        return s + d +unit;
+    },
+
 	randomColor: function(str) {
 		var letters = '0123456789ABCDEF';
 		var color = '#';
@@ -62137,7 +62199,7 @@ module.exports = {
 
         if(true || !localStorage[url]) {
             $.getJSON(url, function(json) {
-                console.log(url,json)
+                
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
                 }

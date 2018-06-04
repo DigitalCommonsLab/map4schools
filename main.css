@@ -62,3 +62,8 @@ tr:hover {
 	width: 25px;
 	height: 25px;
 }
+
+h2 b {
+	vertical-align: middle;
+	font-size: 16px;
+}
