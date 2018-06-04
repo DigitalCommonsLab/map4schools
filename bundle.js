@@ -61521,16 +61521,22 @@ $(function() {
 			}).addTo(map);
 		}
 
-		self.layerData.clearLayers();
+		self.layerData.clearLayers();		
 
-		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {
-			overpass.search(geoArea, function(geoRes) {
+		overpass.search(geoArea, function(geoRes) {
 
-				self.layerData.addData(geoRes);
-
-				table.update(geoRes);
+			//DEBUGGING
+			geoRes.features = _.map(geoRes.features, function(f) {
+				f.properties['isced:level'] = ""+_.random(0,6);
+				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
+				return f;
 			});
-		}
+			
+			self.layerData.addData(geoRes);
+
+			table.update(geoRes);
+		});
+	
 	}
 
 	//init maps
@@ -61764,7 +61770,9 @@ module.exports = {
 
 				self.selectionLayer.clearLayers().addData(json);
 				self.controlSelect.reload(self.selectionLayer);
-				self.onSelect.call(self, selectedGeo);
+
+				if(selectedGeo.features[0] && (selectedGeo.features[0].properties.id_reg || selectedGeo.features[0].properties.id_prov))
+					self.onSelect.call(self, selectedGeo);
 			});
 		}
 
@@ -61790,24 +61798,7 @@ module.exports = {
   		
   		var url = this.getGeoUrl(this.selection);
 
-		if(!localStorage[url]) {
-			$.getJSON(url, function(json) {
-	  			
-	  			try {
-  					localStorage.setItem(url, JSON.stringify(json));
-				}
-				catch (e) {
-  					localStorage.clear();
-  					localStorage.setItem(url, JSON.stringify(json));
-  				}
-
-	  			cb(json);
-	  		});
-	  	}
-	  	else
-	  	{
-	  		cb(JSON.parse( localStorage[url]) )
-	  	}
+		return utils.getData(url, cb);
   	}	
 };
 
@@ -61989,28 +61980,6 @@ module.exports = {
   	
   	results: [],
 
-  	getData: function(url, cb) {
-
-		if(!localStorage[url]) {
-	  		$.getJSON(url, function(json) {
-	  			
-	  			try {
-  					localStorage.setItem(url, JSON.stringify(json));
-				}
-				catch (e) {
-  					localStorage.clear();
-  					localStorage.setItem(url, JSON.stringify(json));
-  				}
-
-	  			cb(json);
-	  		});
-	  	}
-	  	else
-	  	{
-	  		cb(JSON.parse(localStorage[url]))
-	  	}
-  	},
-
 	search: function(geoArea, cb) {
 
 		//TODO
@@ -62023,20 +61992,12 @@ module.exports = {
 			},
 			url = L.Util.template(tmplUrl, params);
 
-		//$.getJSON(url, function(json) {
-		this.getData(url, function(json) {
+		utils.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 
 			geojson.features = _.filter(geojson.features, function(f) {
 				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
-			});
-
-			//DEBUGGING
-			geojson.features = _.map(geojson.features, function(f) {
-				f.properties['isced:level'] = ""+_.random(0,6);
-				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
-				return f;
 			});
 
 			cb(geojson);
@@ -62132,6 +62093,11 @@ module.exports = {
 }
 },{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":154,"bootstrap-table":3,"jquery":54,"underscore":141}],154:[function(require,module,exports){
 
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var S = require('underscore.string');
+_.mixin({str: S});
+
 module.exports = {
   
 	randomColor: function(str) {
@@ -62153,6 +62119,28 @@ module.exports = {
 			})
 		}
 	},
+
+    getData: function(url, cb) {
+
+        if(true || !localStorage[url]) {
+            $.getJSON(url, function(json) {
+                console.log(url,json)
+                try {
+                    localStorage.setItem(url, JSON.stringify(json));
+                }
+                catch (e) {
+                    localStorage.clear();
+                    localStorage.setItem(url, JSON.stringify(json));
+                }
+
+                cb(json);
+            });
+        }
+        else
+        {
+            cb(JSON.parse(localStorage[url]))
+        }
+    },
 
 	createPolygonFromBounds: function(latLngBounds) {
 		var center = latLngBounds.getCenter()
@@ -62264,4 +62252,4 @@ module.exports = {
 
 };
 
-},{}]},{},[148]);
+},{"jquery":54,"underscore":141,"underscore.string":95}]},{},[148]);

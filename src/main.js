@@ -69,16 +69,22 @@ $(function() {
 			}).addTo(map);
 		}
 
-		self.layerData.clearLayers();
+		self.layerData.clearLayers();		
 
-		if(geoArea.features[0] && (geoArea.features[0].properties.id_reg || geoArea.features[0].properties.id_prov)) {
-			overpass.search(geoArea, function(geoRes) {
+		overpass.search(geoArea, function(geoRes) {
 
-				self.layerData.addData(geoRes);
-
-				table.update(geoRes);
+			//DEBUGGING
+			geoRes.features = _.map(geoRes.features, function(f) {
+				f.properties['isced:level'] = ""+_.random(0,6);
+				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
+				return f;
 			});
-		}
+			
+			self.layerData.addData(geoRes);
+
+			table.update(geoRes);
+		});
+	
 	}
 
 	//init maps

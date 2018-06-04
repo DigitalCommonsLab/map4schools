@@ -1,4 +1,9 @@
 
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var S = require('underscore.string');
+_.mixin({str: S});
+
 module.exports = {
   
 	randomColor: function(str) {
@@ -20,6 +25,28 @@ module.exports = {
 			})
 		}
 	},
+
+    getData: function(url, cb) {
+
+        if(true || !localStorage[url]) {
+            $.getJSON(url, function(json) {
+                console.log(url,json)
+                try {
+                    localStorage.setItem(url, JSON.stringify(json));
+                }
+                catch (e) {
+                    localStorage.clear();
+                    localStorage.setItem(url, JSON.stringify(json));
+                }
+
+                cb(json);
+            });
+        }
+        else
+        {
+            cb(JSON.parse(localStorage[url]))
+        }
+    },
 
 	createPolygonFromBounds: function(latLngBounds) {
 		var center = latLngBounds.getCenter()

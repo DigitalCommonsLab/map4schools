@@ -184,7 +184,9 @@ module.exports = {
 
 				self.selectionLayer.clearLayers().addData(json);
 				self.controlSelect.reload(self.selectionLayer);
-				self.onSelect.call(self, selectedGeo);
+
+				if(selectedGeo.features[0] && (selectedGeo.features[0].properties.id_reg || selectedGeo.features[0].properties.id_prov))
+					self.onSelect.call(self, selectedGeo);
 			});
 		}
 
@@ -210,23 +212,6 @@ module.exports = {
   		
   		var url = this.getGeoUrl(this.selection);
 
-		if(!localStorage[url]) {
-			$.getJSON(url, function(json) {
-	  			
-	  			try {
-  					localStorage.setItem(url, JSON.stringify(json));
-				}
-				catch (e) {
-  					localStorage.clear();
-  					localStorage.setItem(url, JSON.stringify(json));
-  				}
-
-	  			cb(json);
-	  		});
-	  	}
-	  	else
-	  	{
-	  		cb(JSON.parse( localStorage[url]) )
-	  	}
+		return utils.getData(url, cb);
   	}	
 };
