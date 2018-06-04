@@ -18,6 +18,7 @@ require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 
 var utils = require('./utils');
 var overpass = require('./overpass');
+var cartella = require('./cartella');
 
 var mapAdmin = require('./map_admin');
 var mapArea = require('./map_area');

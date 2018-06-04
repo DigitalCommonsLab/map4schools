@@ -60995,6 +60995,67 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 
 },{}],144:[function(require,module,exports){
 
+//https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
+//
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var utils = require('./utils');
+var osmtogeo = require('osmtogeojson');
+var geoutils = require('geojson-utils');
+
+module.exports = {
+  	
+  	results: [],
+
+	search: function(geoArea, cb) {
+
+		//TODO
+		//
+
+		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+			params = {
+				filter: 'amenity=school',
+				bbox: this.polyToBbox(geoArea)
+			},
+			url = L.Util.template(tmplUrl, params);
+
+		utils.getData(url, function(json) {
+			
+			var geojson = osmtogeo(json);
+
+			geojson.features = _.filter(geojson.features, function(f) {
+				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+			});
+
+			cb(geojson);
+
+		});
+
+		return this;
+	}, 
+
+	polyToBbox: function(geo) {
+
+		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
+			prec = 6,
+			bb = L.geoJSON(geo).getBounds(),
+			sw = bb.getSouthWest(),
+			ne = bb.getNorthEast(),
+			bbox = [
+				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
+				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
+			],
+			bboxStr = L.Util.template(tmpl, {
+				lat1: bbox[0][0], lon1: bbox[0][1],
+				lat2: bbox[1][0], lon2: bbox[1][1]
+			});	
+		
+		return bboxStr;
+	}
+}
+},{"./utils":155,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],145:[function(require,module,exports){
+
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var d3 = require('d3');
@@ -61070,7 +61131,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart":146,"./utils":154,"d3":9,"jquery":54,"underscore":141}],145:[function(require,module,exports){
+},{"./lib/radarChart":147,"./utils":155,"d3":9,"jquery":54,"underscore":141}],146:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61113,7 +61174,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/stackedChart":147,"./utils":154,"d3":9,"jquery":54,"underscore":141}],146:[function(require,module,exports){
+},{"./lib/stackedChart":148,"./utils":155,"d3":9,"jquery":54,"underscore":141}],147:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -61384,7 +61445,7 @@ module.exports = function(id, data, options) {
 	
 }//RadarChart
 
-},{}],147:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 /*
 	source: http://bl.ocks.org/puzzler10/2226e8d73c8f10dcdac7c77357838ba2
  */
@@ -61449,7 +61510,7 @@ module.exports = function(id, data, options) {
 		.call(yAxis)
 		.style("stroke", "black");*/
 };
-},{}],148:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61470,6 +61531,7 @@ require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
 
 var utils = require('./utils');
 var overpass = require('./overpass');
+var cartella = require('./cartella');
 
 var mapAdmin = require('./map_admin');
 var mapArea = require('./map_area');
@@ -61585,7 +61647,7 @@ $(function() {
 		
 	});
 });
-},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./chart_radar":144,"./chart_vert":145,"./map_admin":149,"./map_area":150,"./map_gps":151,"./overpass":152,"./table":153,"./utils":154,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],149:[function(require,module,exports){
+},{"../main.css":1,"../node_modules/bootstrap/dist/css/bootstrap.min.css":5,"../node_modules/leaflet/dist/leaflet.css":62,"./cartella":144,"./chart_radar":145,"./chart_vert":146,"./map_admin":150,"./map_area":151,"./map_gps":152,"./overpass":153,"./table":154,"./utils":155,"bootstrap":6,"handlebars":42,"jquery":54,"leaflet":61,"popper.js":68,"underscore":141,"underscore.string":95}],150:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -61830,7 +61892,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":154,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],150:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":57,"./utils":155,"handlebars":42,"jquery":54,"leaflet-geojson-selector":58,"underscore":141}],151:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -61966,7 +62028,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":55,"./utils":154,"jquery":54,"leaflet-draw":56}],151:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":55,"./utils":155,"jquery":54,"leaflet-draw":56}],152:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -62024,68 +62086,9 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":154,"jquery":54,"leaflet-gps":60}],152:[function(require,module,exports){
-
-//https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
-//
-
-var $ = jQuery = require('jquery');
-var _ = require('underscore'); 
-var utils = require('./utils');
-var osmtogeo = require('osmtogeojson');
-var geoutils = require('geojson-utils');
-
-module.exports = {
-  	
-  	results: [],
-
-	search: function(geoArea, cb) {
-
-		//TODO
-		//
-
-		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
-			params = {
-				filter: 'amenity=school',
-				bbox: this.polyToBbox(geoArea)
-			},
-			url = L.Util.template(tmplUrl, params);
-
-		utils.getData(url, function(json) {
-			
-			var geojson = osmtogeo(json);
-
-			geojson.features = _.filter(geojson.features, function(f) {
-				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
-			});
-
-			cb(geojson);
-
-		});
-
-		return this;
-	}, 
-
-	polyToBbox: function(geo) {
-
-		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
-			prec = 6,
-			bb = L.geoJSON(geo).getBounds(),
-			sw = bb.getSouthWest(),
-			ne = bb.getNorthEast(),
-			bbox = [
-				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
-				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
-			],
-			bboxStr = L.Util.template(tmpl, {
-				lat1: bbox[0][0], lon1: bbox[0][1],
-				lat2: bbox[1][0], lon2: bbox[1][1]
-			});	
-		
-		return bboxStr;
-	}
-}
-},{"./utils":154,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],153:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":59,"./utils":155,"jquery":54,"leaflet-gps":60}],153:[function(require,module,exports){
+arguments[4][144][0].apply(exports,arguments)
+},{"./utils":155,"dup":144,"geojson-utils":12,"jquery":54,"osmtogeojson":65,"underscore":141}],154:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -62150,7 +62153,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":154,"bootstrap-table":3,"jquery":54,"underscore":141}],154:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":4,"./utils":155,"bootstrap-table":3,"jquery":54,"underscore":141}],155:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -62327,4 +62330,4 @@ module.exports = {
 
 };
 
-},{"jquery":54,"underscore":141,"underscore.string":95}]},{},[148]);
+},{"jquery":54,"underscore":141,"underscore.string":95}]},{},[149]);
