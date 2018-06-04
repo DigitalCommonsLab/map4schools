@@ -17,7 +17,6 @@ module.exports = {
 
 		var self = this;
 
-//TODO move to submit event
 		this.table = $(el);
 
 		this.table.bootstrapTable({
@@ -59,6 +58,7 @@ module.exports = {
 				'website': p.website
 			};
 		});
+
 		this.table.bootstrapTable('load', json);
 	}
 }

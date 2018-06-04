@@ -83,6 +83,8 @@ $(function() {
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
+
+			$('#table h2 b').text(geoRes.features.length+" risultati");
 		});
 	
 	}

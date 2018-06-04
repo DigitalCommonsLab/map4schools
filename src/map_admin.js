@@ -143,6 +143,8 @@ module.exports = {
 				}
 			});
 
+		//todo run self.onInit()
+
 		return this;
 	},
 
@@ -178,15 +180,24 @@ module.exports = {
 			self.map.fitBounds(L.geoJson(selectedGeo).getBounds());
 		}
 		
-		if(!self.selection.municipality)
+		if(self.selection.municipality)
+		{
+			self.onSelect.call(self, selectedGeo);
+		}
+		else
 		{
 			self.loadGeojson(function(json) {
 
 				self.selectionLayer.clearLayers().addData(json);
 				self.controlSelect.reload(self.selectionLayer);
 
-				if(selectedGeo.features[0] && (selectedGeo.features[0].properties.id_reg || selectedGeo.features[0].properties.id_prov))
-					self.onSelect.call(self, selectedGeo);
+				if(selectedGeo.features[0]) {
+					if( 
+						//selectedGeo.features[0].properties.id_reg || //provincia 
+						selectedGeo.features[0].properties.id_prov 	//comune
+					)
+						self.onSelect.call(self, selectedGeo);
+				}
 			});
 		}
 
