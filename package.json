@@ -8,7 +8,7 @@
     "url": "http://labs.easyblog.it/"
   },
   "license": "MIT",
-  "main": "main.js",
+  "main": "bundle.js",
   "scripts": {
     "build": "browserify src/main.js -o bundle.js",
     "start": "watchify -p browserify-livereload src/main.js -o bundle.js"
