@@ -62183,9 +62183,11 @@ module.exports = {
 		}
 	},
 
-    getData: function(url, cb) {
+    getData: function(url, cb, cache) {
 
-        if(!localStorage[url]) {
+        cache = _.isUndefined(cache) ? true : cache;
+
+        if(cache && !localStorage[url]) {
             $.getJSON(url, function(json) {
                 
                 try {
