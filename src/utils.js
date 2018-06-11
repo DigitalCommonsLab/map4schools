@@ -44,7 +44,7 @@ module.exports = {
 
     getData: function(url, cb) {
 
-        if(true || !localStorage[url]) {
+        if(!localStorage[url]) {
             $.getJSON(url, function(json) {
                 
                 try {
