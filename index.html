@@ -118,15 +118,15 @@
 	</li>
 	{{#if region}}
 		<li class="breadcrumb-item">
-			<a href="#" data-region="{{region.properties.id}}">regione {{region.properties.name}}</a>
+			<a href="#" data-region="{{region.properties.id}}">province {{region.properties.name}}</a>
 		</li>
 		{{#if province}}
 			<li class="breadcrumb-item">
-				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}">provincia di {{province.properties.name}}</a>
+				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}">comuni {{province.properties.name}}</a>
 			</li>
 			{{#if municipality}}
 			<li class="breadcrumb-item" aria-current="page">
-				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}" data-municipality="{{municipality.properties.id}}">comune di {{municipality.properties.name}}</a>
+				<span href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}" data-municipality="{{municipality.properties.id}}">{{municipality.properties.name}}</span>
 			</li>
 			{{/if}}
 		{{/if}}
