@@ -51524,52 +51524,8 @@ module.exports = {
 
 	init: function(el, opts) {
 		this.el =  el;
+		this.labels = opts && opts.labels;
 		return this;
-	},
-
-	formatData: function(data) {
-
-		function val() {
-			return _.random(1,7,0.2);
-		}
-
-		var layers = [];
-
-		var layerMean = _.map(_.range(1,11), function(i) {
-			return {
-				id: i,
-				name: "Media Nazionale",
-				type: 'processi',
-				axis: "Media Nazionale"+'('+i+')',
-				value: _.shuffle(_.range(3.2,4.8,0.4))[0]
-			};
-		});
-
-		var layerData = _.map([
-				{name: data.name, type: 'esiti', id:21, axis: "Risultati scolastici"},
-				{name: data.name, type: 'esiti', id:22, axis: "Risultati nelle prove standardizzate nazionali"},
-				{name: data.name, type: 'esiti', id:23, axis: "Competenze chiave europee"},
-				{name: data.name, type: 'esiti', id:24, axis: "Risultati a distanza"},
-				{name: data.name, type: 'processi', id:31, axis: "Curricolo, progettazione e valutazione"},
-				{name: data.name, type: 'processi', id:32, axis: "Ambiente di apprendimento"},
-				{name: data.name, type: 'processi', id:33, axis: "Inclusione e differenziazione"},
-				{name: data.name, type: 'processi', id:34, axis: "Continuita' e orientamento"},
-				{name: data.name, type: 'processi', id:35, axis: "Orientamento strategico e organizzazione della scuola"},
-				{name: data.name, type: 'processi', id:36, axis: "Sviluppo e valorizzazione delle risorse umane"},
-				{name: data.name, type: 'processi', id:37, axis: "Integrazione con il territorio e rapporti con le famiglie"},
-			], function(o) {
-
-				//ADD RANDOM VALUES
-				o.value = _.shuffle(_.range(1,7,0.2))[0];
-				
-				return o;
-			});
-
-		layers.push(layerData);
-
-		layers.push(layerMean);
-
-		return layers;
 	},
 
 	update: function(data) {
@@ -51580,23 +51536,9 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
-		var labels = [
-			"Risultati scolastici",
-			"Risultati nelle prove standardizzate nazionali",
-			"Competenze chiave europee",
-			"Risultati a distanza",
-			"Curricolo, progettazione e valutazione",
-			"Ambiente di apprendimento",
-			"Inclusione e differenziazione",
-			"Continuita' e orientamento",
-			"Orientamento strategico e organizzazione della scuola",
-			"Sviluppo e valorizzazione delle risorse umane",
-			"Integrazione con il territorio e rapporti con le famiglie",
-		];
-
 		this.chart = RadarChart(this.el, {
-			data: this.formatData(data),
-			labels: labels,
+			data: data,
+			labels: this.labels,
 			colors: ["red","green","blue"],
 			w: width,
 			h: height,
@@ -51619,7 +51561,7 @@ module.exports = {
 	source: http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/radarChart.js
 	based on: https://github.com/alangrafu/radar-chart-d3
  */
-module.exports = function(id, options) {
+module.exports = function(el, options) {
 
 	var cfg = {
 		w: 400,				//Width of the circle
@@ -51669,13 +51611,13 @@ module.exports = function(id, options) {
 	/////////////////////////////////////////////////////////
 
 	//Remove whatever chart with the same id/class was present before
-	d3.select(id).select("svg").remove();
+	d3.select(el).select("svg").remove();
 	
 	//Initiate the radar chart SVG
-	var svg = d3.select(id).append("svg")
+	var svg = d3.select(el).append("svg")
 			.attr("width",  cfg.w + cfg.margin.left + cfg.margin.right)
 			.attr("height", cfg.h + cfg.margin.top + cfg.margin.bottom)
-			.attr("class", "radar"+id);
+			.attr("class", "radar"+el);
 	//Append a g element		
 	var g = svg.append("g")
 			.attr("transform", "translate(" + (cfg.w/2 + cfg.margin.left) + "," + (cfg.h/2 + cfg.margin.top) + ")");
@@ -52087,11 +52029,47 @@ var chartRadar = require('../src/chart_radar');
 
 $(function() {
 
-	var chart = chartRadar.init('#chart_radar');
-
-	chart.update({
-		name: "test"
+	var chart = chartRadar.init('#chart_radar', {
+		labels: [
+			"Risultati scolastici",
+			"Risultati nelle prove standardizzate nazionali",
+			"Competenze chiave europee",
+			"Risultati a distanza",
+			"Curricolo, progettazione e valutazione",
+			"Ambiente di apprendimento",
+			"Inclusione e differenziazione",
+			"Continuita' e orientamento",
+			"Orientamento strategico e organizzazione della scuola",
+			"Sviluppo e valorizzazione delle risorse umane",
+			"Integrazione con il territorio e rapporti con le famiglie",
+		]
 	});
+
+	chart.update([
+			_.map(_.range(1,11), function(i) {
+				return {
+					value: _.shuffle(_.range(3.2,4.8,0.4))[0]
+				};
+			}),
+			_.map([
+				//TODO USING type attribute or split in more Radar charts
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+			], function(o) {
+				//ADD RANDOM VALUES
+				o.value = _.shuffle(_.range(1,7,0.2))[0];	
+				return o;
+			})
+		]);
 
 });
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":2,"../node_modules/leaflet/dist/leaflet.css":50,"../src/chart_radar":127,"bootstrap":3,"handlebars":36,"jquery":48,"leaflet":49,"popper.js":52,"underscore":125,"underscore.string":79}]},{},[130]);

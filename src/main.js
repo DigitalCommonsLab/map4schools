@@ -97,8 +97,52 @@ $(function() {
 
 	var mapActive = maps.admin;
 
+	var RadarLabels = [
+			"Risultati scolastici",
+			"Risultati nelle prove standardizzate nazionali",
+			"Competenze chiave europee",
+			"Risultati a distanza",
+			"Curricolo, progettazione e valutazione",
+			"Ambiente di apprendimento",
+			"Inclusione e differenziazione",
+			"Continuita' e orientamento",
+			"Orientamento strategico e organizzazione della scuola",
+			"Sviluppo e valorizzazione delle risorse umane",
+			"Integrazione con il territorio e rapporti con le famiglie",
+		];
+
+	//TODO REPLACE RANDOM DATA FOR DEBUG
+	function RadarData(num) {
+		num = num || 11;
+		return [
+			_.map(_.range(1,num), function(i) {
+				return {
+					value: _.shuffle(_.range(3.2,4.8,0.4))[0]
+				};
+			}),
+			_.map([
+				//TODO USING type attribute or split in more Radar charts
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'esiti' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+				{type: 'processi' },
+			], function(o) {
+				//ADD RANDOM VALUES
+				o.value = _.shuffle(_.range(1,7,0.2))[0];	
+				return o;
+			})
+		];
+	}
+
 	var charts = {
-		radar: chartRadar.init('#chart_radar'),
+		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
 	};
 
@@ -116,7 +160,7 @@ $(function() {
 
 			$('#charts').show();
 
-			charts.radar.update(row);
+			charts.radar.update( RadarData() );
 			charts.vert.update(row);
 		}
 	});

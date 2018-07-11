@@ -9,7 +9,7 @@
 	source: http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/radarChart.js
 	based on: https://github.com/alangrafu/radar-chart-d3
  */
-module.exports = function(id, options) {
+module.exports = function(el, options) {
 
 	var cfg = {
 		w: 400,				//Width of the circle
@@ -31,7 +31,6 @@ module.exports = function(id, options) {
 	var data = options && options.data;	
 	var labels = options && options.labels;
 	
-
 	if(options && options.colors)
 		cfg.color =  d3.scale.ordinal().range(options.colors);
 
@@ -60,13 +59,13 @@ module.exports = function(id, options) {
 	/////////////////////////////////////////////////////////
 
 	//Remove whatever chart with the same id/class was present before
-	d3.select(id).select("svg").remove();
+	d3.select(el).select("svg").remove();
 	
 	//Initiate the radar chart SVG
-	var svg = d3.select(id).append("svg")
+	var svg = d3.select(el).append("svg")
 			.attr("width",  cfg.w + cfg.margin.left + cfg.margin.right)
 			.attr("height", cfg.h + cfg.margin.top + cfg.margin.bottom)
-			.attr("class", "radar"+id);
+			.attr("class", "radar"+el);
 	//Append a g element		
 	var g = svg.append("g")
 			.attr("transform", "translate(" + (cfg.w/2 + cfg.margin.left) + "," + (cfg.h/2 + cfg.margin.top) + ")");
