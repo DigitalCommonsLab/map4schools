@@ -61063,13 +61063,19 @@ module.exports = {
 			return _.random(1,7,0.2);
 		}
 
-		var axes = [];
+		var layers = [];
 
-		var axesMean = _.map(_.range(1,11), function(i) {
-			return {name: "Media Nazionale", type: 'processi', id:i, axis: "", value: _.shuffle(_.range(3.2,4.8,0.4))[0] };
+		var layerMean = _.map(_.range(1,11), function(i) {
+			return {
+				id: i,
+				name: "Media Nazionale",
+				type: 'processi',
+				axis: "Media Nazionale"+'('+i+')',
+				value: _.shuffle(_.range(3.2,4.8,0.4))[0]
+			};
 		});
 
-		var axesData = _.map([
+		var layerData = _.map([
 				{name: data.name, type: 'esiti', id:21, axis: "Risultati scolastici"},
 				{name: data.name, type: 'esiti', id:22, axis: "Risultati nelle prove standardizzate nazionali"},
 				{name: data.name, type: 'esiti', id:23, axis: "Competenze chiave europee"},
@@ -61082,15 +61088,18 @@ module.exports = {
 				{name: data.name, type: 'processi', id:36, axis: "Sviluppo e valorizzazione delle risorse umane"},
 				{name: data.name, type: 'processi', id:37, axis: "Integrazione con il territorio e rapporti con le famiglie"},
 			], function(o) {
+
+				//ADD RANDOM VALUES
 				o.value = _.shuffle(_.range(1,7,0.2))[0];
+				
 				return o;
 			});
 
-		axes.push(axesData);
+		layers.push(layerData);
 
-		axes.push(axesMean);
+		layers.push(layerMean);
 
-		return axes;
+		return layers;
 	},
 
 	update: function(data) {
@@ -61101,16 +61110,30 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
-		var color = d3.scale.ordinal().range(["red","green","blue"]);
+		var labels = [
+			"Risultati scolastici",
+			"Risultati nelle prove standardizzate nazionali",
+			"Competenze chiave europee",
+			"Risultati a distanza",
+			"Curricolo, progettazione e valutazione",
+			"Ambiente di apprendimento",
+			"Inclusione e differenziazione",
+			"Continuita' e orientamento",
+			"Orientamento strategico e organizzazione della scuola",
+			"Sviluppo e valorizzazione delle risorse umane",
+			"Integrazione con il territorio e rapporti con le famiglie",
+		];
 
-		this.chart = RadarChart(this.el, this.formatData(data), {
+		this.chart = RadarChart(this.el, {
+			data: this.formatData(data),
+			labels: labels,
+			colors: ["red","green","blue"],
 			w: width,
 			h: height,
 			margin: margin,
 			maxValue: 0.5,
 			levels: 5,
-			roundStrokes: true,
-			color: color
+			roundStrokes: true
 		});
 	}
 }
@@ -61169,24 +61192,32 @@ module.exports = {
 	source: http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/radarChart.js
 	based on: https://github.com/alangrafu/radar-chart-d3
  */
-module.exports = function(id, data, options) {
+module.exports = function(id, options) {
 
 	var cfg = {
-	 w: 400,				//Width of the circle
-	 h: 400,				//Height of the circle
-	 margin: {top: 0, right: 0, bottom: 0, left: 0}, //The margins of the SVG
-		 levels: 3,				//How many levels or inner circles should there be drawn
-		 maxValue: 0, 			//What is the value that the biggest circle will represent
-		 labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
-		 wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
-		 opacityArea: 0.35, 	//The opacity of the area of the blob
-		 dotRadius: 4, 			//The size of the colored circles of each blog
-		 opacityCircles: 0.1, 	//The opacity of the circles of each blob
-		 strokeWidth: 2, 		//The width of the stroke around each blob
-		 roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
-		 color: d3.scale.category10()	//Color function
+		w: 400,				//Width of the circle
+		h: 400,				//Height of the circle
+		margin: {top: 0, right: 0, bottom: 0, left: 0}, //The margins of the SVG
+		levels: 3,				//How many levels or inner circles should there be drawn
+		maxValue: 0, 			//What is the value that the biggest circle will represent
+		labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
+		wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
+		opacityArea: 0.35, 	//The opacity of the area of the blob
+		dotRadius: 4, 			//The size of the colored circles of each blog
+		opacityCircles: 0.1, 	//The opacity of the circles of each blob
+		strokeWidth: 2, 		//The width of the stroke around each blob
+		roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
+		color: d3.scale.category10(),	//Color function,
+		colors: ["red","green","blue"]
 	};
 	
+	var data = options && options.data;	
+	var labels = options && options.labels;
+	
+
+	if(options && options.colors)
+		cfg.color =  d3.scale.ordinal().range(options.colors);
+
 	//Put all of the options into a variable called cfg
 	if('undefined' !== typeof options){
 	  for(var i in options){
@@ -61197,8 +61228,7 @@ module.exports = function(id, data, options) {
 	//If the supplied maxValue is smaller than the actual one, replace by the max in the data
 	var maxValue = Math.max(cfg.maxValue, d3.max(data, function(i){return d3.max(i.map(function(o){return o.value;}))}));
 		
-	var allAxis = (data[0].map(function(i, j){return i.axis})),	//Names of each axis
-		total = allAxis.length,					//The number of different axes
+	var total = labels.length,					//The number of different axes
 		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
 		Format = d3.format('%'),			 	//Percentage formatting
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
@@ -61270,7 +61300,7 @@ module.exports = function(id, data, options) {
 		
 	//Create the straight lines radiating outward from the center
 	var axis = axisGrid.selectAll(".axis")
-		.data(allAxis)
+		.data(labels)
 		.enter()
 		.append("g")
 		.attr("class", "axis");

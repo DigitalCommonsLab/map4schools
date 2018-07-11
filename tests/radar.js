@@ -3,7 +3,7 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
-window._ = _;
+window.$ = $;
 var H = require('handlebars');
 //var csv = require('jquery-csv');
 var popper = require('popper.js');

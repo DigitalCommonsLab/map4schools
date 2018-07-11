@@ -23,13 +23,19 @@ module.exports = {
 			return _.random(1,7,0.2);
 		}
 
-		var axes = [];
+		var layers = [];
 
-		var axesMean = _.map(_.range(1,11), function(i) {
-			return {name: "Media Nazionale", type: 'processi', id:i, axis: "", value: _.shuffle(_.range(3.2,4.8,0.4))[0] };
+		var layerMean = _.map(_.range(1,11), function(i) {
+			return {
+				id: i,
+				name: "Media Nazionale",
+				type: 'processi',
+				axis: "Media Nazionale"+'('+i+')',
+				value: _.shuffle(_.range(3.2,4.8,0.4))[0]
+			};
 		});
 
-		var axesData = _.map([
+		var layerData = _.map([
 				{name: data.name, type: 'esiti', id:21, axis: "Risultati scolastici"},
 				{name: data.name, type: 'esiti', id:22, axis: "Risultati nelle prove standardizzate nazionali"},
 				{name: data.name, type: 'esiti', id:23, axis: "Competenze chiave europee"},
@@ -49,11 +55,11 @@ module.exports = {
 				return o;
 			});
 
-		axes.push(axesData);
+		layers.push(layerData);
 
-		axes.push(axesMean);
+		layers.push(layerMean);
 
-		return axes;
+		return layers;
 	},
 
 	update: function(data) {
@@ -64,16 +70,30 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
-		var color = d3.scale.ordinal().range(["red","green","blue"]);
+		var labels = [
+			"Risultati scolastici",
+			"Risultati nelle prove standardizzate nazionali",
+			"Competenze chiave europee",
+			"Risultati a distanza",
+			"Curricolo, progettazione e valutazione",
+			"Ambiente di apprendimento",
+			"Inclusione e differenziazione",
+			"Continuita' e orientamento",
+			"Orientamento strategico e organizzazione della scuola",
+			"Sviluppo e valorizzazione delle risorse umane",
+			"Integrazione con il territorio e rapporti con le famiglie",
+		];
 
-		this.chart = RadarChart(this.el, this.formatData(data), {
+		this.chart = RadarChart(this.el, {
+			data: this.formatData(data),
+			labels: labels,
+			colors: ["red","green","blue"],
 			w: width,
 			h: height,
 			margin: margin,
 			maxValue: 0.5,
 			levels: 5,
-			roundStrokes: true,
-			color: color
+			roundStrokes: true
 		});
 	}
 }
