@@ -29,7 +29,8 @@
   },
   "scripts": {
     "build": "browserify src/main.js -o bundle.js",
-    "start": "watchify -p browserify-livereload src/main.js -o bundle.js"
+    "start": "watchify -p browserify-livereload src/main.js -o bundle.js",
+    "test_radar": "watchify -p browserify-livereload tests/radar.js -o tests/radar_bundle.js"
   },
   "devDependencies": {
     "browserify": "^16.2.2",

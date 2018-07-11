@@ -42,7 +42,10 @@ module.exports = {
 				{name: data.name, type: 'processi', id:36, axis: "Sviluppo e valorizzazione delle risorse umane"},
 				{name: data.name, type: 'processi', id:37, axis: "Integrazione con il territorio e rapporti con le famiglie"},
 			], function(o) {
+
+				//ADD RANDOM VALUES
 				o.value = _.shuffle(_.range(1,7,0.2))[0];
+				
 				return o;
 			});
 
