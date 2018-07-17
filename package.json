@@ -12,6 +12,7 @@
   "dependencies": {
     "bootstrap": "^4.1.1",
     "bootstrap-table": "^1.12.1",
+    "c3": "^0.6.5",
     "d3": "3.5.6",
     "geojson-utils": "^1.1.0",
     "handlebars": "^4.0.11",
