@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -61116,15 +61101,8 @@ module.exports = {
 
 	formatData: function(data) {
 
-		function val() {
-			return _.random(1,100);
-		}
-		//_.shuffle(_.range(3.2,4.8,0.4))[0]
-		//
-		var data = _.map(_.range(1,3), function(i) {
-			return [{x: 1, y: val() },{x: 2, y: val() },{x: 3, y: val() },{x: 4, y: val() },{x: 5, y: val() }];
-		});
-
+		//TODO
+		
 		return data;
 	},
 
@@ -61593,8 +61571,7 @@ $(function() {
 			"Integrazione con il territorio e rapporti con le famiglie",
 		];
 
-	//TODO REPLACE RANDOM DATA FOR DEBUG
-	function RadarData(num) {
+	function RandomRadar(num) {
 		num = num || 11;
 		return [
 			_.map(_.range(1,num), function(i) {
@@ -61623,6 +61600,18 @@ $(function() {
 		];
 	}
 
+	function RandomStack() {
+		var rows = 3,
+			cols = 5,
+			val = 100;
+
+		return _.map(_.range(1,rows), function(i) {
+			return _.map(_.range(1,cols), function(x) {
+				return { x: x, y: _.random(1,val) };
+			});
+		});
+	}
+
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
@@ -61630,6 +61619,8 @@ $(function() {
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
+
+			console.log('table selction',row)
 
 			mapActive.layerData.eachLayer(function(layer) {
 				
@@ -61642,8 +61633,9 @@ $(function() {
 
 			$('#charts').show();
 
-			charts.radar.update( RadarData() );
-			charts.vert.update(row);
+			charts.radar.update( RandomRadar() );
+
+			charts.vert.update( RandomStack() );
 		}
 	});
 
@@ -61655,8 +61647,20 @@ $(function() {
 		mapActive = map;
 
 		mapActive.map.invalidateSize(false);
-		
 	});
+
+
+/*	$('#charts').css({
+		display: 'block',
+		position:'absolute',
+		zIndex:2000,
+		top:0,
+		left:0,
+		width:800,
+		height:400,
+		background: '#ccc',
+		boxShadow:'0 0 10px #333'
+	})*/
 });
 
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":61,"./cartella":143,"./chart_radar":144,"./chart_vert":145,"./map_admin":149,"./map_area":150,"./map_gps":151,"./overpass":152,"./table":153,"./utils":154,"bootstrap":5,"handlebars":41,"jquery":53,"leaflet":60,"popper.js":67,"underscore":140,"underscore.string":94}],149:[function(require,module,exports){

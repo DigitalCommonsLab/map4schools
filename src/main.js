@@ -111,8 +111,7 @@ $(function() {
 			"Integrazione con il territorio e rapporti con le famiglie",
 		];
 
-	//TODO REPLACE RANDOM DATA FOR DEBUG
-	function RadarData(num) {
+	function RandomRadar(num) {
 		num = num || 11;
 		return [
 			_.map(_.range(1,num), function(i) {
@@ -141,6 +140,18 @@ $(function() {
 		];
 	}
 
+	function RandomStack() {
+		var rows = 3,
+			cols = 5,
+			val = 100;
+
+		return _.map(_.range(1,rows), function(i) {
+			return _.map(_.range(1,cols), function(x) {
+				return { x: x, y: _.random(1,val) };
+			});
+		});
+	}
+
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
@@ -148,6 +159,8 @@ $(function() {
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
+
+			console.log('table selction',row)
 
 			mapActive.layerData.eachLayer(function(layer) {
 				
@@ -160,8 +173,9 @@ $(function() {
 
 			$('#charts').show();
 
-			charts.radar.update( RadarData() );
-			charts.vert.update(row);
+			charts.radar.update( RandomRadar() );
+
+			charts.vert.update( RandomStack() );
 		}
 	});
 
@@ -173,6 +187,18 @@ $(function() {
 		mapActive = map;
 
 		mapActive.map.invalidateSize(false);
-		
 	});
+
+
+/*	$('#charts').css({
+		display: 'block',
+		position:'absolute',
+		zIndex:2000,
+		top:0,
+		left:0,
+		width:800,
+		height:400,
+		background: '#ccc',
+		boxShadow:'0 0 10px #333'
+	})*/
 });

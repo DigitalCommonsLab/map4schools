@@ -19,15 +19,8 @@ module.exports = {
 
 	formatData: function(data) {
 
-		function val() {
-			return _.random(1,100);
-		}
-		//_.shuffle(_.range(3.2,4.8,0.4))[0]
-		//
-		var data = _.map(_.range(1,3), function(i) {
-			return [{x: 1, y: val() },{x: 2, y: val() },{x: 3, y: val() },{x: 4, y: val() },{x: 5, y: val() }];
-		});
-
+		//TODO
+		
 		return data;
 	},
 
