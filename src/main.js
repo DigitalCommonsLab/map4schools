@@ -3,7 +3,7 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
-window._ = _;
+
 var H = require('handlebars');
 //var csv = require('jquery-csv');
 var popper = require('popper.js');
@@ -157,10 +157,11 @@ $(function() {
 		vert: chartVert.init('#chart_vert')
 	};
 
+	$('#charts').show();
+	charts.vert.update( RandomStack() );
+
 	table.init('#table_selection', {
 		onSelect: function(row) {
-
-			console.log('table selction',row)
 
 			mapActive.layerData.eachLayer(function(layer) {
 				
@@ -175,7 +176,7 @@ $(function() {
 
 			charts.radar.update( RandomRadar() );
 
-			charts.vert.update( RandomStack() );
+			//charts.vert.update( RandomStack() );
 		}
 	});
 
