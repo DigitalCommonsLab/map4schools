@@ -23,17 +23,17 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 400,
-				height: 400
+				width: 300,
+				height: 300
 			},
-		    data: {
+		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
 		            ['data1', 30, 200, 100, 400, 150, 250],
 		            ['data2', 130, 100, 140, 200, 150, 50]
 		        ],
 		        groups: [['data1', 'data2']],
 		        type: 'bar'
-		    },
+		    }),
 		    bar: {
 		        width: {
 		            ratio: 0.5 // this makes bar width 50% of length between ticks
@@ -47,9 +47,13 @@ module.exports = {
 
 	formatData: function(data) {
 
-		//TODO
-		
-		return data;
+		return {
+			columns: [
+				_.union(['data1'], data[0]),
+				_.union(['data2'], data[1])
+	        ],
+	        groups: [['data1', 'data2']],
+		};
 	},
 
 	update: function(data) {
@@ -58,10 +62,6 @@ module.exports = {
 
 		//this.chart = StackedChart(this.el, this.formatData(data) );
 		
-		/*this.chart.load({
-			columns: [
-				['data3', 130, -150, 200, 300, -200, 100]
-			]
-		});*/
+		this.chart.load( this.formatData(data) );
 	}
 }

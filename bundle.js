@@ -79563,17 +79563,17 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 400,
-				height: 400
+				width: 300,
+				height: 300
 			},
-		    data: {
+		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
 		            ['data1', 30, 200, 100, 400, 150, 250],
 		            ['data2', 130, 100, 140, 200, 150, 50]
 		        ],
 		        groups: [['data1', 'data2']],
 		        type: 'bar'
-		    },
+		    }),
 		    bar: {
 		        width: {
 		            ratio: 0.5 // this makes bar width 50% of length between ticks
@@ -79587,9 +79587,13 @@ module.exports = {
 
 	formatData: function(data) {
 
-		//TODO
-		
-		return data;
+		return {
+			columns: [
+				_.union(['data1'], data[0]),
+				_.union(['data2'], data[1])
+	        ],
+	        groups: [['data1', 'data2']],
+		};
 	},
 
 	update: function(data) {
@@ -79598,11 +79602,7 @@ module.exports = {
 
 		//this.chart = StackedChart(this.el, this.formatData(data) );
 		
-		/*this.chart.load({
-			columns: [
-				['data3', 130, -150, 200, 300, -200, 100]
-			]
-		});*/
+		this.chart.load( this.formatData(data) );
 	}
 }
 },{"../node_modules/c3/c3.min.css":9,"./lib/stackedChart":181,"./utils":188,"c3":8,"d3":42,"jquery":87,"underscore":174}],180:[function(require,module,exports){
@@ -79954,6 +79954,8 @@ var _ = require('underscore');
 var S = require('underscore.string');
 _.mixin({str: S});
 
+window._ = _;
+
 var H = require('handlebars');
 //var csv = require('jquery-csv');
 var popper = require('popper.js');
@@ -80090,25 +80092,39 @@ $(function() {
 		];
 	}
 
-	function RandomStack() {
+	function RandomStack_Old() {
 		var rows = 3,
 			cols = 5,
 			val = 100;
 
 		return _.map(_.range(1,rows), function(i) {
 			return _.map(_.range(1,cols), function(x) {
-				return { x: x, y: _.random(1,val) };
+				return {
+					x: x,
+					y: _.random(1,val)
+				};
 			});
 		});
 	}
+
+	function RandomStack() {
+		var rows = 2,
+			cols = 5,
+			val = 100;
+
+		return _.map(_.range(rows), function(i) {
+			return _.map(_.range(cols), function(x) {
+				return [ _.random(1,val) ];
+			});
+		});
+	}
+
+window.RandomStack = RandomStack;
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
 	};
-
-	$('#charts').show();
-	charts.vert.update( RandomStack() );
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
@@ -80125,8 +80141,7 @@ $(function() {
 			$('#charts').show();
 
 			charts.radar.update( RandomRadar() );
-
-			//charts.vert.update( RandomStack() );
+			charts.vert.update( RandomStack() );
 		}
 	});
 
@@ -80141,17 +80156,21 @@ $(function() {
 	});
 
 
-/*	$('#charts').css({
+	$('#charts').show();
+	$('#charts').css({
 		display: 'block',
-		position:'absolute',
-		zIndex:2000,
-		top:0,
-		left:0,
-		width:800,
-		height:400,
+		position: 'absolute',
+		zIndex: 2000,
+		top: 0,
+		left: 0,
+		width: 800,
+		height: 400,
 		background: '#ccc',
 		boxShadow:'0 0 10px #333'
-	})*/
+	});
+
+	charts.vert.update( RandomStack() );
+
 });
 
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./map_admin":183,"./map_area":184,"./map_gps":185,"./overpass":186,"./table":187,"./utils":188,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],183:[function(require,module,exports){

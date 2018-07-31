@@ -4,6 +4,8 @@ var _ = require('underscore');
 var S = require('underscore.string');
 _.mixin({str: S});
 
+window._ = _;
+
 var H = require('handlebars');
 //var csv = require('jquery-csv');
 var popper = require('popper.js');
@@ -140,25 +142,39 @@ $(function() {
 		];
 	}
 
-	function RandomStack() {
+	function RandomStack_Old() {
 		var rows = 3,
 			cols = 5,
 			val = 100;
 
 		return _.map(_.range(1,rows), function(i) {
 			return _.map(_.range(1,cols), function(x) {
-				return { x: x, y: _.random(1,val) };
+				return {
+					x: x,
+					y: _.random(1,val)
+				};
 			});
 		});
 	}
+
+	function RandomStack() {
+		var rows = 2,
+			cols = 5,
+			val = 100;
+
+		return _.map(_.range(rows), function(i) {
+			return _.map(_.range(cols), function(x) {
+				return [ _.random(1,val) ];
+			});
+		});
+	}
+
+window.RandomStack = RandomStack;
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
 	};
-
-	$('#charts').show();
-	charts.vert.update( RandomStack() );
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
@@ -175,8 +191,7 @@ $(function() {
 			$('#charts').show();
 
 			charts.radar.update( RandomRadar() );
-
-			//charts.vert.update( RandomStack() );
+			charts.vert.update( RandomStack() );
 		}
 	});
 
@@ -191,15 +206,19 @@ $(function() {
 	});
 
 
-/*	$('#charts').css({
+	$('#charts').show();
+	$('#charts').css({
 		display: 'block',
-		position:'absolute',
-		zIndex:2000,
-		top:0,
-		left:0,
-		width:800,
-		height:400,
+		position: 'absolute',
+		zIndex: 2000,
+		top: 0,
+		left: 0,
+		width: 800,
+		height: 400,
 		background: '#ccc',
 		boxShadow:'0 0 10px #333'
-	})*/
+	});
+
+	charts.vert.update( RandomStack() );
+
 });
