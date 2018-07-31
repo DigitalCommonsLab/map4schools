@@ -4,7 +4,7 @@ var _ = require('underscore');
 var d3 = require('d3');
 var utils = require('./utils');
 
-var RadarChart = require('./lib/radarChart');
+var RadarChart = require('./lib/radarChart_d3_5.4');
 
 module.exports = {
   	

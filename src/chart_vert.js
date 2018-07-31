@@ -2,14 +2,13 @@
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 
-var d3 = require('d3');
-
+// var d3 = require('d3');
 var c3 = require('c3');
 require('../node_modules/c3/c3.min.css');
 
 var utils = require('./utils');
 
-var StackedChart = require('./lib/stackedChart');
+//var StackedChart = require('./lib/stackedChart');
 
 module.exports = {
   	

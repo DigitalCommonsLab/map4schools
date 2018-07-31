@@ -79495,14 +79495,14 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":188,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
+},{"./utils":187,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var d3 = require('d3');
 var utils = require('./utils');
 
-var RadarChart = require('./lib/radarChart');
+var RadarChart = require('./lib/radarChart_d3_5.4');
 
 module.exports = {
   	
@@ -79537,19 +79537,18 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart":180,"./utils":188,"d3":42,"jquery":87,"underscore":174}],179:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":180,"./utils":187,"d3":42,"jquery":87,"underscore":174}],179:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 
-var d3 = require('d3');
-
+// var d3 = require('d3');
 var c3 = require('c3');
 require('../node_modules/c3/c3.min.css');
 
 var utils = require('./utils');
 
-var StackedChart = require('./lib/stackedChart');
+//var StackedChart = require('./lib/stackedChart');
 
 module.exports = {
   	
@@ -79605,7 +79604,7 @@ module.exports = {
 		this.chart.load( this.formatData(data) );
 	}
 }
-},{"../node_modules/c3/c3.min.css":9,"./lib/stackedChart":181,"./utils":188,"c3":8,"d3":42,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":9,"./utils":187,"c3":8,"jquery":87,"underscore":174}],180:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -79616,22 +79615,26 @@ module.exports = {
 	original: http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/
 	source: http://bl.ocks.org/nbremer/raw/21746a9668ffdf6d8242/radarChart.js
 	based on: https://github.com/alangrafu/radar-chart-d3
+
+	D3 V5.4.0
  */
+var d3 = require('d3');
+
 module.exports = function(el, options) {
 
 	var cfg = {
-		w: 400,				//Width of the circle
-		h: 400,				//Height of the circle
+		w: 400,						//Width of the circle
+		h: 400,						//Height of the circle
 		margin: {top: 0, right: 0, bottom: 0, left: 0}, //The margins of the SVG
-		levels: 3,				//How many levels or inner circles should there be drawn
-		maxValue: 0, 			//What is the value that the biggest circle will represent
-		labelFactor: 1.25, 	//How much farther than the radius of the outer circle should the labels be placed
-		wrapWidth: 60, 		//The number of pixels after which a label needs to be given a new line
-		opacityArea: 0.35, 	//The opacity of the area of the blob
-		dotRadius: 4, 			//The size of the colored circles of each blog
-		opacityCircles: 0.1, 	//The opacity of the circles of each blob
-		strokeWidth: 2, 		//The width of the stroke around each blob
-		roundStrokes: false,	//If true the area and stroke will follow a round path (cardinal-closed)
+		levels: 3,					//How many levels or inner circles should there be drawn
+		maxValue: 0, 				//What is the value that the biggest circle will represent
+		labelFactor: 1.25, 			//How much farther than the radius of the outer circle should the labels be placed
+		wrapWidth: 60, 				//The number of pixels after which a label needs to be given a new line
+		opacityArea: 0.35, 			//The opacity of the area of the blob
+		dotRadius: 4, 				//The size of the colored circles of each blog
+		opacityCircles: 0.1, 		//The opacity of the circles of each blob
+		strokeWidth: 2, 			//The width of the stroke around each blob
+		roundStrokes: false,		//If true the area and stroke will follow a round path (cardinal-closed)
 		color: d3.scale.category10(),	//Color function,
 		colors: ["red","green","blue"]
 	};
@@ -79882,72 +79885,7 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{}],181:[function(require,module,exports){
-/*
-	source: http://bl.ocks.org/puzzler10/2226e8d73c8f10dcdac7c77357838ba2
- */
-module.exports = function(id, data, options) {
-		
-	var svgWidth = 400,
-		svgHeight = 200;
-		
-	var margin = {top: 0, right: 0, bottom: 0, left: 0},
-	svgWidth = svgWidth - margin.left - margin.right,
-	svgHeight = svgHeight - margin.top - margin.bottom;
-
-	stack = d3.layout.stack()
-	layers = stack(data)
-
-	//colour scale
-	var c10 = d3.scale.category10();
-
-	//see http://stackoverflow.com/questions/37688982/nesting-d3-max-with-array-of-arrays/37689132?noredirect=1#comment62916776_37689132
-	//for details on the logic behind this
-	max_y = d3.max(layers, function(d) {
-	    return d3.max(d, function(d) 
-		{
-			return d.y0 + d.y;
-		});
-	})
-
-	var yScale = d3.scale.linear()
-					.domain([0,	max_y])
-					.range([svgHeight,0]);
-
-	var yAxis = d3.svg.axis()
-					.ticks(5)
-					.scale(yScale)
-					.orient("right");
-					
-	d3.select(id).select("svg").remove();
-
-	var svg = d3.select(id).append("svg")
-				.attr("width", svgWidth + margin.left + margin.right)
-				.attr("height", svgHeight+ margin.top + margin.bottom)
-
-	var groups = svg.selectAll("g")
-					.data(layers)
-					.enter()
-					.append("g")
-					.style("fill", function (d,i) {return c10(i)});
-					
-	var rects = groups.selectAll("rect")
-			.data(function(d) {return d} )
-			.enter()
-			.append("rect")
-			.attr("x", function(d) {return (d.x * 50) })
-			.attr("y", function(d) {return yScale(d.y0 + d.y)} )
-			.attr("width", 40)
-			.attr("height", function (d) {return yScale(d.y0) - yScale(d.y + d.y0)});	
-
-	//add y axis
-/*	svg.append("g")
-		.attr("class", "y axis")
-		//.attr("transform", "translate(" + (svgWidth -50) +",0)")
-		.call(yAxis)
-		.style("stroke", "black");*/
-};
-},{}],182:[function(require,module,exports){
+},{"d3":42}],181:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79981,7 +79919,6 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
-
 
 $(function() {
 
@@ -80092,21 +80029,6 @@ $(function() {
 		];
 	}
 
-	function RandomStack_Old() {
-		var rows = 3,
-			cols = 5,
-			val = 100;
-
-		return _.map(_.range(1,rows), function(i) {
-			return _.map(_.range(1,cols), function(x) {
-				return {
-					x: x,
-					y: _.random(1,val)
-				};
-			});
-		});
-	}
-
 	function RandomStack() {
 		var rows = 2,
 			cols = 5,
@@ -80119,8 +80041,6 @@ $(function() {
 		});
 	}
 
-window.RandomStack = RandomStack;
-
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
@@ -80130,15 +80050,12 @@ window.RandomStack = RandomStack;
 		onSelect: function(row) {
 
 			mapActive.layerData.eachLayer(function(layer) {
-				
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
 				}
 			});
 
-			$('#charts h2 b').text(': '+row.name)
-
-			$('#charts').show();
+			$('#charts').show().find('h2 b').text(': '+row.name)
 
 			charts.radar.update( RandomRadar() );
 			charts.vert.update( RandomStack() );
@@ -80156,24 +80073,24 @@ window.RandomStack = RandomStack;
 	});
 
 
-	$('#charts').show();
+	//DEBUG CHARTS
 	$('#charts').css({
 		display: 'block',
-		position: 'absolute',
+/*		position: 'absolute',
 		zIndex: 2000,
 		top: 0,
 		left: 0,
 		width: 800,
 		height: 400,
 		background: '#ccc',
-		boxShadow:'0 0 10px #333'
-	});
+		boxShadow:'0 0 10px #333'*/
+	}).show();
 
 	charts.vert.update( RandomStack() );
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./map_admin":183,"./map_area":184,"./map_gps":185,"./overpass":186,"./table":187,"./utils":188,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],183:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./map_admin":182,"./map_area":183,"./map_gps":184,"./overpass":185,"./table":186,"./utils":187,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80418,7 +80335,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":188,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],184:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":187,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80554,7 +80471,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":188,"jquery":87,"leaflet-draw":89}],185:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":187,"jquery":87,"leaflet-draw":89}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80612,9 +80529,9 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":188,"jquery":87,"leaflet-gps":93}],186:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":187,"jquery":87,"leaflet-gps":93}],185:[function(require,module,exports){
 arguments[4][177][0].apply(exports,arguments)
-},{"./utils":188,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],187:[function(require,module,exports){
+},{"./utils":187,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80679,7 +80596,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":188,"bootstrap-table":2,"jquery":87,"underscore":174}],188:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":187,"bootstrap-table":2,"jquery":87,"underscore":174}],187:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80858,4 +80775,4 @@ module.exports = {
 
 };
 
-},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[182]);
+},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[181]);

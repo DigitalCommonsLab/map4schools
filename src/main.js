@@ -32,7 +32,6 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
 
-
 $(function() {
 
 	var tmpls = {
@@ -142,21 +141,6 @@ $(function() {
 		];
 	}
 
-	function RandomStack_Old() {
-		var rows = 3,
-			cols = 5,
-			val = 100;
-
-		return _.map(_.range(1,rows), function(i) {
-			return _.map(_.range(1,cols), function(x) {
-				return {
-					x: x,
-					y: _.random(1,val)
-				};
-			});
-		});
-	}
-
 	function RandomStack() {
 		var rows = 2,
 			cols = 5,
@@ -169,8 +153,6 @@ $(function() {
 		});
 	}
 
-window.RandomStack = RandomStack;
-
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
 		vert: chartVert.init('#chart_vert')
@@ -180,15 +162,12 @@ window.RandomStack = RandomStack;
 		onSelect: function(row) {
 
 			mapActive.layerData.eachLayer(function(layer) {
-				
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
 				}
 			});
 
-			$('#charts h2 b').text(': '+row.name)
-
-			$('#charts').show();
+			$('#charts').show().find('h2 b').text(': '+row.name)
 
 			charts.radar.update( RandomRadar() );
 			charts.vert.update( RandomStack() );
@@ -206,18 +185,18 @@ window.RandomStack = RandomStack;
 	});
 
 
-	$('#charts').show();
+	//DEBUG CHARTS
 	$('#charts').css({
 		display: 'block',
-		position: 'absolute',
+/*		position: 'absolute',
 		zIndex: 2000,
 		top: 0,
 		left: 0,
 		width: 800,
 		height: 400,
 		background: '#ccc',
-		boxShadow:'0 0 10px #333'
-	});
+		boxShadow:'0 0 10px #333'*/
+	}).show();
 
 	charts.vert.update( RandomStack() );
 
