@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -79620,6 +79605,8 @@ module.exports = {
  */
 var d3 = require('d3');
 
+window.d3 = d3;
+
 module.exports = function(el, options) {
 
 	var cfg = {
@@ -79634,8 +79621,9 @@ module.exports = function(el, options) {
 		dotRadius: 4, 				//The size of the colored circles of each blog
 		opacityCircles: 0.1, 		//The opacity of the circles of each blob
 		strokeWidth: 2, 			//The width of the stroke around each blob
-		roundStrokes: false,		//If true the area and stroke will follow a round path (cardinal-closed)
-		color: d3.scale.category10(),	//Color function,
+		//roundStrokes: false,		//If true the area and stroke will follow a round path (cardinal-closed)
+		//color: d3.scale.category10(),	//Color function,
+		color: d3.scaleOrdinal(d3.schemeCategory10),
 		colors: ["red","green","blue"]
 	};
 	
@@ -79643,7 +79631,7 @@ module.exports = function(el, options) {
 	var labels = options && options.labels;
 	
 	if(options && options.colors)
-		cfg.color =  d3.scale.ordinal().range(options.colors);
+		cfg.color =   d3.scaleOrdinal().range(options.colors);
 
 	//Put all of the options into a variable called cfg
 	if('undefined' !== typeof options){
@@ -79661,7 +79649,7 @@ module.exports = function(el, options) {
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
 	
 	//Scale for the radius
-	var rScale = d3.scale.linear()
+	var rScale = d3.scaleLinear()
 		.range([0, radius])
 		.domain([0, maxValue]);
 		
@@ -79755,15 +79743,16 @@ module.exports = function(el, options) {
 	///////////// Draw the radar chart blobs ////////////////
 		
 	//The radial line function
-	var radarLine = d3.svg.line.radial()
-		.interpolate("linear-closed")
+	var radarLine = d3.lineRadial()
+		//.interpolate("linear-closed")
 		.radius(function(d) { return rScale(d.value); })
-		.angle(function(d,i) {	return i*angleSlice; });
-		
-	if(cfg.roundStrokes) {
-		radarLine.interpolate("cardinal-closed");
-	}
-				
+		.angle(function(d,i) {	return i*angleSlice; })
+		.curve(d3.curveCardinalClosed)
+	
+	/*if(cfg.roundStrokes) {
+		radarLine.curve(d3.curveCardinalClosed);
+	}*/
+	
 	//Create a wrapper for the blobs	
 	var blobWrapper = g.selectAll(".radarWrapper")
 		.data(data)
@@ -80074,20 +80063,22 @@ $(function() {
 
 
 	//DEBUG CHARTS
-	$('#charts').css({
+/*	$('#charts').css({
 		display: 'block',
-/*		position: 'absolute',
+		position: 'absolute',
 		zIndex: 2000,
-		top: 0,
-		left: 0,
+		bottom: 0,
+		right: 0,
 		width: 800,
-		height: 400,
+		height: 600,
+		overflow: 'hidden',
 		background: '#ccc',
-		boxShadow:'0 0 10px #333'*/
-	}).show();
+		boxShadow:'0 0 10px #333'
+	}).show();*/
 
+/*	charts.radar.update( RandomRadar() );
 	charts.vert.update( RandomStack() );
-
+*/
 });
 
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./map_admin":182,"./map_area":183,"./map_gps":184,"./overpass":185,"./table":186,"./utils":187,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],182:[function(require,module,exports){

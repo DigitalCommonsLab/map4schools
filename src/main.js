@@ -186,18 +186,20 @@ $(function() {
 
 
 	//DEBUG CHARTS
-	$('#charts').css({
+/*	$('#charts').css({
 		display: 'block',
-/*		position: 'absolute',
+		position: 'absolute',
 		zIndex: 2000,
-		top: 0,
-		left: 0,
+		bottom: 0,
+		right: 0,
 		width: 800,
-		height: 400,
+		height: 600,
+		overflow: 'hidden',
 		background: '#ccc',
-		boxShadow:'0 0 10px #333'*/
-	}).show();
+		boxShadow:'0 0 10px #333'
+	}).show();*/
 
+/*	charts.radar.update( RandomRadar() );
 	charts.vert.update( RandomStack() );
-
+*/
 });
