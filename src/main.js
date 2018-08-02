@@ -32,6 +32,8 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
 
+var config = require('./config'); 
+
 $(function() {
 
 	var tmpls = {
@@ -98,63 +100,8 @@ $(function() {
 
 	var mapActive = maps.admin;
 
-	var RadarLabels = [
-			"Risultati scolastici",
-			"Risultati nelle prove standardizzate nazionali",
-			"Competenze chiave europee",
-			"Risultati a distanza",
-			"Curricolo, progettazione e valutazione",
-			"Ambiente di apprendimento",
-			"Inclusione e differenziazione",
-			"Continuita' e orientamento",
-			"Orientamento strategico e organizzazione della scuola",
-			"Sviluppo e valorizzazione delle risorse umane",
-			"Integrazione con il territorio e rapporti con le famiglie",
-		];
-
-	function RandomRadar(num) {
-		num = num || 11;
-		return [
-			_.map(_.range(1,num), function(i) {
-				return {
-					value: _.shuffle(_.range(3.2,4.8,0.4))[0]
-				};
-			}),
-			_.map([
-				//TODO USING type attribute or split in more Radar charts
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-			], function(o) {
-				//ADD RANDOM VALUES
-				o.value = _.shuffle(_.range(1,7,0.2))[0];	
-				return o;
-			})
-		];
-	}
-
-	function RandomStack() {
-		var rows = 2,
-			cols = 5,
-			val = 100;
-
-		return _.map(_.range(rows), function(i) {
-			return _.map(_.range(cols), function(x) {
-				return [ _.random(1,val) ];
-			});
-		});
-	}
-
 	var charts = {
-		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
+		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
 		vert: chartVert.init('#chart_vert')
 	};
 
@@ -169,8 +116,8 @@ $(function() {
 
 			$('#charts').show().find('h2 b').text(': '+row.name)
 
-			charts.radar.update( RandomRadar() );
-			charts.vert.update( RandomStack() );
+			charts.radar.update( utils.randomRadar() );
+			charts.vert.update( utils.randomStack() );
 		}
 	});
 
@@ -186,20 +133,20 @@ $(function() {
 
 
 	//DEBUG CHARTS
-/*	$('#charts').css({
+	$('#charts').css({
 		display: 'block',
 		position: 'absolute',
 		zIndex: 2000,
-		bottom: 0,
-		right: 0,
+		bottom: 16,
+		right: 16,
 		width: 800,
-		height: 600,
+		height: 800,
 		overflow: 'hidden',
-		background: '#ccc',
-		boxShadow:'0 0 10px #333'
-	}).show();*/
+		background: '#eee',
+		boxShadow:'0 0 16px #666'
+	}).show();
 
-/*	charts.radar.update( RandomRadar() );
-	charts.vert.update( RandomStack() );
-*/
+	charts.radar.update( utils.randomRadar() );
+	charts.vert.update( utils.randomStack() );
+
 });

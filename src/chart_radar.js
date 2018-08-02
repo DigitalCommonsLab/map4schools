@@ -22,20 +22,21 @@ module.exports = {
 
 		//console.log('RadarChart update', data)
 
-		var margin = {top: 100, right: 100, bottom: 100, left: 100},
-			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
+		var size = 460,
+			marginAll = 80,
+			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
+			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,
 			labels: this.labels,
-			colors: ["red","green","blue"],
+			colors: ["red","green"],
 			w: width,
 			h: height,
 			margin: margin,
 			maxValue: 0.5,
-			levels: 5,
-			roundStrokes: true
+			levels: 5
 		});
 	}
 }

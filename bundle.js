@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -79480,7 +79495,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":187,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
+},{"./utils":188,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79505,24 +79520,25 @@ module.exports = {
 
 		//console.log('RadarChart update', data)
 
-		var margin = {top: 100, right: 100, bottom: 100, left: 100},
-			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
+		var size = 460,
+			marginAll = 80,
+			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
+			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,
 			labels: this.labels,
-			colors: ["red","green","blue"],
+			colors: ["red","green"],
 			w: width,
 			h: height,
 			margin: margin,
 			maxValue: 0.5,
-			levels: 5,
-			roundStrokes: true
+			levels: 5
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":180,"./utils":187,"d3":42,"jquery":87,"underscore":174}],179:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":181,"./utils":188,"d3":42,"jquery":87,"underscore":174}],179:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79589,7 +79605,24 @@ module.exports = {
 		this.chart.load( this.formatData(data) );
 	}
 }
-},{"../node_modules/c3/c3.min.css":9,"./utils":187,"c3":8,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":9,"./utils":188,"c3":8,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+
+module.exports = {
+	radarLabels: [
+		"Risultati scolastici",
+		"Risultati nelle prove standardizzate nazionali",
+		"Competenze chiave europee",
+		"Risultati a distanza",
+		"Curricolo, progettazione e valutazione",
+		"Ambiente di apprendimento",
+		"Inclusione e differenziazione",
+		"Continuita' e orientamento",
+		"Orientamento strategico e organizzazione della scuola",
+		"Sviluppo e valorizzazione delle risorse umane",
+		"Integrazione con il territorio e rapporti con le famiglie",
+	]
+}
+},{}],181:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -79624,7 +79657,7 @@ module.exports = function(el, options) {
 		//roundStrokes: false,		//If true the area and stroke will follow a round path (cardinal-closed)
 		//color: d3.scale.category10(),	//Color function,
 		color: d3.scaleOrdinal(d3.schemeCategory10),
-		colors: ["red","green","blue"]
+		colors: ["red","green"]
 	};
 	
 	var data = options && options.data;	
@@ -79732,7 +79765,7 @@ module.exports = function(el, options) {
 	//Append the labels at each axis
 	axis.append("text")
 		.attr("class", "legend")
-		.style("font-size", "11px")
+		.style("font-size", "10px")
 		.attr("text-anchor", "middle")
 		.attr("dy", "0.35em")
 		.attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
@@ -79874,7 +79907,7 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{"d3":42}],181:[function(require,module,exports){
+},{"d3":42}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79908,6 +79941,8 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 //var chartOriz = require('./chart_oriz');
+
+var config = require('./config'); 
 
 $(function() {
 
@@ -79975,63 +80010,8 @@ $(function() {
 
 	var mapActive = maps.admin;
 
-	var RadarLabels = [
-			"Risultati scolastici",
-			"Risultati nelle prove standardizzate nazionali",
-			"Competenze chiave europee",
-			"Risultati a distanza",
-			"Curricolo, progettazione e valutazione",
-			"Ambiente di apprendimento",
-			"Inclusione e differenziazione",
-			"Continuita' e orientamento",
-			"Orientamento strategico e organizzazione della scuola",
-			"Sviluppo e valorizzazione delle risorse umane",
-			"Integrazione con il territorio e rapporti con le famiglie",
-		];
-
-	function RandomRadar(num) {
-		num = num || 11;
-		return [
-			_.map(_.range(1,num), function(i) {
-				return {
-					value: _.shuffle(_.range(3.2,4.8,0.4))[0]
-				};
-			}),
-			_.map([
-				//TODO USING type attribute or split in more Radar charts
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'esiti' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-				{type: 'processi' },
-			], function(o) {
-				//ADD RANDOM VALUES
-				o.value = _.shuffle(_.range(1,7,0.2))[0];	
-				return o;
-			})
-		];
-	}
-
-	function RandomStack() {
-		var rows = 2,
-			cols = 5,
-			val = 100;
-
-		return _.map(_.range(rows), function(i) {
-			return _.map(_.range(cols), function(x) {
-				return [ _.random(1,val) ];
-			});
-		});
-	}
-
 	var charts = {
-		radar: chartRadar.init('#chart_radar', {labels: RadarLabels }),
+		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
 		vert: chartVert.init('#chart_vert')
 	};
 
@@ -80046,8 +80026,8 @@ $(function() {
 
 			$('#charts').show().find('h2 b').text(': '+row.name)
 
-			charts.radar.update( RandomRadar() );
-			charts.vert.update( RandomStack() );
+			charts.radar.update( utils.randomRadar() );
+			charts.vert.update( utils.randomStack() );
 		}
 	});
 
@@ -80063,25 +80043,25 @@ $(function() {
 
 
 	//DEBUG CHARTS
-/*	$('#charts').css({
+	$('#charts').css({
 		display: 'block',
 		position: 'absolute',
 		zIndex: 2000,
-		bottom: 0,
-		right: 0,
+		bottom: 16,
+		right: 16,
 		width: 800,
-		height: 600,
+		height: 800,
 		overflow: 'hidden',
-		background: '#ccc',
-		boxShadow:'0 0 10px #333'
-	}).show();*/
+		background: '#eee',
+		boxShadow:'0 0 16px #666'
+	}).show();
 
-/*	charts.radar.update( RandomRadar() );
-	charts.vert.update( RandomStack() );
-*/
+	charts.radar.update( utils.randomRadar() );
+	charts.vert.update( utils.randomStack() );
+
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./map_admin":182,"./map_area":183,"./map_gps":184,"./overpass":185,"./table":186,"./utils":187,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],182:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./config":180,"./map_admin":183,"./map_area":184,"./map_gps":185,"./overpass":186,"./table":187,"./utils":188,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80326,7 +80306,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":187,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],183:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":188,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80462,7 +80442,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":187,"jquery":87,"leaflet-draw":89}],184:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":188,"jquery":87,"leaflet-draw":89}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80520,9 +80500,9 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":187,"jquery":87,"leaflet-gps":93}],185:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":188,"jquery":87,"leaflet-gps":93}],186:[function(require,module,exports){
 arguments[4][177][0].apply(exports,arguments)
-},{"./utils":187,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],186:[function(require,module,exports){
+},{"./utils":188,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],187:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80587,7 +80567,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":187,"bootstrap-table":2,"jquery":87,"underscore":174}],187:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":188,"bootstrap-table":2,"jquery":87,"underscore":174}],188:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80764,6 +80744,51 @@ module.exports = {
         }
     },
 
+    /*
+        random data generators
+     */
+    randomRadar: function(num) {
+        num = num || 11;
+
+        return [
+            _.map(_.range(1,num), function(i) {
+                return {
+                    value: _.shuffle(_.range(3.2,4.8,0.4))[0]
+                };
+            }),
+            _.map([
+                //TODO USING type attribute or split in more Radar charts
+                {type: 'esiti' },
+                {type: 'esiti' },
+                {type: 'esiti' },
+                {type: 'esiti' },
+                {type: 'processi' },
+                {type: 'processi' },
+                {type: 'processi' },
+                {type: 'processi' },
+                {type: 'processi' },
+                {type: 'processi' },
+                {type: 'processi' },
+            ], function(o) {
+                //ADD RANDOM VALUES
+                o.value = _.shuffle(_.range(1,7,0.2))[0];   
+                return o;
+            })
+        ];
+    },
+
+    randomStack: function() {
+        var rows = 2,
+            cols = 5,
+            val = 100;
+
+        return _.map(_.range(rows), function(i) {
+            return _.map(_.range(cols), function(x) {
+                return [ _.random(1,val) ];
+            });
+        });
+    }
+
 };
 
-},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[181]);
+},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[182]);

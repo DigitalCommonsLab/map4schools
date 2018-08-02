@@ -32,7 +32,7 @@ module.exports = function(el, options) {
 		//roundStrokes: false,		//If true the area and stroke will follow a round path (cardinal-closed)
 		//color: d3.scale.category10(),	//Color function,
 		color: d3.scaleOrdinal(d3.schemeCategory10),
-		colors: ["red","green","blue"]
+		colors: ["red","green"]
 	};
 	
 	var data = options && options.data;	
@@ -140,7 +140,7 @@ module.exports = function(el, options) {
 	//Append the labels at each axis
 	axis.append("text")
 		.attr("class", "legend")
-		.style("font-size", "11px")
+		.style("font-size", "10px")
 		.attr("text-anchor", "middle")
 		.attr("dy", "0.35em")
 		.attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
