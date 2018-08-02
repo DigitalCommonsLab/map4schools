@@ -119,7 +119,7 @@ $(function() {
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
-			charts.oriz.update( utils.randomStack() );
+			charts.oriz.update( utils.randomStack(5,3) );
 		}
 	});
 
