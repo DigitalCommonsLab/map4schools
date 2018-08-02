@@ -30,7 +30,7 @@ var table = require('./table');
 
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
-//var chartOriz = require('./chart_oriz');
+var chartOriz = require('./chart_oriz');
 
 var config = require('./config'); 
 
@@ -86,7 +86,7 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table h2 b').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
+			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 	
 	}
@@ -102,7 +102,8 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert')
+		vert: chartVert.init('#chart_vert'),
+		oriz: chartOriz.init('#chart_oriz'),
 	};
 
 	table.init('#table_selection', {
@@ -114,10 +115,11 @@ $(function() {
 				}
 			});
 
-			$('#charts').show().find('h2 b').text(': '+row.name)
+			$('#charts').show().find('.title').text(': '+row.name)
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
+			charts.oriz.update( utils.randomStack() );
 		}
 	});
 
@@ -135,18 +137,19 @@ $(function() {
 	//DEBUG CHARTS
 	$('#charts').css({
 		display: 'block',
-		position: 'absolute',
+		position: 'fixed',
 		zIndex: 2000,
 		bottom: 16,
 		right: 16,
-		width: 800,
+		width: 1000,
 		height: 800,
-		overflow: 'hidden',
+		overflowY: 'auto',
 		background: '#eee',
 		boxShadow:'0 0 16px #666'
 	}).show();
 
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
+	charts.oriz.update( utils.randomStack(5,3) );
 
 });

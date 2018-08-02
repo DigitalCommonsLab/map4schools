@@ -27,12 +27,17 @@ module.exports = {
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
-		            ['data1', 30, 200, 100, 400, 150, 250],
-		            ['data2', 130, 100, 140, 200, 150, 50]
+		            ['data0', 30, 200, 100, 400, 150, 250],
+		            ['data1', 130, 100, 140, 200, 150, 50],
+		            ['data2', 100, 30, 10, 220, 10, 20]
 		        ],
-		        groups: [['data1', 'data2']],
-		        type: 'bar'
+		        groups: [['data0','data1','data2']],
+		        type: 'bar',
 		    }),
+		    //horizontal
+		    axis: {
+		    	rotated: true
+		    },
 		    bar: {
 		        width: {
 		            ratio: 0.5 // this makes bar width 50% of length between ticks
@@ -48,10 +53,11 @@ module.exports = {
 
 		return {
 			columns: [
-				_.union(['data1'], data[0]),
-				_.union(['data2'], data[1])
+				_.union(['data0'], data[1]),
+				_.union(['data1'], data[2]),
+				_.union(['data2'], data[3])
 	        ],
-	        groups: [['data1', 'data2']],
+	        groups: [_.map(data, function(v,k){return 'data'+k})],
 		};
 	},
 

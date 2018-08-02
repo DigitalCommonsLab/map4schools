@@ -22,7 +22,7 @@ module.exports = {
 
 		//console.log('RadarChart update', data)
 
-		var size = 460,
+		var size = 420,
 			marginAll = 80,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
 			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,

@@ -27,10 +27,10 @@ module.exports = {
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
-		            ['data1', 30, 200, 100, 400, 150, 250],
-		            ['data2', 130, 100, 140, 200, 150, 50]
+		            ['data0', 30, 200, 100, 400, 150, 250],
+		            ['data1', 130, 100, 140, 200, 150, 50]
 		        ],
-		        groups: [['data1', 'data2']],
+		        groups: [['data0','data1']],
 		        type: 'bar'
 		    }),
 		    bar: {
@@ -48,10 +48,10 @@ module.exports = {
 
 		return {
 			columns: [
-				_.union(['data1'], data[0]),
-				_.union(['data2'], data[1])
+				_.union(['data0'], data[0]),
+				_.union(['data1'], data[1])
 	        ],
-	        groups: [['data1', 'data2']],
+	        groups: [['data0','data1']],
 		};
 	},
 

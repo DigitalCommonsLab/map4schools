@@ -34,6 +34,8 @@ module.exports = {
 	getMapOpts: function() {
 		return {
 			zoom: 13,
+            //maxZoom:16,
+            minZoom:5,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -207,9 +209,9 @@ module.exports = {
         ];
     },
 
-    randomStack: function() {
-        var rows = 2,
-            cols = 5,
+    randomStack: function(rows,cols) {
+        var rows = rows || 2,
+            cols = cols || 5,
             val = 100;
 
         return _.map(_.range(rows), function(i) {

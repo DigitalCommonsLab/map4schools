@@ -79495,50 +79495,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":188,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
-
-var $ = jQuery = require('jquery');
-var _ = require('underscore'); 
-var d3 = require('d3');
-var utils = require('./utils');
-
-var RadarChart = require('./lib/radarChart_d3_5.4');
-
-module.exports = {
-  	
-  	chart: null,
-
-  	//onSelect: function(e){ console.log('onClickRow',e); }
-
-	init: function(el, opts) {
-		this.el =  el;
-		this.labels = opts && opts.labels;
-		return this;
-	},
-
-	update: function(data) {
-
-		//console.log('RadarChart update', data)
-
-		var size = 460,
-			marginAll = 80,
-			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
-			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
-			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-
-		this.chart = RadarChart(this.el, {
-			data: data,
-			labels: this.labels,
-			colors: ["red","green"],
-			w: width,
-			h: height,
-			margin: margin,
-			maxValue: 0.5,
-			levels: 5
-		});
-	}
-}
-},{"./lib/radarChart_d3_5.4":181,"./utils":188,"d3":42,"jquery":87,"underscore":174}],179:[function(require,module,exports){
+},{"./utils":189,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79568,10 +79525,126 @@ module.exports = {
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
-		            ['data1', 30, 200, 100, 400, 150, 250],
-		            ['data2', 130, 100, 140, 200, 150, 50]
+		            ['data0', 30, 200, 100, 400, 150, 250],
+		            ['data1', 130, 100, 140, 200, 150, 50],
+		            ['data2', 100, 30, 10, 220, 10, 20]
 		        ],
-		        groups: [['data1', 'data2']],
+		        groups: [['data0','data1','data2']],
+		        type: 'bar',
+		    }),
+		    //horizontal
+		    axis: {
+		    	rotated: true
+		    },
+		    bar: {
+		        width: {
+		            ratio: 0.5 // this makes bar width 50% of length between ticks
+		        }
+		        // or
+		        //width: 100 // this makes bar width 100px
+		    }
+		});
+		return this;
+	},
+
+	formatData: function(data) {
+
+		return {
+			columns: [
+				_.union(['data0'], data[1]),
+				_.union(['data1'], data[2]),
+				_.union(['data2'], data[3])
+	        ],
+	        groups: [_.map(data, function(v,k){return 'data'+k})],
+		};
+	},
+
+	update: function(data) {
+
+		//console.log('StackedChart update', data)
+
+		//this.chart = StackedChart(this.el, this.formatData(data) );
+		
+		this.chart.load( this.formatData(data) );
+	}
+}
+},{"../node_modules/c3/c3.min.css":9,"./utils":189,"c3":8,"jquery":87,"underscore":174}],179:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var d3 = require('d3');
+var utils = require('./utils');
+
+var RadarChart = require('./lib/radarChart_d3_5.4');
+
+module.exports = {
+  	
+  	chart: null,
+
+  	//onSelect: function(e){ console.log('onClickRow',e); }
+
+	init: function(el, opts) {
+		this.el =  el;
+		this.labels = opts && opts.labels;
+		return this;
+	},
+
+	update: function(data) {
+
+		//console.log('RadarChart update', data)
+
+		var size = 420,
+			marginAll = 80,
+			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
+			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
+			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+
+		this.chart = RadarChart(this.el, {
+			data: data,
+			labels: this.labels,
+			colors: ["red","green"],
+			w: width,
+			h: height,
+			margin: margin,
+			maxValue: 0.5,
+			levels: 5
+		});
+	}
+}
+},{"./lib/radarChart_d3_5.4":182,"./utils":189,"d3":42,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+
+// var d3 = require('d3');
+var c3 = require('c3');
+require('../node_modules/c3/c3.min.css');
+
+var utils = require('./utils');
+
+//var StackedChart = require('./lib/stackedChart');
+
+module.exports = {
+  	
+  	chart: null,
+
+  	//onSelect: function(e){ console.log('onClickRow',e); }
+
+	init: function(el, opts) {
+		this.el =  el;
+
+		this.chart = c3.generate({
+			bindto: this.el,
+			size: {
+				width: 300,
+				height: 300
+			},
+		    data: _.defaults((opts && opts.data) || {}, {
+		        columns: [
+		            ['data0', 30, 200, 100, 400, 150, 250],
+		            ['data1', 130, 100, 140, 200, 150, 50]
+		        ],
+		        groups: [['data0','data1']],
 		        type: 'bar'
 		    }),
 		    bar: {
@@ -79589,10 +79662,10 @@ module.exports = {
 
 		return {
 			columns: [
-				_.union(['data1'], data[0]),
-				_.union(['data2'], data[1])
+				_.union(['data0'], data[0]),
+				_.union(['data1'], data[1])
 	        ],
-	        groups: [['data1', 'data2']],
+	        groups: [['data0','data1']],
 		};
 	},
 
@@ -79605,7 +79678,7 @@ module.exports = {
 		this.chart.load( this.formatData(data) );
 	}
 }
-},{"../node_modules/c3/c3.min.css":9,"./utils":188,"c3":8,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":9,"./utils":189,"c3":8,"jquery":87,"underscore":174}],181:[function(require,module,exports){
 
 module.exports = {
 	radarLabels: [
@@ -79622,7 +79695,7 @@ module.exports = {
 		"Integrazione con il territorio e rapporti con le famiglie",
 	]
 }
-},{}],181:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -79907,7 +79980,7 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{"d3":42}],182:[function(require,module,exports){
+},{"d3":42}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79940,7 +80013,7 @@ var table = require('./table');
 
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
-//var chartOriz = require('./chart_oriz');
+var chartOriz = require('./chart_oriz');
 
 var config = require('./config'); 
 
@@ -79996,7 +80069,7 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table h2 b').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
+			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 	
 	}
@@ -80012,7 +80085,8 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert')
+		vert: chartVert.init('#chart_vert'),
+		oriz: chartOriz.init('#chart_oriz'),
 	};
 
 	table.init('#table_selection', {
@@ -80024,10 +80098,11 @@ $(function() {
 				}
 			});
 
-			$('#charts').show().find('h2 b').text(': '+row.name)
+			$('#charts').show().find('.title').text(': '+row.name)
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
+			charts.oriz.update( utils.randomStack() );
 		}
 	});
 
@@ -80045,23 +80120,24 @@ $(function() {
 	//DEBUG CHARTS
 	$('#charts').css({
 		display: 'block',
-		position: 'absolute',
+		position: 'fixed',
 		zIndex: 2000,
 		bottom: 16,
 		right: 16,
-		width: 800,
+		width: 1000,
 		height: 800,
-		overflow: 'hidden',
+		overflowY: 'auto',
 		background: '#eee',
 		boxShadow:'0 0 16px #666'
 	}).show();
 
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
+	charts.oriz.update( utils.randomStack(5,3) );
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_radar":178,"./chart_vert":179,"./config":180,"./map_admin":183,"./map_area":184,"./map_gps":185,"./overpass":186,"./table":187,"./utils":188,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],183:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_oriz":178,"./chart_radar":179,"./chart_vert":180,"./config":181,"./map_admin":184,"./map_area":185,"./map_gps":186,"./overpass":187,"./table":188,"./utils":189,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80306,7 +80382,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":188,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],184:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":189,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80442,7 +80518,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":188,"jquery":87,"leaflet-draw":89}],185:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":189,"jquery":87,"leaflet-draw":89}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80500,9 +80576,9 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":188,"jquery":87,"leaflet-gps":93}],186:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":189,"jquery":87,"leaflet-gps":93}],187:[function(require,module,exports){
 arguments[4][177][0].apply(exports,arguments)
-},{"./utils":188,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],187:[function(require,module,exports){
+},{"./utils":189,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],188:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80567,7 +80643,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":188,"bootstrap-table":2,"jquery":87,"underscore":174}],188:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":189,"bootstrap-table":2,"jquery":87,"underscore":174}],189:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80604,6 +80680,8 @@ module.exports = {
 	getMapOpts: function() {
 		return {
 			zoom: 13,
+            //maxZoom:16,
+            minZoom:5,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -80777,9 +80855,9 @@ module.exports = {
         ];
     },
 
-    randomStack: function() {
-        var rows = 2,
-            cols = 5,
+    randomStack: function(rows,cols) {
+        var rows = rows || 2,
+            cols = cols || 5,
             val = 100;
 
         return _.map(_.range(rows), function(i) {
@@ -80791,4 +80869,4 @@ module.exports = {
 
 };
 
-},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[182]);
+},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[183]);

@@ -12,7 +12,7 @@
 		<div class="row">
 		    <div class="col-md-9">
 		    	
-		    	<h2>Zona geografica</h2>
+		    	<h2>Zona geografica <b class="title"></b></h2>
 				
 		    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
 				     <li class="nav-item">
@@ -46,7 +46,7 @@
 		<div class="row">
 			<div id="table" class="col-sm">
 				<br />
-      			<h2>Scuole <b></b></h2>
+      			<h2>Scuole <b class="title"></b></h2>
       			<br />
  				<table id="table_selection" class="table">
 				</table>
@@ -57,12 +57,12 @@
 	<hr />
 
 	<div id="charts" style="display: none" class="container">		
-		<h2>Grafici Parametri Scuola<b></b></h2>
+		<h2>Grafici Parametri Scuola <b class="title"></b></h2>
 		<div class="row">
-			<div class="col-md-7">
+			<div class="col-md-6">
 				<div class="card" >
 				  <div class="card-body">
-				    <h5 class="card-title">Autovalutazione performance della scuola</h5>
+				    <b class="card-title">Autovalutazione performance della scuola</b>
 				    <p class="card-text small">
 				    	Si basa su 7 parametri di risposta ad un questionario dato ai direttori scolastici
 				    </p>
@@ -74,28 +74,31 @@
 				  </div>
 				</div>
 			</div>
-			<div class="col-md-5">				
+		</div>
+		<br />
+		<div class="row">
+			<div class="col-md-6">				
 				<div class="card" >				  
 				  <div class="card-body">
-				    <h5 class="card-title">Distribuzione per genere e anno di corso</h5>
+				    <b class="card-title">Distribuzione per genere e anno di corso</b>
 				    <p class="card-text small">
 				    	Ogni barra verticale rappresenta il totale degli stundenti
 				    </p>
-				    <span class="badge badge-primary">Ragazzi</span>
-				    <span class="badge badge-warning" style="background:#ff7f0e;color:#fff">Ragazze</span>
+<!-- 				    <span class="badge badge-primary">Ragazzi</span>
+				    <span class="badge badge-warning" style="background:#ff7f0e;color:#fff">Ragazze</span> -->
 				  </div>
-				  <!-- <img class="card-img-top" src="https://user-images.githubusercontent.com/69814/39749131-363cc0e2-52b2-11e8-9af2-3cc0e70c0d78.png" alt="Card image cap"> -->
 				  <div id="chart_vert">
 				  </div>
 				</div>
 			</div>
-			<div class="col-md-3">				
+			<div class="col-md-6">				
 				<div class="card" >				  
 				  <div class="card-body">
-				    <h5 class="card-title">Distribuzione eta' per anno scolastico</h5>
+				    <b class="card-title">Distribuzione eta' per anno scolastico</b>
 				    <p class="card-text small">Ogni barra rappresenta il totale degli studenti per anno ed i colori la percentuale per fascia di eta'</p>
 				  </div>
-				  <img class="card-img-top" src="https://user-images.githubusercontent.com/69814/39749128-342987c2-52b2-11e8-98f2-f3a6db173086.png" alt="Card image cap">
+				  <div id="chart_oriz">
+				  </div>				  
 				</div>
 			</div>		    
 		</div>
