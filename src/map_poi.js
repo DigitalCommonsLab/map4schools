@@ -19,11 +19,13 @@ module.exports = {
 
 		var self = this;
 
-		self.el = el;
+		self.$el = $('#'+el);
 		self.onInit = opts && opts.onInit;
 		self.onSelect = opts && opts.onSelect;
+
 console.log(self.config)
-		$(self.el)
+
+		self.$el
 		.width(self.config.width)
 		.height(self.config.height);
 
