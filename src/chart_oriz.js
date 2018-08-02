@@ -17,7 +17,7 @@ module.exports = {
   	//onSelect: function(e){ console.log('onClickRow',e); }
 
 	init: function(el, opts) {
-		this.el =  el;
+		this.el = el;
 
 		this.chart = c3.generate({
 			bindto: this.el,

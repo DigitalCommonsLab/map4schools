@@ -31,6 +31,40 @@ module.exports = {
 		return color;
 	},
 
+    bufferLoc: function(loc, dist, corners) {
+        
+        corners = corners || false;
+
+        var b = this.meters2rad(dist),
+            lat1 = parseFloat((loc[0]-b).toFixed(4)),
+            lon1 = parseFloat((loc[1]-b).toFixed(4)),
+            lat2 = parseFloat((loc[0]+b).toFixed(4)),
+            lon2 = parseFloat((loc[1]+b).toFixed(4));
+
+        return corners ? [[lat1, lon1], [lat2, lon2]] : [lat1, lon1, lat2, lon2];
+    },
+    
+    deg2rad: function(deg) {
+        return deg * (Math.PI/180);
+    },
+
+    meters2rad: function(m) {
+        return (m/1000)/111.12;
+    },
+
+    randomLoc: function(bbox) {
+        var world = [[-90, -180], [90, 180]];
+        bbox = bbox || world;
+        var sw = bbox[0],
+            ne = bbox[1],
+            lngs = ne[1] - sw[1],
+            lats = ne[0] - sw[0];
+        return [
+            sw[0] + lats * Math.random(),
+            sw[1] + lngs * Math.random()
+        ];
+    },
+
 	getMapOpts: function() {
 		return {
 			zoom: 13,
@@ -219,6 +253,19 @@ module.exports = {
                 return [ _.random(1,val) ];
             });
         });
+    },
+
+    randomPoi: function(loc, num) {
+        
+        num = num || 5;
+
+        var bbox = loc ? this.bufferLoc(loc, 500, true) : null;
+
+        var markers = _.map(_.range(num), function() {
+            return L.marker( this.randomLoc(bbox) );
+        });
+
+        return markers;
     }
 
 };

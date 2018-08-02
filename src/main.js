@@ -25,6 +25,7 @@ var cartella = require('./cartella');
 var mapAdmin = require('./map_admin');
 var mapArea = require('./map_area');
 var mapGps = require('./map_gps');
+var mapPoi = require('./map_poi');
 
 var table = require('./table');
 
@@ -95,7 +96,8 @@ $(function() {
 	var maps = {
 		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
 		area: mapArea.init('map_area', { onSelect: loadSelection }),
-		gps: mapGps.init('map_gps', { onSelect: loadSelection })
+		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
+		poi: mapPoi.init('map_poi', { onSelect: loadSelection }),
 	};
 
 	var mapActive = maps.admin;
@@ -120,6 +122,8 @@ $(function() {
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
 			charts.oriz.update( utils.randomStack(5,3) );
+
+			maps.poi.update( row );
 		}
 	});
 
@@ -151,5 +155,6 @@ $(function() {
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
 	charts.oriz.update( utils.randomStack(5,3) );
-
+	
+	console.log(maps.poi)
 });

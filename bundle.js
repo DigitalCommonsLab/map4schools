@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -79480,7 +79495,7 @@ module.exports = {
 		return bboxStr;
 	}
 }
-},{"./utils":189,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
+},{"./utils":190,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79500,7 +79515,7 @@ module.exports = {
   	//onSelect: function(e){ console.log('onClickRow',e); }
 
 	init: function(el, opts) {
-		this.el =  el;
+		this.el = el;
 
 		this.chart = c3.generate({
 			bindto: this.el,
@@ -79553,7 +79568,7 @@ module.exports = {
 		this.chart.load( this.formatData(data) );
 	}
 }
-},{"../node_modules/c3/c3.min.css":9,"./utils":189,"c3":8,"jquery":87,"underscore":174}],179:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":9,"./utils":190,"c3":8,"jquery":87,"underscore":174}],179:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79596,7 +79611,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":182,"./utils":189,"d3":42,"jquery":87,"underscore":174}],180:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":182,"./utils":190,"d3":42,"jquery":87,"underscore":174}],180:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -79663,7 +79678,7 @@ module.exports = {
 		this.chart.load( this.formatData(data) );
 	}
 }
-},{"../node_modules/c3/c3.min.css":9,"./utils":189,"c3":8,"jquery":87,"underscore":174}],181:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":9,"./utils":190,"c3":8,"jquery":87,"underscore":174}],181:[function(require,module,exports){
 
 module.exports = {
 	radarLabels: [
@@ -79993,6 +80008,7 @@ var cartella = require('./cartella');
 var mapAdmin = require('./map_admin');
 var mapArea = require('./map_area');
 var mapGps = require('./map_gps');
+var mapPoi = require('./map_poi');
 
 var table = require('./table');
 
@@ -80063,7 +80079,8 @@ $(function() {
 	var maps = {
 		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
 		area: mapArea.init('map_area', { onSelect: loadSelection }),
-		gps: mapGps.init('map_gps', { onSelect: loadSelection })
+		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
+		poi: mapPoi.init('map_poi', { onSelect: loadSelection }),
 	};
 
 	var mapActive = maps.admin;
@@ -80088,6 +80105,8 @@ $(function() {
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
 			charts.oriz.update( utils.randomStack(5,3) );
+
+			maps.poi.update( row );
 		}
 	});
 
@@ -80119,10 +80138,11 @@ $(function() {
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
 	charts.oriz.update( utils.randomStack(5,3) );
-
+	
+	console.log(maps.poi)
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_oriz":178,"./chart_radar":179,"./chart_vert":180,"./config":181,"./map_admin":184,"./map_area":185,"./map_gps":186,"./overpass":187,"./table":188,"./utils":189,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],184:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_oriz":178,"./chart_radar":179,"./chart_vert":180,"./config":181,"./map_admin":184,"./map_area":185,"./map_gps":186,"./map_poi":187,"./overpass":188,"./table":189,"./utils":190,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80367,7 +80387,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":189,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],185:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":90,"./utils":190,"handlebars":75,"jquery":87,"leaflet-geojson-selector":91,"underscore":174}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80503,7 +80523,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":189,"jquery":87,"leaflet-draw":89}],186:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":88,"./utils":190,"jquery":87,"leaflet-draw":89}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -80561,9 +80581,58 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":189,"jquery":87,"leaflet-gps":93}],187:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":190,"jquery":87,"leaflet-gps":93}],187:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var utils = require('./utils');
+//var L = require('leaflet');
+
+module.exports = {
+  	
+  	map: null,
+
+	onInit: function(e){ console.log('onInit',e); },
+  	onSelect: function(e){ console.log('onSelect',e); },
+
+  	config: {
+  		height: 420,
+  		width: 420
+  	},
+
+	init: function(el, opts) {
+
+		var self = this;
+
+		self.el = el;
+		self.onInit = opts && opts.onInit;
+		self.onSelect = opts && opts.onSelect;
+console.log(self.config)
+		$(self.el)
+		.width(self.config.width)
+		.height(self.config.height);
+
+		self.map = L.map(el, utils.getMapOpts() );
+		self.map.addControl(L.control.zoom({position:'topright'}));
+
+		self.layerData = L.featureGroup([])
+		.bindPopup('POI Info')
+    	.on('click', function(e) {
+			self.onSelect.call(self, e.target);
+		})
+    	.addTo(self.map);
+
+		return this;
+	},
+
+	update: function(obj) {
+		var self = this;
+
+		//self.map.setView()
+	}
+};
+},{"./utils":190,"jquery":87}],188:[function(require,module,exports){
 arguments[4][177][0].apply(exports,arguments)
-},{"./utils":189,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],188:[function(require,module,exports){
+},{"./utils":190,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],189:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80628,7 +80697,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":189,"bootstrap-table":2,"jquery":87,"underscore":174}],189:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"./utils":190,"bootstrap-table":2,"jquery":87,"underscore":174}],190:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80661,6 +80730,40 @@ module.exports = {
 		}
 		return color;
 	},
+
+    bufferLoc: function(loc, dist, corners) {
+        
+        corners = corners || false;
+
+        var b = this.meters2rad(dist),
+            lat1 = parseFloat((loc[0]-b).toFixed(4)),
+            lon1 = parseFloat((loc[1]-b).toFixed(4)),
+            lat2 = parseFloat((loc[0]+b).toFixed(4)),
+            lon2 = parseFloat((loc[1]+b).toFixed(4));
+
+        return corners ? [[lat1, lon1], [lat2, lon2]] : [lat1, lon1, lat2, lon2];
+    },
+    
+    deg2rad: function(deg) {
+        return deg * (Math.PI/180);
+    },
+
+    meters2rad: function(m) {
+        return (m/1000)/111.12;
+    },
+
+    randomLoc: function(bbox) {
+        var world = [[-90, -180], [90, 180]];
+        bbox = bbox || world;
+        var sw = bbox[0],
+            ne = bbox[1],
+            lngs = ne[1] - sw[1],
+            lats = ne[0] - sw[0];
+        return [
+            sw[0] + lats * Math.random(),
+            sw[1] + lngs * Math.random()
+        ];
+    },
 
 	getMapOpts: function() {
 		return {
@@ -80850,6 +80953,19 @@ module.exports = {
                 return [ _.random(1,val) ];
             });
         });
+    },
+
+    randomPoi: function(loc, num) {
+        
+        num = num || 5;
+
+        var bbox = loc ? this.bufferLoc(loc, 500, true) : null;
+
+        var markers = _.map(_.range(num), function() {
+            return L.marker( this.randomLoc(bbox) );
+        });
+
+        return markers;
     }
 
 };
