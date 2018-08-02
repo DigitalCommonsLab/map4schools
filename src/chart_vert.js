@@ -23,7 +23,7 @@ module.exports = {
 			bindto: this.el,
 			size: {
 				width: 300,
-				height: 300
+				height: 200
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [

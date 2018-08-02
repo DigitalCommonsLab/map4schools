@@ -4,6 +4,10 @@
 	height: 360px;
 }
 
+#charts .row {
+	margin-bottom: 22px
+}
+
 .breadcrumb-item + .breadcrumb-item::before,
 .breadcrumb > li:before {
     content: "►";

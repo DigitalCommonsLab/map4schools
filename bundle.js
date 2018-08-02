@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -79521,7 +79506,7 @@ module.exports = {
 			bindto: this.el,
 			size: {
 				width: 300,
-				height: 300
+				height: 200
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
@@ -79594,7 +79579,7 @@ module.exports = {
 		//console.log('RadarChart update', data)
 
 		var size = 420,
-			marginAll = 80,
+			marginAll = 70,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
 			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
@@ -79637,7 +79622,7 @@ module.exports = {
 			bindto: this.el,
 			size: {
 				width: 300,
-				height: 300
+				height: 200
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
@@ -79751,7 +79736,7 @@ module.exports = function(el, options) {
 		
 	var total = labels.length,					//The number of different axes
 		radius = Math.min(cfg.w/2, cfg.h/2), 	//Radius of the outermost circle
-		Format = d3.format('%'),			 	//Percentage formatting
+		Format = d3.format('.0%'),			 	//Percentage formatting
 		angleSlice = Math.PI * 2 / total;		//The width in radians of each "slice"
 	
 	//Scale for the radius
