@@ -18,9 +18,9 @@ module.exports = {
 		return this;
 	},
 
-	update: function(data) {
+	update: function(data, labels) {
 
-		//console.log('RadarChart update', data)
+		labels = labels || this.labels;
 
 		var size = 420,
 			marginAll = 70,
@@ -30,7 +30,7 @@ module.exports = {
 
 		this.chart = RadarChart(this.el, {
 			data: data,
-			labels: this.labels,
+			labels: labels,
 			colors: ["red","green"],
 			w: width,
 			h: height,
