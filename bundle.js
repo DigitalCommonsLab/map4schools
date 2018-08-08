@@ -79680,6 +79680,9 @@ module.exports = {
 }
 },{"../node_modules/c3/c3.min.css":9,"./utils":190,"c3":8,"jquery":87,"underscore":174}],181:[function(require,module,exports){
 
+var $ = jQuery = require('jquery');
+var H = require('handlebars');
+
 module.exports = {
 	radarLabels: [
 		"Risultati scolastici",
@@ -79692,10 +79695,14 @@ module.exports = {
 		"Continuita' e orientamento",
 		"Orientamento strategico e organizzazione della scuola",
 		"Sviluppo e valorizzazione delle risorse umane",
-		"Integrazione con il territorio e rapporti con le famiglie",
-	]
+		"Integrazione con il territorio e rapporti con le famiglie"
+	],
+	tmpls: {
+		sel_level: H.compile($('#tmpl_sel_level').html()),
+		map_popup: H.compile($('#tmpl_popup').html())
+	}
 }
-},{}],182:[function(require,module,exports){
+},{"handlebars":75,"jquery":87}],182:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -80020,11 +80027,6 @@ var config = require('./config');
 
 $(function() {
 
-	var tmpls = {
-		sel_level: H.compile($('#tmpl_sel_level').html()),
-		map_popup: H.compile($('#tmpl_popup').html())
-	};
-
 	function loadSelection(geoArea) {
 
 		var self = this,
@@ -80050,7 +80052,7 @@ $(function() {
 						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
 					});
 
-					layer.bindPopup( tmpls.map_popup(p) )
+					layer.bindPopup( config.tmpls.map_popup(p) )
 				}
 			}).addTo(map);
 		}
@@ -80072,7 +80074,6 @@ $(function() {
 
 			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
-	
 	}
 
 	//init maps
@@ -80080,9 +80081,9 @@ $(function() {
 		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
 		area: mapArea.init('map_area', { onSelect: loadSelection }),
 		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
-		poi: mapPoi.init('map_poi', { onSelect: loadSelection }),
+		poi: mapPoi.init('map_poi'),
 	};
-
+window.maps = maps;
 	var mapActive = maps.admin;
 
 	var charts = {
@@ -80582,17 +80583,26 @@ module.exports = {
 	}	
 };
 },{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":92,"./utils":190,"jquery":87,"leaflet-gps":93}],187:[function(require,module,exports){
+/*
 
+https://github.com/DigitalCommonsLab/osm4schools/issues/20
+
+
+ */
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
 //var L = require('leaflet');
+var overpass = require('./overpass');
+
+var config = require('./config'); 
+
 
 module.exports = {
   	
   	map: null,
 
 	onInit: function(e){ console.log('onInit',e); },
-  	onSelect: function(e){ console.log('onSelect',e); },
+	onUpdate: function(e){ console.log('onUpdate',e); },
 
   	config: {
   		height: 420,
@@ -80605,9 +80615,7 @@ module.exports = {
 
 		self.$el = $('#'+el);
 		self.onInit = opts && opts.onInit;
-		self.onSelect = opts && opts.onSelect;
-
-console.log(self.config)
+		self.onUpdate = opts && opts.onUpdate;
 
 		self.$el
 		.width(self.config.width)
@@ -80615,13 +80623,24 @@ console.log(self.config)
 
 		self.map = L.map(el, utils.getMapOpts() );
 		self.map.addControl(L.control.zoom({position:'topright'}));
+		self.marker = L.marker([0,0]).addTo(self.map);
 
-		self.layerData = L.featureGroup([])
-		.bindPopup('POI Info')
-    	.on('click', function(e) {
-			self.onSelect.call(self, e.target);
-		})
-    	.addTo(self.map);
+		self.layerData = L.geoJSON([], {
+			pointToLayer: function(f, ll) {
+				return L.circleMarker(ll, {
+					radius: 5,
+					weight: 2,
+					color: '#00c',
+					fillColor:'#00f',
+					fillOpacity:0.9,
+					opacity:0.9
+				})
+			},
+			onEachFeature: function(feature, layer) {
+				var p = feature.properties;
+				layer.bindTooltip( config.tmpls.map_popup(p) )
+			}
+		}).addTo(self.map);
 
 		return this;
 	},
@@ -80629,12 +80648,88 @@ console.log(self.config)
 	update: function(obj) {
 		var self = this;
 
-		//self.map.setView()
+		self.map.invalidateSize();
+
+		console.log('maps.poi update', obj)
+
+		self.marker.setLatLng(obj.loc);
+		
+		self.map.setView(obj.loc, 17,{ animate: false });
+
+		var rect = L.rectangle( self.map.getBounds() ),
+			geoArea = L.featureGroup([rect]).toGeoJSON()
+
+		self.layerData.clearLayers();
+		overpass.search(geoArea, function(geoRes) {
+			console.log('overpass',geoRes)
+			self.layerData.addData(geoRes);
+			//TODO table list pois
+		}, ['amenity=bar']);
+
 	}
 };
-},{"./utils":190,"jquery":87}],188:[function(require,module,exports){
-arguments[4][177][0].apply(exports,arguments)
-},{"./utils":190,"dup":177,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],189:[function(require,module,exports){
+},{"./config":181,"./overpass":188,"./utils":190,"jquery":87}],188:[function(require,module,exports){
+
+//https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
+//
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+var utils = require('./utils');
+var osmtogeo = require('osmtogeojson');
+var geoutils = require('geojson-utils');
+
+module.exports = {
+  	
+  	results: [],
+
+	search: function(geoArea, cb, filters) {
+
+		filters = filters || ['amenity=school'];
+
+		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+			params = {
+				//TODO support multiple
+				filter: filters[0],
+				bbox: this.polyToBbox(geoArea)
+			},
+			url = L.Util.template(tmplUrl, params);
+
+		utils.getData(url, function(json) {
+			
+			var geojson = osmtogeo(json);
+
+			geojson.features = _.filter(geojson.features, function(f) {
+				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+			});
+
+			cb(geojson);
+
+		});
+
+		return this;
+	}, 
+
+	polyToBbox: function(geo) {
+
+		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
+			prec = 6,
+			bb = L.geoJSON(geo).getBounds(),
+			sw = bb.getSouthWest(),
+			ne = bb.getNorthEast(),
+			bbox = [
+				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
+				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
+			],
+			bboxStr = L.Util.template(tmpl, {
+				lat1: bbox[0][0], lon1: bbox[0][1],
+				lat2: bbox[1][0], lon2: bbox[1][1]
+			});	
+		
+		return bboxStr;
+	}
+}
+},{"./utils":190,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],189:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80686,9 +80781,11 @@ module.exports = {
 
 	update: function(geo) {
 		var json = _.map(geo.features, function(f) {
-			var p = f.properties;
+			var p = f.properties,
+				loc = f.geometry.coordinates.slice().reverse();
 			return {
 				'id': p.osm_id || p.id,
+				'loc': loc,
 				'name': p.name,
 				'isced:level': p['isced:level'],
 				'operator': p.operator,

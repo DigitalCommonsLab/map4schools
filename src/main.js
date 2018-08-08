@@ -37,11 +37,6 @@ var config = require('./config');
 
 $(function() {
 
-	var tmpls = {
-		sel_level: H.compile($('#tmpl_sel_level').html()),
-		map_popup: H.compile($('#tmpl_popup').html())
-	};
-
 	function loadSelection(geoArea) {
 
 		var self = this,
@@ -67,7 +62,7 @@ $(function() {
 						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
 					});
 
-					layer.bindPopup( tmpls.map_popup(p) )
+					layer.bindPopup( config.tmpls.map_popup(p) )
 				}
 			}).addTo(map);
 		}
@@ -89,7 +84,6 @@ $(function() {
 
 			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
-	
 	}
 
 	//init maps
@@ -97,9 +91,9 @@ $(function() {
 		admin: mapAdmin.init('map_admin', { onSelect: loadSelection }),
 		area: mapArea.init('map_area', { onSelect: loadSelection }),
 		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
-		poi: mapPoi.init('map_poi', { onSelect: loadSelection }),
+		poi: mapPoi.init('map_poi'),
 	};
-
+window.maps = maps;
 	var mapActive = maps.admin;
 
 	var charts = {

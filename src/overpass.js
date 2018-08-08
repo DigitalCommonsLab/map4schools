@@ -12,14 +12,14 @@ module.exports = {
   	
   	results: [],
 
-	search: function(geoArea, cb) {
+	search: function(geoArea, cb, filters) {
 
-		//TODO
-		//
+		filters = filters || ['amenity=school'];
 
 		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
 			params = {
-				filter: 'amenity=school',
+				//TODO support multiple
+				filter: filters[0],
 				bbox: this.polyToBbox(geoArea)
 			},
 			url = L.Util.template(tmplUrl, params);

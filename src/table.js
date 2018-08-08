@@ -49,9 +49,11 @@ module.exports = {
 
 	update: function(geo) {
 		var json = _.map(geo.features, function(f) {
-			var p = f.properties;
+			var p = f.properties,
+				loc = f.geometry.coordinates.slice().reverse();
 			return {
 				'id': p.osm_id || p.id,
+				'loc': loc,
 				'name': p.name,
 				'isced:level': p['isced:level'],
 				'operator': p.operator,
