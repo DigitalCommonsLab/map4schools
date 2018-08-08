@@ -46,7 +46,7 @@ module.exports = {
 					radius: 5,
 					weight: 2,
 					color: '#00c',
-					fillColor:'#00f',
+					fillColor:'#0f0',
 					fillOpacity:0.9,
 					opacity:0.9
 				})
