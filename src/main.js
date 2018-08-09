@@ -133,7 +133,7 @@ window.maps = maps;
 
 
 	//DEBUG CHARTS
-	$('#charts').css({
+/*	$('#charts').css({
 		display: 'block',
 		position: 'fixed',
 		zIndex: 2000,
@@ -144,7 +144,7 @@ window.maps = maps;
 		overflowY: 'auto',
 		background: '#eee',
 		boxShadow:'0 0 16px #666'
-	}).show();
+	}).show();*/
 
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
