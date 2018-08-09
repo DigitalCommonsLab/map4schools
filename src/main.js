@@ -133,18 +133,20 @@ window.maps = maps;
 
 
 	//DEBUG CHARTS
-/*	$('#charts').css({
-		display: 'block',
-		position: 'fixed',
-		zIndex: 2000,
-		bottom: 16,
-		right: 16,
-		width: 1000,
-		height: 800,
-		overflowY: 'auto',
-		background: '#eee',
-		boxShadow:'0 0 16px #666'
-	}).show();*/
+	if(location.hash=='#debug') {
+		$('#charts').css({
+			display: 'block',
+			position: 'fixed',
+			zIndex: 2000,
+			bottom: 16,
+			right: 16,
+			width: 1000,
+			height: 800,
+			overflowY: 'auto',
+			background: '#eee',
+			boxShadow:'0 0 16px #666'
+		}).show();
+	}
 
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
