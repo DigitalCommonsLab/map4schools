@@ -266,6 +266,21 @@ module.exports = {
         });
 
         return markers;
+    },
+
+    randomString(len) {
+        len = len || 6;
+        return Math.random().toString(36).substr(2, len);
+    },
+
+    randomDetails: function(obj) {
+        return _.defaults(obj, {
+            name: this.randomString(),
+            level: this.randomString(),
+            address: this.randomString(),
+            phone: this.randomString(),
+            website: this.randomString(),
+        });
     }
 
 };

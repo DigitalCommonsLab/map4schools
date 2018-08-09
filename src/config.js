@@ -17,6 +17,7 @@ module.exports = {
 		"Integrazione con il territorio e rapporti con le famiglie"
 	],
 	tmpls: {
+		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	}

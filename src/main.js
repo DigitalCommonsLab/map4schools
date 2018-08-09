@@ -93,7 +93,9 @@ $(function() {
 		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
 		poi: mapPoi.init('map_poi'),
 	};
-window.maps = maps;
+
+	window.maps = maps;
+
 	var mapActive = maps.admin;
 
 	var charts = {
@@ -105,13 +107,17 @@ window.maps = maps;
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
+			console.log('onSelect',row)
+
 			mapActive.layerData.eachLayer(function(layer) {
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
 				}
 			});
 
-			$('#charts').show().find('.title').text(': '+row.name)
+			$('#charts').show().find('.title').text(': '+row.name);
+
+			$('#card_details').html(config.tmpls.details( utils.randomDetails(row) ));
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
@@ -151,6 +157,4 @@ window.maps = maps;
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
 	charts.oriz.update( utils.randomStack(5,3) );
-	
-	console.log(maps.poi)
 });

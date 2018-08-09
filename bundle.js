@@ -79578,11 +79578,10 @@ module.exports = {
 
 		labels = labels || this.labels;
 
-		var size = 420,
-			marginAll = 70,
+		var marginAll = 70,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
-			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
-			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+			width = Math.min(420, window.innerWidth - 10) - margin.left - margin.right,
+			height = Math.min(400, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,
@@ -79683,6 +79682,7 @@ module.exports = {
 		"Integrazione con il territorio e rapporti con le famiglie"
 	],
 	tmpls: {
+		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	}
@@ -80068,7 +80068,9 @@ $(function() {
 		gps: mapGps.init('map_gps', { onSelect: loadSelection }),
 		poi: mapPoi.init('map_poi'),
 	};
-window.maps = maps;
+
+	window.maps = maps;
+
 	var mapActive = maps.admin;
 
 	var charts = {
@@ -80080,13 +80082,17 @@ window.maps = maps;
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
+			console.log('onSelect',row)
+
 			mapActive.layerData.eachLayer(function(layer) {
 				if(layer.feature.id==row.id) {
 					layer.openPopup();
 				}
 			});
 
-			$('#charts').show().find('.title').text(': '+row.name)
+			$('#charts').show().find('.title').text(': '+row.name);
+
+			$('#card_details').html(config.tmpls.details( utils.randomDetails(row) ));
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
@@ -80126,8 +80132,6 @@ window.maps = maps;
 	charts.radar.update( utils.randomRadar() );
 	charts.vert.update( utils.randomStack() );
 	charts.oriz.update( utils.randomStack(5,3) );
-	
-	console.log(maps.poi)
 });
 
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_oriz":178,"./chart_radar":179,"./chart_vert":180,"./config":181,"./map_admin":184,"./map_area":185,"./map_gps":186,"./map_poi":187,"./overpass":188,"./table":189,"./utils":190,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],184:[function(require,module,exports){
@@ -81053,6 +81057,21 @@ module.exports = {
         });
 
         return markers;
+    },
+
+    randomString(len) {
+        len = len || 6;
+        return Math.random().toString(36).substr(2, len);
+    },
+
+    randomDetails: function(obj) {
+        return _.defaults(obj, {
+            name: this.randomString(),
+            level: this.randomString(),
+            address: this.randomString(),
+            phone: this.randomString(),
+            website: this.randomString(),
+        });
     }
 
 };

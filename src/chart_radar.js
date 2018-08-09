@@ -22,11 +22,10 @@ module.exports = {
 
 		labels = labels || this.labels;
 
-		var size = 420,
-			marginAll = 70,
+		var marginAll = 70,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
-			width = Math.min(size, window.innerWidth - 10) - margin.left - margin.right,
-			height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+			width = Math.min(420, window.innerWidth - 10) - margin.left - margin.right,
+			height = Math.min(400, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,
