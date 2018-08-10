@@ -39,8 +39,6 @@ $(function() {
 
 	function loadSelection(geoArea) {
 
-		console.log('loadSelection bbox', utils.polyToBbox(geoArea))
-
 		var self = this,
 			map = self.map;
 
@@ -57,14 +55,7 @@ $(function() {
 					})
 				},
 				onEachFeature: function(feature, layer) {
-					var p = feature.properties;
-
-					_.extend(p, {
-						url_view: "http://osm.org/"+p.id,
-						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
-					});
-
-					layer.bindPopup( config.tmpls.map_popup(p) )
+					layer.bindPopup( config.tmpls.map_popup(feature.properties) )
 				}
 			}).addTo(map);
 		}
@@ -73,15 +64,6 @@ $(function() {
 
 		//overpass.search(geoArea, function(geoRes) {
 		cartella.search(geoArea, function(geoRes) {
-
-			console.log('cartella geojson', geoRes);
-			//DEBUGGING
-			
-			geoRes.features = _.map(geoRes.features, function(f) {
-				f.properties['isced:level'] = ""+_.random(0,6);
-				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
-				return f;
-			});
 			
 			self.layerData.addData(geoRes);
 
@@ -114,7 +96,7 @@ $(function() {
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			console.log('onSelect',row)
+			console.log('onSelect', row)
 
 			mapActive.layerData.eachLayer(function(layer) {
 				if(layer.feature.id==row.id) {
@@ -122,9 +104,10 @@ $(function() {
 				}
 			});
 
-			$('#charts').show().find('.title').text(': '+row.name);
+			$('#charts').show();
+			//.find('.title').text(': '+row.name);
 
-			$('#card_details').html(config.tmpls.details( utils.randomDetails(row) ));
+			$('#card_details').html(config.tmpls.details(row));
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
@@ -151,7 +134,7 @@ $(function() {
 			display: 'block',
 			position: 'fixed',
 			zIndex: 2000,
-			bottom: 16,
+			top: 16,
 			right: 16,
 			width: 1000,
 			height: 800,

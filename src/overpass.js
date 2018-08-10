@@ -29,7 +29,7 @@ module.exports = {
 				bbox: bboxStr
 			},
 			url = utils.tmpl(tmplUrl, params);
-
+ 
 		utils.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);

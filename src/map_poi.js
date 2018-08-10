@@ -65,10 +65,9 @@ module.exports = {
 
 		self.map.invalidateSize();
 
-
 		self.marker.setLatLng(obj.loc);
 		
-		self.map.setView(obj.loc, 17,{ animate: false });
+		self.map.setView(obj.loc, 16,{ animate: false });
 
 		var rect = L.rectangle( self.map.getBounds() ),
 			geoArea = L.featureGroup([rect]).toGeoJSON()

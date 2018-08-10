@@ -13,6 +13,8 @@ module.exports = {
 
 	search: function(geoArea, cb) {
 
+		var self = this;
+
 		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
 			bbox = utils.polyToBbox(geoArea),
@@ -37,10 +39,7 @@ module.exports = {
 			res = _.map(res, function(v) {
 				return {
 					type: 'Feature',
-					properties: {
-						id: v.CODICESCUOLA,
-						name: v.DENOMINAZIONESCUOLA
-					},
+					properties: self.mapProperties(v),
 					geometry: {
 						type: 'Point',
 						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
@@ -50,17 +49,28 @@ module.exports = {
 
 			var geojson = {
 				type: 'FeatureCollection',
-				features: res
+				features: _.filter(res, function(f) {
+					return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+				})
 			};
 
-			geojson.features = _.filter(geojson.features, function(f) {
-				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
-			});
 
 			cb(geojson);
 
-		});
+		//false == cache false
+		}, false);
 
 		return this;
+	},
+
+	mapProperties: function(o) {
+		return {
+			id: o.CODICESCUOLA,
+			name: o.DENOMINAZIONESCUOLA,
+            level: o.DESCRIZIONETIPOLOGIAGRADOISTRUZIONESCUOLA,
+            address: o.INDIRIZZOSCUOLA,
+            email: o.INDIRIZZOEMAILSCUOLA,
+            website: o.SITOWEBSCUOLA
+		};
 	}
 }

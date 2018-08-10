@@ -33,15 +33,11 @@ module.exports = {
 			        field: 'name',
 			        title: 'Nome'
 			    }, {
-			        field: 'isced:level',
+			        field: 'level',
 			        title: 'Livello'
 			    }, {
 			        field: 'website',
 			        title: 'Sito Web'
-			    },
-			    {
-			        field: 'operator',
-			        title: 'Operatore'
 			    }
 		    ]
 		});
@@ -49,16 +45,8 @@ module.exports = {
 
 	update: function(geo) {
 		var json = _.map(geo.features, function(f) {
-			var p = f.properties,
-				loc = f.geometry.coordinates.slice().reverse();
-			return {
-				'id': p.osm_id || p.id,
-				'loc': loc,
-				'name': p.name,
-				'isced:level': p['isced:level'],
-				'operator': p.operator,
-				'website': p.website
-			};
+			f.properties.loc = f.geometry.coordinates.slice().reverse();
+			return f.properties;
 		});
 
 		this.table.bootstrapTable('load', json);

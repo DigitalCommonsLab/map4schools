@@ -79435,6 +79435,8 @@ module.exports = {
 
 	search: function(geoArea, cb) {
 
+		var self = this;
+
 		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
 			bbox = utils.polyToBbox(geoArea),
@@ -79459,10 +79461,7 @@ module.exports = {
 			res = _.map(res, function(v) {
 				return {
 					type: 'Feature',
-					properties: {
-						id: v.CODICESCUOLA,
-						name: v.DENOMINAZIONESCUOLA
-					},
+					properties: self.mapProperties(v),
 					geometry: {
 						type: 'Point',
 						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
@@ -79472,18 +79471,29 @@ module.exports = {
 
 			var geojson = {
 				type: 'FeatureCollection',
-				features: res
+				features: _.filter(res, function(f) {
+					return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+				})
 			};
 
-			geojson.features = _.filter(geojson.features, function(f) {
-				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
-			});
 
 			cb(geojson);
 
-		});
+		//false == cache false
+		}, false);
 
 		return this;
+	},
+
+	mapProperties: function(o) {
+		return {
+			id: o.CODICESCUOLA,
+			name: o.DENOMINAZIONESCUOLA,
+            level: o.DESCRIZIONETIPOLOGIAGRADOISTRUZIONESCUOLA,
+            address: o.INDIRIZZOSCUOLA,
+            email: o.INDIRIZZOEMAILSCUOLA,
+            website: o.SITOWEBSCUOLA
+		};
 	}
 }
 },{"./utils":190,"geojson-utils":45,"jquery":87,"underscore":174}],178:[function(require,module,exports){
@@ -80020,8 +80030,6 @@ $(function() {
 
 	function loadSelection(geoArea) {
 
-		console.log('loadSelection bbox', utils.polyToBbox(geoArea))
-
 		var self = this,
 			map = self.map;
 
@@ -80038,14 +80046,7 @@ $(function() {
 					})
 				},
 				onEachFeature: function(feature, layer) {
-					var p = feature.properties;
-
-					_.extend(p, {
-						url_view: "http://osm.org/"+p.id,
-						url_edit: "https://www.openstreetmap.org/edit?"+p.id.replace('/','=')+"&amp;editor=id"
-					});
-
-					layer.bindPopup( config.tmpls.map_popup(p) )
+					layer.bindPopup( config.tmpls.map_popup(feature.properties) )
 				}
 			}).addTo(map);
 		}
@@ -80054,15 +80055,6 @@ $(function() {
 
 		//overpass.search(geoArea, function(geoRes) {
 		cartella.search(geoArea, function(geoRes) {
-
-			console.log('cartella geojson', geoRes);
-			//DEBUGGING
-			
-			geoRes.features = _.map(geoRes.features, function(f) {
-				f.properties['isced:level'] = ""+_.random(0,6);
-				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
-				return f;
-			});
 			
 			self.layerData.addData(geoRes);
 
@@ -80095,7 +80087,7 @@ $(function() {
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			console.log('onSelect',row)
+			console.log('onSelect', row)
 
 			mapActive.layerData.eachLayer(function(layer) {
 				if(layer.feature.id==row.id) {
@@ -80103,9 +80095,10 @@ $(function() {
 				}
 			});
 
-			$('#charts').show().find('.title').text(': '+row.name);
+			$('#charts').show();
+			//.find('.title').text(': '+row.name);
 
-			$('#card_details').html(config.tmpls.details( utils.randomDetails(row) ));
+			$('#card_details').html(config.tmpls.details(row));
 
 			charts.radar.update( utils.randomRadar() );
 			charts.vert.update( utils.randomStack() );
@@ -80132,7 +80125,7 @@ $(function() {
 			display: 'block',
 			position: 'fixed',
 			zIndex: 2000,
-			bottom: 16,
+			top: 16,
 			right: 16,
 			width: 1000,
 			height: 800,
@@ -80654,10 +80647,9 @@ module.exports = {
 
 		self.map.invalidateSize();
 
-
 		self.marker.setLatLng(obj.loc);
 		
-		self.map.setView(obj.loc, 17,{ animate: false });
+		self.map.setView(obj.loc, 16,{ animate: false });
 
 		var rect = L.rectangle( self.map.getBounds() ),
 			geoArea = L.featureGroup([rect]).toGeoJSON()
@@ -80705,7 +80697,7 @@ module.exports = {
 				bbox: bboxStr
 			},
 			url = utils.tmpl(tmplUrl, params);
-
+ 
 		utils.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
@@ -80757,15 +80749,11 @@ module.exports = {
 			        field: 'name',
 			        title: 'Nome'
 			    }, {
-			        field: 'isced:level',
+			        field: 'level',
 			        title: 'Livello'
 			    }, {
 			        field: 'website',
 			        title: 'Sito Web'
-			    },
-			    {
-			        field: 'operator',
-			        title: 'Operatore'
 			    }
 		    ]
 		});
@@ -80773,16 +80761,8 @@ module.exports = {
 
 	update: function(geo) {
 		var json = _.map(geo.features, function(f) {
-			var p = f.properties,
-				loc = f.geometry.coordinates.slice().reverse();
-			return {
-				'id': p.osm_id || p.id,
-				'loc': loc,
-				'name': p.name,
-				'isced:level': p['isced:level'],
-				'operator': p.operator,
-				'website': p.website
-			};
+			f.properties.loc = f.geometry.coordinates.slice().reverse();
+			return f.properties;
 		});
 
 		this.table.bootstrapTable('load', json);
