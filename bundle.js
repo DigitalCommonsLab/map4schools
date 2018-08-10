@@ -79433,9 +79433,7 @@ module.exports = {
   	
   	results: [],
 
-	search: function(geoArea, cb, filters) {
-
-		filters = filters || ['amenity=school'];
+	search: function(geoArea, cb) {
 
 		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
