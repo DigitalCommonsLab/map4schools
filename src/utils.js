@@ -3,9 +3,12 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
+var L = require('leaflet');
 
 module.exports = {
-  
+    
+    tmpl: L.Util.template,
+
     humanDist: function(d, sign) {
         sign = sign || false;
         var len='',unit='',s='';
@@ -31,6 +34,20 @@ module.exports = {
 		return color;
 	},
 
+    polyToBbox: function(geo, prec) {
+        prec = prec || 6;
+
+        var bb = L.geoJSON(geo).getBounds(),
+            sw = bb.getSouthWest(),
+            ne = bb.getNorthEast(),
+            bbox = [
+                [ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
+                [ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
+            ];
+
+        return bbox;
+    },
+
     bufferLoc: function(loc, dist, corners) {
         
         corners = corners || false;
@@ -47,7 +64,7 @@ module.exports = {
     deg2rad: function(deg) {
         return deg * (Math.PI/180);
     },
-
+ 
     meters2rad: function(m) {
         return (m/1000)/111.12;
     },

@@ -79427,28 +79427,55 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
-var osmtogeo = require('osmtogeojson');
 var geoutils = require('geojson-utils');
 
 module.exports = {
   	
   	results: [],
 
-	search: function(geoArea, cb) {
+	search: function(geoArea, cb, filters) {
 
-		//TODO
-		//
+		filters = filters || ['amenity=school'];
 
-		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
+			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
+			bbox = utils.polyToBbox(geoArea),
+            bboxStr = utils.tmpl(tmplBbox, {
+                sud:  bbox[0][0], ovest: bbox[0][1],
+                nord: bbox[1][0], est:   bbox[1][1]
+            }),
 			params = {
-				filter: 'amenity=school',
-				bbox: this.polyToBbox(geoArea)
+				bbox: bboxStr
 			},
-			url = L.Util.template(tmplUrl, params);
+			url = utils.tmpl(tmplUrl, params);
 
 		utils.getData(url, function(json) {
 			
-			var geojson = osmtogeo(json);
+			if(!json['Entries'])
+					return null;
+
+			var res = [],
+				ee = json['Entries']['Entry'],
+				res = _.isArray(ee) ? ee : [ee];
+
+			res = _.map(res, function(v) {
+				return {
+					type: 'Feature',
+					properties: {
+						id: v.CODICESCUOLA,
+						name: v.DENOMINAZIONESCUOLA
+					},
+					geometry: {
+						type: 'Point',
+						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
+					}
+				};
+			});
+
+			var geojson = {
+				type: 'FeatureCollection',
+				features: res
+			};
 
 			geojson.features = _.filter(geojson.features, function(f) {
 				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
@@ -79459,28 +79486,9 @@ module.exports = {
 		});
 
 		return this;
-	}, 
-
-	polyToBbox: function(geo) {
-
-		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
-			prec = 6,
-			bb = L.geoJSON(geo).getBounds(),
-			sw = bb.getSouthWest(),
-			ne = bb.getNorthEast(),
-			bbox = [
-				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
-				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
-			],
-			bboxStr = L.Util.template(tmpl, {
-				lat1: bbox[0][0], lon1: bbox[0][1],
-				lat2: bbox[1][0], lon2: bbox[1][1]
-			});	
-		
-		return bboxStr;
 	}
 }
-},{"./utils":190,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],178:[function(require,module,exports){
+},{"./utils":190,"geojson-utils":45,"jquery":87,"underscore":174}],178:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80014,6 +80022,8 @@ $(function() {
 
 	function loadSelection(geoArea) {
 
+		console.log('loadSelection bbox', utils.polyToBbox(geoArea))
+
 		var self = this,
 			map = self.map;
 
@@ -80042,11 +80052,14 @@ $(function() {
 			}).addTo(map);
 		}
 
-		self.layerData.clearLayers();		
+		self.layerData.clearLayers();
 
-		overpass.search(geoArea, function(geoRes) {
+		//overpass.search(geoArea, function(geoRes) {
+		cartella.search(geoArea, function(geoRes) {
 
+			console.log('cartella geojson', geoRes);
 			//DEBUGGING
+			
 			geoRes.features = _.map(geoRes.features, function(f) {
 				f.properties['isced:level'] = ""+_.random(0,6);
 				f.properties.name = f.properties.name || 'Scuola '+f.properties.id.split('/')[1];
@@ -80059,6 +80072,8 @@ $(function() {
 
 			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
+
+		
 	}
 
 	//init maps
@@ -80680,12 +80695,18 @@ module.exports = {
 		filters = filters || ['amenity=school'];
 
 		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+			tmplBbox = '{lat1},{lon1},{lat2},{lon2}',
+			bbox = utils.polyToBbox(geoArea),
+            bboxStr = utils.tmpl(tmplBbox, {
+                lat1: bbox[0][0], lon1: bbox[0][1],
+                lat2: bbox[1][0], lon2: bbox[1][1]
+            }),
 			params = {
-				//TODO support multiple
+				//TODO support multiple filters
 				filter: filters[0],
-				bbox: this.polyToBbox(geoArea)
+				bbox: bboxStr
 			},
-			url = L.Util.template(tmplUrl, params);
+			url = utils.tmpl(tmplUrl, params);
 
 		utils.getData(url, function(json) {
 			
@@ -80700,25 +80721,6 @@ module.exports = {
 		});
 
 		return this;
-	}, 
-
-	polyToBbox: function(geo) {
-
-		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
-			prec = 6,
-			bb = L.geoJSON(geo).getBounds(),
-			sw = bb.getSouthWest(),
-			ne = bb.getNorthEast(),
-			bbox = [
-				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
-				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
-			],
-			bboxStr = L.Util.template(tmpl, {
-				lat1: bbox[0][0], lon1: bbox[0][1],
-				lat2: bbox[1][0], lon2: bbox[1][1]
-			});	
-		
-		return bboxStr;
 	}
 }
 },{"./utils":190,"geojson-utils":45,"jquery":87,"osmtogeojson":98,"underscore":174}],189:[function(require,module,exports){
@@ -80794,9 +80796,12 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
 _.mixin({str: S});
+var L = require('leaflet');
 
 module.exports = {
-  
+    
+    tmpl: L.Util.template,
+
     humanDist: function(d, sign) {
         sign = sign || false;
         var len='',unit='',s='';
@@ -80822,6 +80827,20 @@ module.exports = {
 		return color;
 	},
 
+    polyToBbox: function(geo, prec) {
+        prec = prec || 6;
+
+        var bb = L.geoJSON(geo).getBounds(),
+            sw = bb.getSouthWest(),
+            ne = bb.getNorthEast(),
+            bbox = [
+                [ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
+                [ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
+            ];
+
+        return bbox;
+    },
+
     bufferLoc: function(loc, dist, corners) {
         
         corners = corners || false;
@@ -80838,7 +80857,7 @@ module.exports = {
     deg2rad: function(deg) {
         return deg * (Math.PI/180);
     },
-
+ 
     meters2rad: function(m) {
         return (m/1000)/111.12;
     },
@@ -81076,4 +81095,4 @@ module.exports = {
 
 };
 
-},{"jquery":87,"underscore":174,"underscore.string":128}]},{},[183]);
+},{"jquery":87,"leaflet":94,"underscore":174,"underscore.string":128}]},{},[183]);

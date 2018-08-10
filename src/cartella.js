@@ -5,28 +5,55 @@
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
-var osmtogeo = require('osmtogeojson');
 var geoutils = require('geojson-utils');
 
 module.exports = {
   	
   	results: [],
 
-	search: function(geoArea, cb) {
+	search: function(geoArea, cb, filters) {
 
-		//TODO
-		//
+		filters = filters || ['amenity=school'];
 
-		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
+		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
+			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
+			bbox = utils.polyToBbox(geoArea),
+            bboxStr = utils.tmpl(tmplBbox, {
+                sud:  bbox[0][0], ovest: bbox[0][1],
+                nord: bbox[1][0], est:   bbox[1][1]
+            }),
 			params = {
-				filter: 'amenity=school',
-				bbox: this.polyToBbox(geoArea)
+				bbox: bboxStr
 			},
-			url = L.Util.template(tmplUrl, params);
+			url = utils.tmpl(tmplUrl, params);
 
 		utils.getData(url, function(json) {
 			
-			var geojson = osmtogeo(json);
+			if(!json['Entries'])
+					return null;
+
+			var res = [],
+				ee = json['Entries']['Entry'],
+				res = _.isArray(ee) ? ee : [ee];
+
+			res = _.map(res, function(v) {
+				return {
+					type: 'Feature',
+					properties: {
+						id: v.CODICESCUOLA,
+						name: v.DENOMINAZIONESCUOLA
+					},
+					geometry: {
+						type: 'Point',
+						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
+					}
+				};
+			});
+
+			var geojson = {
+				type: 'FeatureCollection',
+				features: res
+			};
 
 			geojson.features = _.filter(geojson.features, function(f) {
 				return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
@@ -37,24 +64,5 @@ module.exports = {
 		});
 
 		return this;
-	}, 
-
-	polyToBbox: function(geo) {
-
-		var tmpl = '{lat1},{lon1},{lat2},{lon2}',
-			prec = 6,
-			bb = L.geoJSON(geo).getBounds(),
-			sw = bb.getSouthWest(),
-			ne = bb.getNorthEast(),
-			bbox = [
-				[ parseFloat(sw.lat.toFixed(prec)), parseFloat(sw.lng.toFixed(prec)) ],
-				[ parseFloat(ne.lat.toFixed(prec)), parseFloat(ne.lng.toFixed(prec)) ]
-			],
-			bboxStr = L.Util.template(tmpl, {
-				lat1: bbox[0][0], lon1: bbox[0][1],
-				lat2: bbox[1][0], lon2: bbox[1][1]
-			});	
-		
-		return bboxStr;
 	}
 }
