@@ -99,9 +99,14 @@ module.exports = {
 
         cache = _.isUndefined(cache) ? true : cache;
 
-        if(cache && !localStorage[url]) {
+        if(cache===false) {
             $.getJSON(url, function(json) {
-                
+                cb(json);
+            });
+        }
+        else if(cache && !localStorage[url]) {
+            $.getJSON(url, function(json) {
+
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
                 }
@@ -115,7 +120,7 @@ module.exports = {
         }
         else
         {
-            cb(JSON.parse(localStorage[url]))
+            cb( JSON.parse(localStorage.getItem(url)) )
         }
     },
 

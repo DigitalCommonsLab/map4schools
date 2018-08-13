@@ -79429,6 +79429,12 @@ var _ = require('underscore');
 var utils = require('./utils');
 var geoutils = require('geojson-utils');
 
+
+var urls = {
+	baseUrlPro: window.baseUrlPro || 'https://api-test.smartcommunitylab.it/t/sco.cartella/',
+	//baseUrlDev: window.baseUrlDev || "./data/debug/"
+};
+
 module.exports = {
   	
   	results: [],
@@ -79437,7 +79443,7 @@ module.exports = {
 
 		var self = this;
 
-		var tmplUrl = 'https://api-test.smartcommunitylab.it/t/sco.cartella/isfol/1.0.0/searchSchool?{bbox}',
+		var tmplUrl = urls.baseUrlPro+'isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
 			bbox = utils.polyToBbox(geoArea),
             bboxStr = utils.tmpl(tmplBbox, {
@@ -80870,9 +80876,14 @@ module.exports = {
 
         cache = _.isUndefined(cache) ? true : cache;
 
-        if(cache && !localStorage[url]) {
+        if(cache===false) {
             $.getJSON(url, function(json) {
-                
+                cb(json);
+            });
+        }
+        else if(cache && !localStorage[url]) {
+            $.getJSON(url, function(json) {
+
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
                 }
@@ -80886,7 +80897,7 @@ module.exports = {
         }
         else
         {
-            cb(JSON.parse(localStorage[url]))
+            cb( JSON.parse(localStorage.getItem(url)) )
         }
     },
 
