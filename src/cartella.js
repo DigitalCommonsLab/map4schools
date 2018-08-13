@@ -117,7 +117,7 @@ console.log('group annocorsoclasse',json);
 				json = _.map(json, function(years, year) {
 					return {
 						'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
-						'alunnifemmine': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; })
+						'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
 					}
 				});
 				
