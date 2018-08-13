@@ -29,6 +29,10 @@ module.exports = {
 			//cardView: true,
 			data: [],
 		    columns: [
+		    	{
+		    		field: 'id',
+		    		title: 'ID'
+		    	},
 			    {
 			        field: 'name',
 			        title: 'Nome'

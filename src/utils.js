@@ -101,11 +101,30 @@ module.exports = {
 
         if(cache===false) {
             $.getJSON(url, function(json) {
-                cb(json);
+                
+                if(_.isObject(json) && _.isObject(json['Entries']))
+                {
+                    var ee = json['Entries']['Entry'];
+                    json = _.isArray(ee) ? ee : [ee];
+                }
+                else
+                    json = [];
+                
+                if(_.isObject(json) || _.isArray(json) )
+                    cb(json);
+                else
+                    console.warn('no results',url)
+
             });
         }
         else if(cache && !localStorage[url]) {
             $.getJSON(url, function(json) {
+
+                if(_.isObject(json) && json['Entries'])
+                {           
+                    var ee = json['Entries']['Entry'];
+                    json = _.isArray(ee) ? ee : [ee];
+                }
 
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
@@ -232,6 +251,39 @@ module.exports = {
         }
     },
 
+    arrayTranspose: function(a) {
+        //https://stackoverflow.com/questions/4492678/swap-rows-with-columns-transposition-of-a-matrix-in-javascript/13241545
+
+        // Calculate the width and height of the Array
+        var w = a.length || 0;
+        var h = a[0] instanceof Array ? a[0].length : 0;
+
+        // In case it is a zero matrix, no transpose routine needed.
+        if(h === 0 || w === 0) { return []; }
+
+        /**
+        * @var {Number} i Counter
+        * @var {Number} j Counter
+        * @var {Array} t Transposed data is stored in this array.
+        */
+        var i, j, t = [];
+
+        // Loop through every item in the outer array (height)
+        for(i=0; i<h; i++) {
+
+            // Insert a new row (array)
+            t[i] = [];
+
+            // Loop through every item per item in outer array (width)
+            for(j=0; j<w; j++) {
+
+              // Save transposed data.
+              t[i][j] = a[j][i];
+            }
+        }
+
+        return t;
+    },
     /*
         random data generators
      */
@@ -272,7 +324,7 @@ module.exports = {
 
         return _.map(_.range(rows), function(i) {
             return _.map(_.range(cols), function(x) {
-                return [ _.random(1,val) ];
+                return _.random(1,val);
             });
         });
     },

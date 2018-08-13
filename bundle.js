@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -79439,7 +79454,19 @@ module.exports = {
   	
   	results: [],
 
-	search: function(geoArea, cb) {
+	_getProperties: function(o) {
+		return {
+			id: o.CODICESCUOLA,
+			name: o.DENOMINAZIONESCUOLA,
+            level: o.DESCRIZIONETIPOLOGIAGRADOISTRUZIONESCUOLA,
+            address: o.INDIRIZZOSCUOLA,
+            email: o.INDIRIZZOEMAILSCUOLA,
+            website: o.SITOWEBSCUOLA,
+            raw: o
+		};
+	},
+
+	searchSchool: function(geoArea, cb) {
 
 		var self = this;
 
@@ -79456,18 +79483,11 @@ module.exports = {
 			url = utils.tmpl(tmplUrl, params);
 
 		utils.getData(url, function(json) {
-			
-			if(!json['Entries'])
-					return null;
 
-			var res = [],
-				ee = json['Entries']['Entry'],
-				res = _.isArray(ee) ? ee : [ee];
-
-			res = _.map(res, function(v) {
+			json = _.map(json, function(v) {
 				return {
 					type: 'Feature',
-					properties: self.mapProperties(v),
+					properties: self._getProperties(v),
 					geometry: {
 						type: 'Point',
 						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
@@ -79477,29 +79497,89 @@ module.exports = {
 
 			var geojson = {
 				type: 'FeatureCollection',
-				features: _.filter(res, function(f) {
+				features: _.filter(json, function(f) {
 					return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
 				})
 			};
 
-
 			cb(geojson);
 
-		//false == cache false
 		}, false);
 
 		return this;
 	},
 
-	mapProperties: function(o) {
-		return {
-			id: o.CODICESCUOLA,
-			name: o.DENOMINAZIONESCUOLA,
-            level: o.DESCRIZIONETIPOLOGIAGRADOISTRUZIONESCUOLA,
-            address: o.INDIRIZZOSCUOLA,
-            email: o.INDIRIZZOEMAILSCUOLA,
-            website: o.SITOWEBSCUOLA
-		};
+	getDataSchool: function(obj, name, cb) {
+		
+		var self = this;
+
+		if(name==='age') {
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
+
+				//TODO
+				
+				cb(json);
+
+			}, false);
+
+		}
+		else if(name==='gender') {
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
+				
+				if(!_.isArray(json) || json.length===0) return;
+
+console.clear()
+console.log('getGenderData',json);
+
+				json = _.map(json, function(o) {
+					return _.omit(o,'codicescuola','ordinescuola','classi');
+				});
+
+				var gyears = _.groupBy(json,'annoscolastico'),
+					years = _.map(_.keys(gyears),parseFloat),
+					ymax = _.max(years);
+
+				json = _.filter(json, function(v) {
+					return v.annoscolastico === ymax;
+				});
+
+console.log('anno', years, ymax, json);
+
+				json = _.groupBy(json,'annocorsoclasse');
+
+console.log('group annocorsoclasse',json);
+
+				json = _.map(json, function(years, year) {
+					return {
+						'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
+						'alunnifemmine': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; })
+					}
+				});
+				
+				json = _.map(json, function(v,k) {
+					return [
+						v.alunnimaschi,
+						v.alunnifemmine
+					]
+				});
+
+				json = utils.arrayTranspose(json);
+
+console.log('res',json);
+
+	/* DEBUG	json = [
+					[12,23,12,34,54],
+					[11,23,23,13,52],
+				];*/
+
+				cb(json)
+
+			}, false);
+		}
+
+		cb(null);
 	}
 }
 },{"./utils":190,"geojson-utils":45,"jquery":87,"underscore":174}],178:[function(require,module,exports){
@@ -79524,6 +79604,8 @@ module.exports = {
 	init: function(el, opts) {
 		this.el = el;
 
+		this.labels = opts && opts.labels || ['data0','data1','data2'];
+
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
@@ -79532,11 +79614,11 @@ module.exports = {
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
 		        columns: [
-		            ['data0', 30, 200, 100, 400, 150, 250],
-		            ['data1', 130, 100, 140, 200, 150, 50],
-		            ['data2', 100, 30, 10, 220, 10, 20]
+		            [this.labels[0], 30, 200, 100, 400, 150, 250],
+		            [this.labels[1], 130, 100, 140, 200, 150, 50],
+		            [this.labels[2], 100, 30, 10, 220, 10, 20]
 		        ],
-		        groups: [['data0','data1','data2']],
+		        groups: [this.labels],
 		        type: 'bar',
 		    }),
 		    //horizontal
@@ -79555,23 +79637,20 @@ module.exports = {
 	},
 
 	formatData: function(data) {
-
 		return {
 			columns: [
-				_.union(['data0'], data[1]),
-				_.union(['data1'], data[2]),
-				_.union(['data2'], data[3])
-	        ],
-	        groups: [_.map(data, function(v,k){return 'data'+k})],
+				[this.labels[0]].concat(data[0]),
+				[this.labels[1]].concat(data[1]),
+				[this.labels[2]].concat(data[2])
+			],
+	        groups: [this.labels],
 		};
 	},
 
 	update: function(data) {
+		if(!_.isArray(data))
+			return false;
 
-		//console.log('StackedChart update', data)
-
-		//this.chart = StackedChart(this.el, this.formatData(data) );
-		
 		this.chart.load( this.formatData(data) );
 	}
 }
@@ -79639,49 +79718,56 @@ module.exports = {
 	init: function(el, opts) {
 		this.el =  el;
 
+		this.labels = opts && opts.labels || ['data0','data1'];
+
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
 				width: 300,
 				height: 200
 			},
-		    data: _.defaults((opts && opts.data) || {}, {
-		        columns: [
-		            ['data0', 30, 200, 100, 400, 150, 250],
-		            ['data1', 130, 100, 140, 200, 150, 50]
-		        ],
-		        groups: [['data0','data1']],
-		        type: 'bar'
-		    }),
-		    bar: {
-		        width: {
-		            ratio: 0.5 // this makes bar width 50% of length between ticks
-		        }
-		        // or
-		        //width: 100 // this makes bar width 100px
-		    }
+			data: _.defaults((opts && opts.data) || {}, {
+				columns: [
+					[this.labels[0], 120, 200, 100, 100, 150],
+					[this.labels[1], 130, 100, 140, 200, 110]
+				],
+				groups: [this.labels],
+				type: 'bar'
+			}),
+			bar: {
+				width: {
+					ratio: 0.5 // this makes bar width 50% of length between ticks
+				}
+				// or
+				//width: 100 // this makes bar width 100px
+			},
+			axis: {
+				x: {
+					tick: {
+						format: function (x) { return (x+1)+' anno' }
+					}
+				}
+			}
 		});
 		return this;
 	},
 
 	formatData: function(data) {
-
 		return {
 			columns: [
-				_.union(['data0'], data[0]),
-				_.union(['data1'], data[1])
-	        ],
-	        groups: [['data0','data1']],
+				[this.labels[0]].concat(data[0]),
+				[this.labels[1]].concat(data[1])
+			],
+	        groups: [this.labels]	        
 		};
 	},
 
 	update: function(data) {
+		if(!_.isArray(data))
+			return false;
 
-		//console.log('StackedChart update', data)
-
-		//this.chart = StackedChart(this.el, this.formatData(data) );
-		
 		this.chart.load( this.formatData(data) );
+		
 	}
 }
 },{"../node_modules/c3/c3.min.css":9,"./utils":190,"c3":8,"jquery":87,"underscore":174}],181:[function(require,module,exports){
@@ -80060,8 +80146,9 @@ $(function() {
 		self.layerData.clearLayers();
 
 		//overpass.search(geoArea, function(geoRes) {
-		cartella.search(geoArea, function(geoRes) {
+		cartella.searchSchool(geoArea, function(geoRes) {
 			
+			console.log('searchSchool_bologna',JSON.stringify(geoRes))
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
@@ -80086,31 +80173,37 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert'),
+		vert: chartVert.init('#chart_vert', {labels: ['maschi','femmine'] }),
 		oriz: chartOriz.init('#chart_oriz'),
 	};
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			console.log('onSelect', row)
+			//console.log('onSelect',row)
 
-			mapActive.layerData.eachLayer(function(layer) {
-				if(layer.feature.id==row.id) {
-					layer.openPopup();
-				}
-			});
+			if(mapActive.layerData) {
+				mapActive.layerData.eachLayer(function(layer) {
+					if(layer.feature.id==row.id) {
+						layer.openPopup();
+					}
+				});
+			}
 
 			$('#charts').show();
 			//.find('.title').text(': '+row.name);
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			charts.radar.update( utils.randomRadar() );
-			charts.vert.update( utils.randomStack() );
-			charts.oriz.update( utils.randomStack(5,3) );
+			//charts.radar.update( utils.randomRadar() );
+			//charts.vert.update( utils.randomStack() );
+			//charts.oriz.update( utils.randomStack(5,3) );
 
 			maps.poi.update( row );
+
+			cartella.getDataSchool(row, 'gender', function(data) {
+				charts.vert.update(data);
+			});
 		}
 	});
 
@@ -80125,25 +80218,45 @@ $(function() {
 	});
 
 
-	//DEBUG CHARTS
-	if(location.hash=='#debug') {
-		$('#charts').css({
-			display: 'block',
-			position: 'fixed',
-			zIndex: 2000,
-			top: 16,
-			right: 16,
-			width: 1000,
-			height: 800,
-			overflowY: 'auto',
-			background: '#eee',
-			boxShadow:'0 0 16px #666'
-		}).show();
-	}
+//DEBUG
+if(location.hash=='#debug') {
 
-	charts.radar.update( utils.randomRadar() );
-	charts.vert.update( utils.randomStack() );
-	charts.oriz.update( utils.randomStack(5,3) );
+	window.utils = utils;
+
+	$('#charts').css({
+		display: 'block',
+		position: 'fixed',
+		zIndex: 2000,
+		top: 10,
+		right: 10,
+		bottom: 10,
+		width: 1000,
+		height: 'auto',
+		overflowY: 'auto',
+		background: '#eee',
+		boxShadow:'0 0 16px #666'
+	}).show();
+
+	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
+		
+		table.update(geoSchools);
+		
+		var school = geoSchools.features[1].properties;
+
+		cartella.getDataSchool(school, 'gender', function(data) {
+			
+			console.log('gender', data);
+
+			charts.vert.update(data);
+		});
+	});
+
+	//charts.radar.update( utils.randomRadar() );
+	//charts.vert.update( utils.randomStack() );
+	//charts.oriz.update( utils.randomStack(5,3) );
+
+}//DEBUG
+
 });
 
 },{"../node_modules/bootstrap/dist/css/bootstrap.min.css":4,"../node_modules/leaflet/dist/leaflet.css":95,"./cartella":177,"./chart_oriz":178,"./chart_radar":179,"./chart_vert":180,"./config":181,"./map_admin":184,"./map_area":185,"./map_gps":186,"./map_poi":187,"./overpass":188,"./table":189,"./utils":190,"bootstrap":5,"handlebars":75,"jquery":87,"leaflet":94,"popper.js":101,"underscore":174,"underscore.string":128}],184:[function(require,module,exports){
@@ -80751,6 +80864,10 @@ module.exports = {
 			//cardView: true,
 			data: [],
 		    columns: [
+		    	{
+		    		field: 'id',
+		    		title: 'ID'
+		    	},
 			    {
 			        field: 'name',
 			        title: 'Nome'
@@ -80878,11 +80995,30 @@ module.exports = {
 
         if(cache===false) {
             $.getJSON(url, function(json) {
-                cb(json);
+                
+                if(_.isObject(json) && _.isObject(json['Entries']))
+                {
+                    var ee = json['Entries']['Entry'];
+                    json = _.isArray(ee) ? ee : [ee];
+                }
+                else
+                    json = [];
+                
+                if(_.isObject(json) || _.isArray(json) )
+                    cb(json);
+                else
+                    console.warn('no results',url)
+
             });
         }
         else if(cache && !localStorage[url]) {
             $.getJSON(url, function(json) {
+
+                if(_.isObject(json) && json['Entries'])
+                {           
+                    var ee = json['Entries']['Entry'];
+                    json = _.isArray(ee) ? ee : [ee];
+                }
 
                 try {
                     localStorage.setItem(url, JSON.stringify(json));
@@ -81009,6 +81145,39 @@ module.exports = {
         }
     },
 
+    arrayTranspose: function(a) {
+        //https://stackoverflow.com/questions/4492678/swap-rows-with-columns-transposition-of-a-matrix-in-javascript/13241545
+
+        // Calculate the width and height of the Array
+        var w = a.length || 0;
+        var h = a[0] instanceof Array ? a[0].length : 0;
+
+        // In case it is a zero matrix, no transpose routine needed.
+        if(h === 0 || w === 0) { return []; }
+
+        /**
+        * @var {Number} i Counter
+        * @var {Number} j Counter
+        * @var {Array} t Transposed data is stored in this array.
+        */
+        var i, j, t = [];
+
+        // Loop through every item in the outer array (height)
+        for(i=0; i<h; i++) {
+
+            // Insert a new row (array)
+            t[i] = [];
+
+            // Loop through every item per item in outer array (width)
+            for(j=0; j<w; j++) {
+
+              // Save transposed data.
+              t[i][j] = a[j][i];
+            }
+        }
+
+        return t;
+    },
     /*
         random data generators
      */
@@ -81049,7 +81218,7 @@ module.exports = {
 
         return _.map(_.range(rows), function(i) {
             return _.map(_.range(cols), function(x) {
-                return [ _.random(1,val) ];
+                return _.random(1,val);
             });
         });
     },

@@ -60,14 +60,14 @@
 		<h3>Anagrafica Scuola <b class="title"></b></h3>
 		<div class="row">
 			<div class="col-md-10">
-				<div class="card" >				  
+				<!-- <div class="card" >				  
 				  <div class="card-body">
-				    <b class="card-title"></b>
+				    <b class="card-title"></b> -->
 				    <p id="card_details" class="card-text">
 				    	<!-- RENDER -->
 				    </p>
-				  </div>
-				</div>
+			<!-- 	  </div>
+				</div> -->
 			</div>
 		</div>
 		<h3>Parametri Scuola <b class="title"></b></h3>
@@ -174,7 +174,7 @@
 	<option value="6">Second stage</option>
 </script>
 <script id="tmpl_details" type="text/x-handlebars-template">
-<ul>
+<ul class="list-group">
 	{{#if name}}<li class="list-group-item"><label>Nome:</label> {{name}} </li>{{/if}}
 	{{#if level}}<li class="list-group-item"><label>Livello:</label> {{level}} </li>{{/if}}
 	{{#if address}}<li class="list-group-item"><label>Indirizzo:</label> {{address}} </li>{{/if}}

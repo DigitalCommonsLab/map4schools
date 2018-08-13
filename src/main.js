@@ -63,8 +63,9 @@ $(function() {
 		self.layerData.clearLayers();
 
 		//overpass.search(geoArea, function(geoRes) {
-		cartella.search(geoArea, function(geoRes) {
+		cartella.searchSchool(geoArea, function(geoRes) {
 			
+			console.log('searchSchool_bologna',JSON.stringify(geoRes))
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
@@ -89,31 +90,37 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert'),
+		vert: chartVert.init('#chart_vert', {labels: ['maschi','femmine'] }),
 		oriz: chartOriz.init('#chart_oriz'),
 	};
 
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			console.log('onSelect', row)
+			//console.log('onSelect',row)
 
-			mapActive.layerData.eachLayer(function(layer) {
-				if(layer.feature.id==row.id) {
-					layer.openPopup();
-				}
-			});
+			if(mapActive.layerData) {
+				mapActive.layerData.eachLayer(function(layer) {
+					if(layer.feature.id==row.id) {
+						layer.openPopup();
+					}
+				});
+			}
 
 			$('#charts').show();
 			//.find('.title').text(': '+row.name);
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			charts.radar.update( utils.randomRadar() );
-			charts.vert.update( utils.randomStack() );
-			charts.oriz.update( utils.randomStack(5,3) );
+			//charts.radar.update( utils.randomRadar() );
+			//charts.vert.update( utils.randomStack() );
+			//charts.oriz.update( utils.randomStack(5,3) );
 
 			maps.poi.update( row );
+
+			cartella.getDataSchool(row, 'gender', function(data) {
+				charts.vert.update(data);
+			});
 		}
 	});
 
@@ -128,23 +135,43 @@ $(function() {
 	});
 
 
-	//DEBUG CHARTS
-	if(location.hash=='#debug') {
-		$('#charts').css({
-			display: 'block',
-			position: 'fixed',
-			zIndex: 2000,
-			top: 16,
-			right: 16,
-			width: 1000,
-			height: 800,
-			overflowY: 'auto',
-			background: '#eee',
-			boxShadow:'0 0 16px #666'
-		}).show();
-	}
+//DEBUG
+if(location.hash=='#debug') {
 
-	charts.radar.update( utils.randomRadar() );
-	charts.vert.update( utils.randomStack() );
-	charts.oriz.update( utils.randomStack(5,3) );
+	window.utils = utils;
+
+	$('#charts').css({
+		display: 'block',
+		position: 'fixed',
+		zIndex: 2000,
+		top: 10,
+		right: 10,
+		bottom: 10,
+		width: 1000,
+		height: 'auto',
+		overflowY: 'auto',
+		background: '#eee',
+		boxShadow:'0 0 16px #666'
+	}).show();
+
+	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
+		
+		table.update(geoSchools);
+		
+		var school = geoSchools.features[1].properties;
+
+		cartella.getDataSchool(school, 'gender', function(data) {
+			
+			console.log('gender', data);
+
+			charts.vert.update(data);
+		});
+	});
+
+	//charts.radar.update( utils.randomRadar() );
+	//charts.vert.update( utils.randomStack() );
+	//charts.oriz.update( utils.randomStack(5,3) );
+
+}//DEBUG
+
 });
