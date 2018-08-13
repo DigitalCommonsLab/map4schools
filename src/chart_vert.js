@@ -67,7 +67,10 @@ module.exports = {
 		if(!_.isArray(data))
 			return false;
 
-		this.chart.load( this.formatData(data) );
+		if(data.length)
+			this.chart.load( this.formatData(data) );
+		else
+			this.chart.unload()
 		
 	}
 }

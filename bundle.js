@@ -79513,10 +79513,11 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
-				if(!_.isArray(json) || json.length===0) return;
+				if(_.isArray(json) && json.length>0)
+				{
 
-console.clear()
-console.log('getGenderData',json);
+				/*console.clear()
+				console.log('getGenderData',json);*/
 
 				json = _.map(json, function(o) {
 					return _.omit(o,'codicescuola','ordinescuola','classi');
@@ -79530,11 +79531,7 @@ console.log('getGenderData',json);
 					return v.annoscolastico === ymax;
 				});
 
-console.log('anno', years, ymax, json);
-
 				json = _.groupBy(json,'annocorsoclasse');
-
-console.log('group annocorsoclasse',json);
 
 				json = _.map(json, function(years, year) {
 					return {
@@ -79552,14 +79549,10 @@ console.log('group annocorsoclasse',json);
 
 				json = utils.arrayTranspose(json);
 
-console.log('res',json);
-
-	/* DEBUG	json = [
-					[12,23,12,34,54],
-					[11,23,23,13,52],
-				];*/
-
 				cb(json)
+			}
+			else
+				cb([]);
 
 			}, false);
 		}
@@ -79751,7 +79744,10 @@ module.exports = {
 		if(!_.isArray(data))
 			return false;
 
-		this.chart.load( this.formatData(data) );
+		if(data.length)
+			this.chart.load( this.formatData(data) );
+		else
+			this.chart.unload()
 		
 	}
 }
