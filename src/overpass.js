@@ -12,17 +12,6 @@ module.exports = {
   	
   	results: [],
 
-  	/*
-
-[out:json];(
-
-node(around:600,-33.444,-70.6383)[amenity=drinking_water];
-node(around:600,-33.444,-70.6383)[amenity=fountain];
-node(around:600,-33.444,-70.6383)[amenity=bar];
-node(around:600,-33.444,-70.6383)[amenity=cafe];node(around:600,-33.444,-70.6383)[amenity=restaurant];node(around:600,-33.444,-70.6383)[shop=supermarket];node(around:600,-33.444,-70.6383)[amenity=marketplace];node(around:600,-33.444,-70.6383)[amenity=hospital];node(around:600,-33.444,-70.6383)[tourism=hotel];node(around:600,-33.444,-70.6383)[amenity=parking];node(around:600,-33.444,-70.6383)[tourism=picnic_site];node(around:600,-33.444,-70.6383)[tourism=camp_site];node(around:600,-33.444,-70.6383)[highway=bus_stop];);(._;>;);out 30;
-
-  	 */
-
 	buildQuery: function(bbox, filters) {
 		
 		var bboxStr = utils.tmpl('{lat1},{lon1},{lat2},{lon2}', {
@@ -36,8 +25,6 @@ node(around:600,-33.444,-70.6383)[amenity=cafe];node(around:600,-33.444,-70.6383
 				bbox: bboxStr
 			});
 		});
-
-		console.log(ff)
 
 		return "[out:json];("+ ff.join('') +");(._;>;);out;";
 	},
@@ -53,8 +40,6 @@ node(around:600,-33.444,-70.6383)[amenity=cafe];node(around:600,-33.444,-70.6383
 		var query = self.buildQuery(bbox, filters);
 
 		var url = 'https://overpass-api.de/api/interpreter?data='+query;
-
-		console.log(url)
 
 		utils.getData(url, function(json) {
 			

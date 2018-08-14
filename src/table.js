@@ -3,9 +3,16 @@ var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var utils = require('./utils');
 
-var bttable = require('bootstrap-table');
+window.$ = $;
+window.jQuery = jQuery;
+
+require('bootstrap-table');
 //https://github.com/wenzhixin/bootstrap-table
 require('../node_modules/bootstrap-table/dist/bootstrap-table.min.css');
+
+
+require('../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control');
+require('../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css');
 
 module.exports = {
   	
@@ -24,21 +31,25 @@ module.exports = {
 			onClickRow: opts && opts.onSelect,
 			//radio:true,
 			pagination:true,
+			//showColumns: true,
+			
 			pageSize: 5,
 			pageList: [5],
-			//cardView: true,
+			//showToggle:true,//cardView: true,
 			data: [],
 		    columns: [
-		    	{
+				{
 		    		field: 'id',
-		    		title: 'Codice'
-		    	},
+		    		title: 'Codice MIUR'
+		    	},		    
 			    {
 			        field: 'name',
 			        title: 'Nome'
-			    }, {
+			    },
+			    {
 			        field: 'level',
-			        title: 'Grado'
+			        title: 'Grado Istruzione',
+			        filterControl: 'select'
 			    }
 		    ]
 		});

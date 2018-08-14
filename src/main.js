@@ -141,11 +141,11 @@ if(location.hash=='#debug') {
 
 	$('#charts').css({
 		display: 'block',
+		/*zIndex: 2000,
 		position: 'fixed',
-		zIndex: 2000,
 		top: 10,
 		right: 10,
-		bottom: 10,
+		bottom: 10,*/
 		width: 1000,
 		height: 'auto',
 		overflowY: 'auto',

@@ -4,7 +4,7 @@
 	<title>Cedus4School</title> 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<link href="main.css" rel="stylesheet">
+	<link rel="stylesheet" href="main.css" />
 </head> 	
 <body>
 	<div class="container">		
@@ -48,7 +48,12 @@
 				<br />
       			<h2>Scuole <b class="title"></b></h2>
       			<br />
- 				<table id="table_selection" class="table">
+ 				<table id="table_selection" class="table" data-filter-control="true">
+ 					<tr>
+			            <th data-field="name" data-filter-control="input"></th>
+			            <th data-field="level" data-filter-control="select"></th>
+			            <th data-field="id"></th>
+			        </tr>
 				</table>
 			</div>
 		</div>
@@ -72,8 +77,8 @@
 		</div>
 		<h3>Parametri Scuola <b class="title"></b></h3>
 		<div class="row">
-			<div class="col-md-6">				
-				<div class="card" >				  
+			<div class="col-md-6">
+				<div class="card">
 				  <div class="card-body">
 				    <b class="card-title">Distribuzione per genere e anno di corso</b>
 				    <p class="card-text small">
@@ -85,17 +90,17 @@
 				  </div>
 				</div>
 			</div>
-			<div class="col-md-6">				
-				<div class="card" >				  
+			<div class="col-md-6">
+				<div class="card">
 				  <div class="card-body">
 				    <b class="card-title">Distribuzione eta' per anno scolastico</b>
 				    <p class="card-text small">Totale degli studenti per anno e la percentuale per fascia di eta'</p>
 				  </div>
 				  <div id="chart_oriz">
 				  	<!-- RENDER -->
-				  </div>				  
+				  </div>
 				</div>
-			</div>		    
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-6">
@@ -172,10 +177,11 @@
 <script id="tmpl_details" type="text/x-handlebars-template">
 <ul class="list-group">
 	{{#if name}}<li class="list-group-item"><label>Nome:</label> {{name}} </li>{{/if}}
-	{{#if level}}<li class="list-group-item"><label>Livello:</label> {{level}} </li>{{/if}}
+	{{#if level}}<li class="list-group-item"><label>Grado Istruzione:</label> {{level}} </li>{{/if}}
+	{{#if id}}<li class="list-group-item"><label>Codice MIUR:</label> {{id}} </li>{{/if}}
 	{{#if address}}<li class="list-group-item"><label>Indirizzo:</label> {{address}} </li>{{/if}}
 	{{#if email}}<li class="list-group-item"><label>Email:</label> {{email}} </li>{{/if}}
-	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="http://{{website}}.com" target="_blank">http://{{website}}.com</a> </li>{{/if}}
+	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="{{website}}" target="_blank">{{website}}</a> </li>{{/if}}
 </ul>
 </script>
 <script src="bundle.js"></script>
