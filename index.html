@@ -154,14 +154,10 @@
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
+<b>{{label}}</b>
 <ul class="list-group">
 	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
 </ul>
-<br />
-<!--div class="btn-group btn-group-xs" role="group">
-	<a class="btn btn-link btn-xs" href="{{url_view}}" target="_blank">view</a>
-	<a class="btn btn-primary" href="{{url_edit}}">edit</a>
-</div-->
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>

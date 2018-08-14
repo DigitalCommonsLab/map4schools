@@ -65,7 +65,6 @@ $(function() {
 		//overpass.search(geoArea, function(geoRes) {
 		cartella.searchSchool(geoArea, function(geoRes) {
 			
-			console.log('searchSchool_bologna',JSON.stringify(geoRes))
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);

@@ -21,7 +21,12 @@ module.exports = {
 
   	config: {
   		height: 420,
-  		width: 420
+  		width: 420,
+  		overpassTags: [
+			"amenity=bar",
+			"highway=bus_stop",
+			"amenity=parking"
+		]
   	},
 
 	init: function(el, opts) {
@@ -41,12 +46,16 @@ module.exports = {
 		}) );
 
 		self.map.addControl(L.control.zoom({position:'topright'}));
-		self.marker = L.marker([0,0]).addTo(self.map);
+		self.marker = L.marker([0,0]).addTo(self.map).bindTooltip('',{direction:'top', offset: L.point(0,-10)});
+
+		self._overpassKeys = _.uniq(_.map(self.config.overpassTags, function(t) {
+			return t.split('=')[0];
+		}));
 
 		self.layerData = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
-					radius: 5,
+					radius: 6,
 					weight: 2.5,
 					color: '#3c79a7',
 					fillColor:'#fff',
@@ -55,8 +64,15 @@ module.exports = {
 				})
 			},
 			onEachFeature: function(feature, layer) {
-				var p = feature.properties;
-				layer.bindTooltip( config.tmpls.map_popup(p) )
+				
+				var keys = _.map(feature.properties, function(v,k) {
+					if(_.contains(self._overpassKeys, k))
+						return v.replace('_',' ');
+				});
+
+				feature.properties.label = _.compact(keys).join(', ');
+
+				layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
 			}
 		}).addTo(self.map);
 
@@ -68,21 +84,20 @@ module.exports = {
 
 		self.map.invalidateSize();
 
-		self.marker.setLatLng(obj.loc);
+		self.marker.setLatLng(obj.loc).setTooltipContent(obj.address).openTooltip();
 		
-		self.map.setView(obj.loc, 16,{ animate: false });
+		self.map.setView(obj.loc, 15,{ animate: false });
 
 		var rect = L.rectangle( self.map.getBounds() ),
 			geoArea = L.featureGroup([rect]).toGeoJSON()
 
 		self.layerData.clearLayers();
+
 		overpass.search(geoArea, function(geoRes) {
 
 			self.layerData.addData(geoRes);
 			
-			//TODO table list pois
-			
-		}, ['amenity=bar']);
+		}, self.config.overpassTags);
 
 	}
 };

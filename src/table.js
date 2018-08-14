@@ -31,17 +31,14 @@ module.exports = {
 		    columns: [
 		    	{
 		    		field: 'id',
-		    		title: 'ID'
+		    		title: 'Codice'
 		    	},
 			    {
 			        field: 'name',
 			        title: 'Nome'
 			    }, {
 			        field: 'level',
-			        title: 'Livello'
-			    }, {
-			        field: 'website',
-			        title: 'Sito Web'
+			        title: 'Grado'
 			    }
 		    ]
 		});

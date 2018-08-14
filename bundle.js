@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80144,7 +80129,6 @@ $(function() {
 		//overpass.search(geoArea, function(geoRes) {
 		cartella.searchSchool(geoArea, function(geoRes) {
 			
-			console.log('searchSchool_bologna',JSON.stringify(geoRes))
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
@@ -80718,7 +80702,12 @@ module.exports = {
 
   	config: {
   		height: 420,
-  		width: 420
+  		width: 420,
+  		overpassTags: [
+			"amenity=bar",
+			"highway=bus_stop",
+			"amenity=parking"
+		]
   	},
 
 	init: function(el, opts) {
@@ -80738,12 +80727,16 @@ module.exports = {
 		}) );
 
 		self.map.addControl(L.control.zoom({position:'topright'}));
-		self.marker = L.marker([0,0]).addTo(self.map);
+		self.marker = L.marker([0,0]).addTo(self.map).bindTooltip('',{direction:'top', offset: L.point(0,-10)});
+
+		self._overpassKeys = _.uniq(_.map(self.config.overpassTags, function(t) {
+			return t.split('=')[0];
+		}));
 
 		self.layerData = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
-					radius: 5,
+					radius: 6,
 					weight: 2.5,
 					color: '#3c79a7',
 					fillColor:'#fff',
@@ -80752,8 +80745,15 @@ module.exports = {
 				})
 			},
 			onEachFeature: function(feature, layer) {
-				var p = feature.properties;
-				layer.bindTooltip( config.tmpls.map_popup(p) )
+				
+				var keys = _.map(feature.properties, function(v,k) {
+					if(_.contains(self._overpassKeys, k))
+						return v.replace('_',' ');
+				});
+
+				feature.properties.label = _.compact(keys).join(', ');
+
+				layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
 			}
 		}).addTo(self.map);
 
@@ -80765,21 +80765,20 @@ module.exports = {
 
 		self.map.invalidateSize();
 
-		self.marker.setLatLng(obj.loc);
+		self.marker.setLatLng(obj.loc).setTooltipContent(obj.address).openTooltip();
 		
-		self.map.setView(obj.loc, 16,{ animate: false });
+		self.map.setView(obj.loc, 15,{ animate: false });
 
 		var rect = L.rectangle( self.map.getBounds() ),
 			geoArea = L.featureGroup([rect]).toGeoJSON()
 
 		self.layerData.clearLayers();
+
 		overpass.search(geoArea, function(geoRes) {
 
 			self.layerData.addData(geoRes);
 			
-			//TODO table list pois
-			
-		}, ['amenity=bar']);
+		}, self.config.overpassTags);
 
 	}
 };
@@ -80798,24 +80797,50 @@ module.exports = {
   	
   	results: [],
 
+  	/*
+
+[out:json];(
+
+node(around:600,-33.444,-70.6383)[amenity=drinking_water];
+node(around:600,-33.444,-70.6383)[amenity=fountain];
+node(around:600,-33.444,-70.6383)[amenity=bar];
+node(around:600,-33.444,-70.6383)[amenity=cafe];node(around:600,-33.444,-70.6383)[amenity=restaurant];node(around:600,-33.444,-70.6383)[shop=supermarket];node(around:600,-33.444,-70.6383)[amenity=marketplace];node(around:600,-33.444,-70.6383)[amenity=hospital];node(around:600,-33.444,-70.6383)[tourism=hotel];node(around:600,-33.444,-70.6383)[amenity=parking];node(around:600,-33.444,-70.6383)[tourism=picnic_site];node(around:600,-33.444,-70.6383)[tourism=camp_site];node(around:600,-33.444,-70.6383)[highway=bus_stop];);(._;>;);out 30;
+
+  	 */
+
+	buildQuery: function(bbox, filters) {
+		
+		var bboxStr = utils.tmpl('{lat1},{lon1},{lat2},{lon2}', {
+            lat1: bbox[0][0].toFixed(2), lon1: bbox[0][1].toFixed(2),
+            lat2: bbox[1][0].toFixed(2), lon2: bbox[1][1].toFixed(2)
+        });
+
+        var ff = _.map(filters, function(filter) {
+			return filter && utils.tmpl("node({bbox})[{filter}];", {
+				filter: filter,
+				bbox: bboxStr
+			});
+		});
+
+		console.log(ff)
+
+		return "[out:json];("+ ff.join('') +");(._;>;);out;";
+	},
+
 	search: function(geoArea, cb, filters) {
+
+		var self = this;
 
 		filters = filters || ['amenity=school'];
 
-		var tmplUrl = 'https://overpass-api.de/api/interpreter?data=[out:json];node({bbox})[{filter}];out;',
-			tmplBbox = '{lat1},{lon1},{lat2},{lon2}',
-			bbox = utils.polyToBbox(geoArea),
-            bboxStr = utils.tmpl(tmplBbox, {
-                lat1: bbox[0][0], lon1: bbox[0][1],
-                lat2: bbox[1][0], lon2: bbox[1][1]
-            }),
-			params = {
-				//TODO support multiple filters
-				filter: filters[0],
-				bbox: bboxStr
-			},
-			url = utils.tmpl(tmplUrl, params);
- 
+		var bbox = utils.polyToBbox(geoArea); 
+
+		var query = self.buildQuery(bbox, filters);
+
+		var url = 'https://overpass-api.de/api/interpreter?data='+query;
+
+		console.log(url)
+
 		utils.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
@@ -80865,17 +80890,14 @@ module.exports = {
 		    columns: [
 		    	{
 		    		field: 'id',
-		    		title: 'ID'
+		    		title: 'Codice'
 		    	},
 			    {
 			        field: 'name',
 			        title: 'Nome'
 			    }, {
 			        field: 'level',
-			        title: 'Livello'
-			    }, {
-			        field: 'website',
-			        title: 'Sito Web'
+			        title: 'Grado'
 			    }
 		    ]
 		});
