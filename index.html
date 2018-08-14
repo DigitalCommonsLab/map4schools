@@ -160,9 +160,10 @@
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <b>{{label}}</b>
-<ul class="list-group">
-	{{#if website}}<li class="list-group-item"><a href="http://{{website}}" target="_blank">Sito Web</a></li>{{/if}}
-</ul>
+{{#if website}}
+<br /><a href="http://{{website}}" target="_blank">{{website}}</a>
+{{/if}}
+
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>
@@ -178,7 +179,7 @@
 <ul class="list-group">
 	{{#if name}}<li class="list-group-item"><label>Nome:</label> {{name}} </li>{{/if}}
 	{{#if level}}<li class="list-group-item"><label>Grado Istruzione:</label> {{level}} </li>{{/if}}
-	{{#if id}}<li class="list-group-item"><label>Codice MIUR:</label> {{id}} </li>{{/if}}
+	{{#if id}}<li class="list-group-item"><label>Codice MIUR:</label> <a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/{{id}}/cedus" target="_blank">{{id}}</a> </li>{{/if}}
 	{{#if address}}<li class="list-group-item"><label>Indirizzo:</label> {{address}} </li>{{/if}}
 	{{#if email}}<li class="list-group-item"><label>Email:</label> {{email}} </li>{{/if}}
 	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="{{website}}" target="_blank">{{website}}</a> </li>{{/if}}

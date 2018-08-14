@@ -40,7 +40,10 @@ module.exports = {
 		    columns: [
 				{
 		    		field: 'id',
-		    		title: 'Codice MIUR'
+		    		title: 'Codice MIUR',
+		    		formatter: function(id, row, index, field) {
+						return '<a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/'+id+'/cedus" target="_blank">'+id+'</a>';
+					}
 		    	},		    
 			    {
 			        field: 'name',
