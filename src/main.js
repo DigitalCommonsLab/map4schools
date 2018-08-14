@@ -160,8 +160,6 @@ if(location.hash=='#debug') {
 		var school = geoSchools.features[1].properties;
 
 		cartella.getDataSchool(school, 'gender', function(data) {
-			
-			console.log('gender', data);
 
 			charts.vert.update(data);
 		});
