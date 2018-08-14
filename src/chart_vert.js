@@ -55,7 +55,7 @@ module.exports = {
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1])
 			],
-	        groups: [this.labels]	        
+	        groups: [this.labels]
 		};
 	},
 
@@ -66,7 +66,7 @@ module.exports = {
 		if(data.length)
 			this.chart.load( this.formatData(data) );
 		else
-			this.chart.unload()
+			this.chart.unload();
 		
 	}
 }

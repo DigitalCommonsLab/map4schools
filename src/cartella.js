@@ -76,26 +76,12 @@ module.exports = {
 		
 		var self = this;
 
-		if(name==='age') {
-
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
-
-				//TODO
-				
-				cb(json);
-
-			}, false);
-
-		}
-		else if(name==='gender') {
+		if(name==='gender') {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0)
 				{
-
-				/*console.clear()
-				console.log('getGenderData',json);*/
 
 				json = _.map(json, function(o) {
 					return _.omit(o,'codicescuola','ordinescuola','classi');
@@ -134,7 +120,82 @@ module.exports = {
 
 			}, false);
 		}
+		else if(name==='age') {
 
-		cb(null);
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
+				
+				if(_.isArray(json) && json.length>0)
+				{
+					console.clear();
+					
+					json = _.map(json, function(o) {
+						return _.omit(o,'codicescuola');
+					});
+
+					var gyears = _.groupBy(json,'annoscolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
+
+					json = _.filter(json, function(v) {
+						return v.annoscolastico === ymax;
+					});
+
+					console.log('getAgeData',json);
+
+					json = _.groupBy(json,'fasciaeta');
+
+					console.log('getAgeData1',json);
+
+					json = _.map(json, function(etas, eta) {
+						return {
+							'eta': eta,
+							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
+							'annocorso': _.reduce(_.pluck(etas,'annocorso'), function(s,v) { return s+v; })
+						}
+					});
+
+					console.log('getAgeData2',json);
+
+					json = _.map(json, function(v,k) {						
+						return [
+							v.eta,
+							v.alunni,
+							v.annocorso
+						]
+					});
+
+					console.log('getAgeData3',json);
+
+					//json = utils.arrayTranspose(json);
+
+/*
+columns: [
+    ['< di 11 anni',11,0,0],
+    ['11 anni',121,0,0],
+    ['12 anni',12,114,3],
+    ['13 anni', 0,12,93],
+    ['> 13 anni', 0,1,15]
+],
+groups: [
+        ['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']
+    ]
+},
+axis: {
+    rotated: true,
+     x: {
+        tick: {
+            format: function (x) { return 'classe ' + (x+1) + '^' }
+        }
+    }
+}
+*/						
+					cb(json);
+				}
+				else
+					cb([]);
+
+			}, false);
+
+		}
 	}
 }

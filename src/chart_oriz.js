@@ -19,7 +19,7 @@ module.exports = {
 	init: function(el, opts) {
 		this.el = el;
 
-		this.labels = opts && opts.labels || ['data0','data1','data2'];
+		//	this.labels = opts && opts.labels || ['data0','data1','data2'];
 
 		this.chart = c3.generate({
 			bindto: this.el,
@@ -28,17 +28,18 @@ module.exports = {
 				height: 200
 			},
 		    data: _.defaults((opts && opts.data) || {}, {
-		        columns: [
-		            [this.labels[0], 30, 200, 100, 400, 150, 250],
-		            [this.labels[1], 130, 100, 140, 200, 150, 50],
-		            [this.labels[2], 100, 30, 10, 220, 10, 20]
-		        ],
-		        groups: [this.labels],
+		        columns: [],
+		        //groups: [],
 		        type: 'bar',
 		    }),
 		    //horizontal
 		    axis: {
-		    	rotated: true
+		    	//rotated: true,
+				x: {
+					tick: {
+						format: function (x) { return (x+1)+' classe' }
+					}
+				}
 		    },
 		    bar: {
 		        width: {
@@ -52,13 +53,22 @@ module.exports = {
 	},
 
 	formatData: function(data) {
+		
+		//this.labels = data.labels || this.labels;
+
+		var groups = _.map(data, function(v) { return v[0] });
+		
+		console.log('groups', data, groups);
+
 		return {
-			columns: [
+			columns: data,
+			//groups: groups
+			/*columns: [
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1]),
 				[this.labels[2]].concat(data[2])
-			],
-	        groups: [this.labels],
+			],*/
+	        //groups: [this.labels],
 		};
 	},
 
@@ -66,6 +76,9 @@ module.exports = {
 		if(!_.isArray(data))
 			return false;
 
-		this.chart.load( this.formatData(data) );
+		if(data.length)
+			this.chart.load( this.formatData(data) );
+		else
+			this.chart.unload();
 	}
 }
