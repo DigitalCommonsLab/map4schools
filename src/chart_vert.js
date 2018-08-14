@@ -8,13 +8,9 @@ require('../node_modules/c3/c3.min.css');
 
 var utils = require('./utils');
 
-//var StackedChart = require('./lib/stackedChart');
-
 module.exports = {
   	
   	chart: null,
-
-  	//onSelect: function(e){ console.log('onClickRow',e); }
 
 	init: function(el, opts) {
 		this.el =  el;

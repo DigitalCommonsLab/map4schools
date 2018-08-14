@@ -16,6 +16,31 @@ module.exports = {
 		"Sviluppo e valorizzazione delle risorse umane",
 		"Integrazione con il territorio e rapporti con le famiglie"
 	],
+	genderLabels: [
+		'maschi',
+		'femmine'
+	],
+	ageLabels: [
+		'16 anni',
+		'11 anni',
+		'13 anni',
+		'7 anni',
+		'8 anni',
+		'> di 18 anni',
+		'18 anni',
+		'9 anni',
+		'10 anni',
+		'15 anni',
+		'6 anni',
+		'> di 10 anni',
+		'12 anni',
+		'17 anni',
+		'14 anni',
+		'< di 11 anni',
+		'< di 14 anni',
+		'< di 6 anni',
+		'> di 13 anni',
+	],	
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),

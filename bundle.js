@@ -80433,13 +80433,9 @@ require('../node_modules/c3/c3.min.css');
 
 var utils = require('./utils');
 
-//var StackedChart = require('./lib/stackedChart');
-
 module.exports = {
   	
   	chart: null,
-
-  	//onSelect: function(e){ console.log('onClickRow',e); }
 
 	init: function(el, opts) {
 		this.el =  el;
@@ -80518,6 +80514,31 @@ module.exports = {
 		"Sviluppo e valorizzazione delle risorse umane",
 		"Integrazione con il territorio e rapporti con le famiglie"
 	],
+	genderLabels: [
+		'maschi',
+		'femmine'
+	],
+	ageLabels: [
+		'16 anni',
+		'11 anni',
+		'13 anni',
+		'7 anni',
+		'8 anni',
+		'> di 18 anni',
+		'18 anni',
+		'9 anni',
+		'10 anni',
+		'15 anni',
+		'6 anni',
+		'> di 10 anni',
+		'12 anni',
+		'17 anni',
+		'14 anni',
+		'< di 11 anni',
+		'< di 14 anni',
+		'< di 6 anni',
+		'> di 13 anni',
+	],	
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
@@ -80901,8 +80922,8 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert', {labels: ['maschi','femmine'] }),
-		oriz: chartOriz.init('#chart_oriz'),
+		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
+		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 	};
 
 	table.init('#table_selection', {
@@ -80932,6 +80953,10 @@ $(function() {
 			cartella.getDataSchool(row, 'gender', function(data) {
 				charts.vert.update(data);
 			});
+
+			cartella.getDataSchool(row, 'age', function(data) {
+				charts.oriz.update(data);
+			});			
 		}
 	});
 
@@ -80953,11 +80978,11 @@ if(location.hash=='#debug') {
 
 	$('#charts').css({
 		display: 'block',
-		/*zIndex: 2000,
+		zIndex: 2000,
 		position: 'fixed',
 		top: 10,
 		right: 10,
-		bottom: 10,*/
+		bottom: 10,
 		width: 1000,
 		height: 'auto',
 		overflowY: 'auto',
@@ -80972,9 +80997,12 @@ if(location.hash=='#debug') {
 		var school = geoSchools.features[1].properties;
 
 		cartella.getDataSchool(school, 'gender', function(data) {
-
 			charts.vert.update(data);
 		});
+
+		cartella.getDataSchool(school, 'age', function(data) {
+			charts.oriz.update(data);
+		});		
 	});
 
 	//charts.radar.update( utils.randomRadar() );
