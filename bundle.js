@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80718,7 +80733,10 @@ module.exports = {
 		.width(self.config.width)
 		.height(self.config.height);
 
-		self.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts({
+			scrollWheelZoom: false
+		}) );
+
 		self.map.addControl(L.control.zoom({position:'topright'}));
 		self.marker = L.marker([0,0]).addTo(self.map);
 
@@ -80726,11 +80744,11 @@ module.exports = {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
 					radius: 5,
-					weight: 2,
-					color: '#00c',
-					fillColor:'#0f0',
-					fillOpacity:0.9,
-					opacity:0.9
+					weight: 2.5,
+					color: '#3c79a7',
+					fillColor:'#fff',
+					fillOpacity:1,
+					opacity:1
 				})
 			},
 			onEachFeature: function(feature, layer) {
@@ -80957,8 +80975,8 @@ module.exports = {
         ];
     },
 
-	getMapOpts: function() {
-		return {
+	getMapOpts: function(opts) {
+		return _.defaults(opts, {
 			zoom: 13,
             //maxZoom:16,
             minZoom:5,
@@ -80967,7 +80985,7 @@ module.exports = {
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			})
-		}
+		});
 	},
 
     getData: function(url, cb, cache) {

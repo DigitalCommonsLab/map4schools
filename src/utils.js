@@ -82,8 +82,8 @@ module.exports = {
         ];
     },
 
-	getMapOpts: function() {
-		return {
+	getMapOpts: function(opts) {
+		return _.defaults(opts, {
 			zoom: 13,
             //maxZoom:16,
             minZoom:5,
@@ -92,7 +92,7 @@ module.exports = {
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 			})
-		}
+		});
 	},
 
     getData: function(url, cb, cache) {

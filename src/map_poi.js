@@ -36,7 +36,10 @@ module.exports = {
 		.width(self.config.width)
 		.height(self.config.height);
 
-		self.map = L.map(el, utils.getMapOpts() );
+		self.map = L.map(el, utils.getMapOpts({
+			scrollWheelZoom: false
+		}) );
+
 		self.map.addControl(L.control.zoom({position:'topright'}));
 		self.marker = L.marker([0,0]).addTo(self.map);
 
@@ -44,11 +47,11 @@ module.exports = {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
 					radius: 5,
-					weight: 2,
-					color: '#00c',
-					fillColor:'#0f0',
-					fillOpacity:0.9,
-					opacity:0.9
+					weight: 2.5,
+					color: '#3c79a7',
+					fillColor:'#fff',
+					fillOpacity:1,
+					opacity:1
 				})
 			},
 			onEachFeature: function(feature, layer) {
