@@ -3,6 +3,12 @@ var $ = jQuery = require('jquery');
 var H = require('handlebars');
 
 module.exports = {
+	accounts: {
+		openrouteservice: {
+			name: "osm4school",
+			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
+		}
+	},
 	radarLabels: [
 		"Risultati scolastici",
 		"Risultati nelle prove standardizzate nazionali",
