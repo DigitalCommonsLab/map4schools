@@ -108,7 +108,7 @@ module.exports = {
                     json = _.isArray(ee) ? ee : [ee];
                 }
                 else
-                    json = [];
+                    json = json;
                 
                 if(_.isObject(json) || _.isArray(json) )
                     cb(json);

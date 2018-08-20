@@ -11,6 +11,7 @@ var overpass = require('./overpass');
 
 var config = require('./config'); 
 
+var iso = require('./isochrones');
 
 module.exports = {
   	
@@ -86,18 +87,25 @@ module.exports = {
 
 		self.marker.setLatLng(obj.loc).setTooltipContent(obj.address).openTooltip();
 		
-		self.map.setView(obj.loc, 15,{ animate: false });
+		self.map.setView(obj.loc, 14,{ animate: false });
 
 		var rect = L.rectangle( self.map.getBounds() ),
 			geoArea = L.featureGroup([rect]).toGeoJSON()
 
 		self.layerData.clearLayers();
+		
+		iso.search(obj.loc, function(geoRes) {
 
-		overpass.search(geoArea, function(geoRes) {
-
+console.log('iso geo',geoRes)
 			self.layerData.addData(geoRes);
-			
-		}, self.config.overpassTags);
+
+			self.map.fitBounds(self.layerData.getBounds().pad(-.8))
+
+			overpass.search(geoArea, function(geoRes) {
+				self.layerData.addData(geoRes);		
+			}, self.config.overpassTags);
+
+		});
 
 	}
 };

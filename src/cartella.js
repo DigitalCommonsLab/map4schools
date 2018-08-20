@@ -126,7 +126,7 @@ module.exports = {
 				
 				if(_.isArray(json) && json.length>0)
 				{
-					console.clear();
+//					console.clear();
 					
 					json = _.map(json, function(o) {
 						return _.omit(o,'codicescuola');
