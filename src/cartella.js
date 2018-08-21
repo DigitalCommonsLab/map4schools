@@ -80,43 +80,42 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
-				if(_.isArray(json) && json.length>0)
-				{
+				if(_.isArray(json) && json.length>0) {
 
-				json = _.map(json, function(o) {
-					return _.omit(o,'codicescuola','ordinescuola','classi');
-				});
+					json = _.map(json, function(o) {
+						return _.omit(o,'codicescuola','ordinescuola','classi');
+					});
 
-				var gyears = _.groupBy(json,'annoscolastico'),
-					years = _.map(_.keys(gyears),parseFloat),
-					ymax = _.max(years);
+					var gyears = _.groupBy(json,'annoscolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
 
-				json = _.filter(json, function(v) {
-					return v.annoscolastico === ymax;
-				});
+					json = _.filter(json, function(v) {
+						return v.annoscolastico === ymax;
+					});
 
-				json = _.groupBy(json,'annocorsoclasse');
+					json = _.groupBy(json,'annocorsoclasse');
 
-				json = _.map(json, function(years, year) {
-					return {
-						'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
-						'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
-					}
-				});
-				
-				json = _.map(json, function(v,k) {
-					return [
-						v.alunnimaschi,
-						v.alunnifemmine
-					]
-				});
+					json = _.map(json, function(years, year) {
+						return {
+							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
+							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
+						}
+					});
+					
+					json = _.map(json, function(v,k) {
+						return [
+							v.alunnimaschi,
+							v.alunnifemmine
+						]
+					});
 
-				json = utils.arrayTranspose(json);
+					json = utils.arrayTranspose(json);
 
-				cb(json)
-			}
-			else
-				cb([]);
+					cb(json)
+				}
+				else
+					cb([]);
 
 			}, false);
 		}
@@ -140,11 +139,11 @@ module.exports = {
 						return v.annoscolastico === ymax;
 					});
 
-					console.log('getAgeData',json);
+					//console.log('getAgeData',json);
 
 					json = _.groupBy(json,'fasciaeta');
 
-					console.log('getAgeData1',json);
+					//console.log('getAgeData1',json);
 
 					json = _.map(json, function(etas, eta) {
 						return {
@@ -154,7 +153,7 @@ module.exports = {
 						}
 					});
 
-					console.log('getAgeData2',json);
+					//console.log('getAgeData2',json);
 
 					json = _.map(json, function(v,k) {						
 						return [
@@ -164,7 +163,7 @@ module.exports = {
 						]
 					});
 
-					console.log('getAgeData3',json);
+					//console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
 

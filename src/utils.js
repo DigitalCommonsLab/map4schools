@@ -35,7 +35,7 @@ module.exports = {
 	},
 
     polyToBbox: function(geo, prec) {
-        prec = prec || 6;
+        prec = prec || 8;
 
         var bb = L.geoJSON(geo).getBounds(),
             sw = bb.getSouthWest(),
@@ -48,15 +48,17 @@ module.exports = {
         return bbox;
     },
 
-    bufferLoc: function(loc, dist, corners) {
+    bufferLoc: function(loc, dist, corners, prec) {
         
+        prec = prec || 8;
+        dist = dist || 300;
         corners = corners || false;
 
         var b = this.meters2rad(dist),
-            lat1 = parseFloat((loc[0]-b).toFixed(4)),
-            lon1 = parseFloat((loc[1]-b).toFixed(4)),
-            lat2 = parseFloat((loc[0]+b).toFixed(4)),
-            lon2 = parseFloat((loc[1]+b).toFixed(4));
+            lat1 = parseFloat((loc[0]-b).toFixed(prec)),
+            lon1 = parseFloat((loc[1]-b).toFixed(prec)),
+            lat2 = parseFloat((loc[0]+b).toFixed(prec)),
+            lon2 = parseFloat((loc[1]+b).toFixed(prec));
 
         return corners ? [[lat1, lon1], [lat2, lon2]] : [lat1, lon1, lat2, lon2];
     },
@@ -97,7 +99,7 @@ module.exports = {
 
     getData: function(url, cb, cache) {
 
-        cache = _.isUndefined(cache) ? true : cache;
+        cache = typeof cache === 'undefined' ? true : cache;
 
         if(cache===false) {
             $.getJSON(url, function(json) {

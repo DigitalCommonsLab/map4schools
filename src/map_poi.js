@@ -6,9 +6,8 @@ https://github.com/DigitalCommonsLab/osm4schools/issues/20
  */
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
-//var L = require('leaflet');
-var overpass = require('./overpass');
 
+var overpass = require('./overpass');
 var config = require('./config'); 
 
 var iso = require('./isochrones');
@@ -25,7 +24,7 @@ module.exports = {
   		width: 420,
   		overpassTags: [
 			"amenity=bar",
-			"highway=bus_stop",
+			"highway=restaurant",
 			"amenity=parking"
 		]
   	},
@@ -53,15 +52,26 @@ module.exports = {
 			return t.split('=')[0];
 		}));
 
-		self.layerData = L.geoJSON([], {
+		self.layerIso = L.geoJSON([], {
+			style: function(f) {
+				return {
+					weight: 0,
+					//color: f.properties.color,
+					fillColor: f.properties.color,
+					fillOpacity: 0.3,
+					opacity:1
+				};
+			}
+		}).addTo(self.map);
+
+		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
 					radius: 6,
-					weight: 2.5,
-					color: '#3c79a7',
-					fillColor:'#fff',
-					fillOpacity:1,
-					opacity:1
+					weight: 3,
+					opacity: 1,
+					fillColor: 'white',
+					fillOpacity: 1
 				})
 			},
 			onEachFeature: function(feature, layer) {
@@ -72,10 +82,10 @@ module.exports = {
 				});
 
 				feature.properties.label = _.compact(keys).join(', ');
-
-				layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
+				if(feature.properties.name)
+					layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
 			}
-		}).addTo(self.map);
+		}).addTo(self.map);		
 
 		return this;
 	},
@@ -86,26 +96,34 @@ module.exports = {
 		self.map.invalidateSize();
 
 		self.marker.setLatLng(obj.loc).setTooltipContent(obj.address).openTooltip();
-		
-		self.map.setView(obj.loc, 14,{ animate: false });
 
-		var rect = L.rectangle( self.map.getBounds() ),
-			geoArea = L.featureGroup([rect]).toGeoJSON()
+		self.layerIso.clearLayers();
+		iso.search(obj.loc, function(geoIso) {
 
-		self.layerData.clearLayers();
-		
-		iso.search(obj.loc, function(geoRes) {
+			self.layerIso.addData(geoIso);
 
-console.log('iso geo',geoRes)
-			self.layerData.addData(geoRes);
+			var bbox = utils.bufferLoc(obj.loc, 200);
 
-			self.map.fitBounds(self.layerData.getBounds().pad(-.8))
+			if(geoIso.bbox)
+				bbox = L.latLngBounds(L.latLng(geoIso.bbox[1],geoIso.bbox[0]), L.latLng(geoIso.bbox[3],geoIso.bbox[2]) );
 
-			overpass.search(geoArea, function(geoRes) {
-				self.layerData.addData(geoRes);		
+			self.map.fitBounds(bbox.pad(-0.8));
+
+			var rect = L.rectangle( bbox ),
+				geobbox = L.featureGroup([rect]).toGeoJSON();
+
+			var geoSearch = {
+				type: 'FeatureCollection',
+				features: [ _.last(geoIso.features) ]
+			};
+
+			self.layerPoi.clearLayers();
+			overpass.search(geoSearch, function(geoPoi) {
+				
+				self.layerPoi.addData(geoPoi);
+
 			}, self.config.overpassTags);
 
 		});
-
 	}
 };

@@ -58,7 +58,7 @@ module.exports = {
 
 		var groups = _.map(data, function(v) { return v[0] });
 		
-		console.log('groups', data, groups);
+		//console.log('groups', data, groups);
 
 		return {
 			columns: data,

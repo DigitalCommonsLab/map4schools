@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80250,43 +80265,42 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
-				if(_.isArray(json) && json.length>0)
-				{
+				if(_.isArray(json) && json.length>0) {
 
-				json = _.map(json, function(o) {
-					return _.omit(o,'codicescuola','ordinescuola','classi');
-				});
+					json = _.map(json, function(o) {
+						return _.omit(o,'codicescuola','ordinescuola','classi');
+					});
 
-				var gyears = _.groupBy(json,'annoscolastico'),
-					years = _.map(_.keys(gyears),parseFloat),
-					ymax = _.max(years);
+					var gyears = _.groupBy(json,'annoscolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
 
-				json = _.filter(json, function(v) {
-					return v.annoscolastico === ymax;
-				});
+					json = _.filter(json, function(v) {
+						return v.annoscolastico === ymax;
+					});
 
-				json = _.groupBy(json,'annocorsoclasse');
+					json = _.groupBy(json,'annocorsoclasse');
 
-				json = _.map(json, function(years, year) {
-					return {
-						'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
-						'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
-					}
-				});
-				
-				json = _.map(json, function(v,k) {
-					return [
-						v.alunnimaschi,
-						v.alunnifemmine
-					]
-				});
+					json = _.map(json, function(years, year) {
+						return {
+							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
+							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
+						}
+					});
+					
+					json = _.map(json, function(v,k) {
+						return [
+							v.alunnimaschi,
+							v.alunnifemmine
+						]
+					});
 
-				json = utils.arrayTranspose(json);
+					json = utils.arrayTranspose(json);
 
-				cb(json)
-			}
-			else
-				cb([]);
+					cb(json)
+				}
+				else
+					cb([]);
 
 			}, false);
 		}
@@ -80310,11 +80324,11 @@ module.exports = {
 						return v.annoscolastico === ymax;
 					});
 
-					console.log('getAgeData',json);
+					//console.log('getAgeData',json);
 
 					json = _.groupBy(json,'fasciaeta');
 
-					console.log('getAgeData1',json);
+					//console.log('getAgeData1',json);
 
 					json = _.map(json, function(etas, eta) {
 						return {
@@ -80324,7 +80338,7 @@ module.exports = {
 						}
 					});
 
-					console.log('getAgeData2',json);
+					//console.log('getAgeData2',json);
 
 					json = _.map(json, function(v,k) {						
 						return [
@@ -80334,7 +80348,7 @@ module.exports = {
 						]
 					});
 
-					console.log('getAgeData3',json);
+					//console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
 
@@ -80430,7 +80444,7 @@ module.exports = {
 
 		var groups = _.map(data, function(v) { return v[0] });
 		
-		console.log('groups', data, groups);
+		//console.log('groups', data, groups);
 
 		return {
 			columns: data,
@@ -80634,12 +80648,15 @@ module.exports = {
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
+
+var d3 = require('d3');
+
 var utils = require('./utils');
 //var geoutils = require('geojson-utils');
 var config = require('./config'); 
 
 module.exports = {
-  	
+
 /*  	results: [],
 
 	buildQuery: function(loc, filters) {
@@ -80647,36 +80664,59 @@ module.exports = {
 		return filters;
 	},
 */
+	config: {
+		api_key: config.accounts.openrouteservice.key,
+		interval: 60,
+		range: 300,
+	},
+	
+  	scaleValues: function(val) {
+
+  		var dom = _.range(this.config.interval, this.config.interval+this.config.range, this.config.interval),
+  			ran = ['white','blue'],
+  			scale = d3.scaleLinear().domain(dom).range(ran),
+  			newval = scale(val);
+
+		return newval;
+  	},
+
 	search: function(loc, cb) {
 
 		var self = this;
 
 		//var query = self.buildQuery(loc, filters);
-
-		var url = utils.tmpl('https://api.openrouteservice.org/isochrones?'+
-				'locations={lng},{lat}&profile=driving-car&range_type=time&interval={interval}&range={range}&units=&location_type=start&intersections=false&api_key={api_key}',{
+		var urlTmpl ='https://api.openrouteservice.org/isochrones?'+
+				'profile=driving-car&range_type=time&units=&location_type=start&intersections=false'+
+				'&api_key={api_key}'+
+				'&locations={lng},{lat}'+
+				'&interval={interval}'+
+				'&range={range}',
+			params = _.extend(self.config, {
 				lat: loc[0],
-				lng: loc[1],
-				api_key: config.accounts.openrouteservice.key,
-				interval: 60,
-				range: 300,
-			});
-
-console.log('iso',url)
+				lng: loc[1]
+			}),
+			url = utils.tmpl(urlTmpl, params );
 
 		utils.getData(url, function(geojson) {
 			
-			if(!_.isObject(geojson) || _.isObject(geojson.error))
+			if(!_.isObject(geojson) || _.isObject(geojson.error)) {
 				console.warn('Isochrones error', geojson.error.message);
-			else
-				cb(geojson);
+			}
+			else {
 
-		}, false);
+				for(var i in geojson.features) {					
+					geojson.features[i].properties.color = self.scaleValues(geojson.features[i].properties.value);
+				}
+
+				cb(geojson);
+			}
+
+		}, true);
 
 		return this;
 	}
 }
-},{"./config":183,"./utils":193,"jquery":89,"underscore":176}],185:[function(require,module,exports){
+},{"./config":183,"./utils":193,"d3":44,"jquery":89,"underscore":176}],185:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -81016,7 +81056,7 @@ $(function() {
 						fillColor:'#f00',
 						fillOpacity:0.8,
 						opacity:0.8
-					})
+					});
 				},
 				onEachFeature: function(feature, layer) {
 					layer.bindPopup( config.tmpls.map_popup(feature.properties) )
@@ -81106,6 +81146,8 @@ $(function() {
 if(location.hash=='#debug') {
 
 	window.utils = utils;
+
+	$('#card_details').hide();
 
 	$('#charts').css({
 		display: 'block',
@@ -81593,9 +81635,8 @@ https://github.com/DigitalCommonsLab/osm4schools/issues/20
  */
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
-//var L = require('leaflet');
-var overpass = require('./overpass');
 
+var overpass = require('./overpass');
 var config = require('./config'); 
 
 var iso = require('./isochrones');
@@ -81612,7 +81653,7 @@ module.exports = {
   		width: 420,
   		overpassTags: [
 			"amenity=bar",
-			"highway=bus_stop",
+			"highway=restaurant",
 			"amenity=parking"
 		]
   	},
@@ -81640,15 +81681,26 @@ module.exports = {
 			return t.split('=')[0];
 		}));
 
-		self.layerData = L.geoJSON([], {
+		self.layerIso = L.geoJSON([], {
+			style: function(f) {
+				return {
+					weight: 0,
+					//color: f.properties.color,
+					fillColor: f.properties.color,
+					fillOpacity: 0.3,
+					opacity:1
+				};
+			}
+		}).addTo(self.map);
+
+		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
 					radius: 6,
-					weight: 2.5,
-					color: '#3c79a7',
-					fillColor:'#fff',
-					fillOpacity:1,
-					opacity:1
+					weight: 3,
+					opacity: 1,
+					fillColor: 'white',
+					fillOpacity: 1
 				})
 			},
 			onEachFeature: function(feature, layer) {
@@ -81659,10 +81711,10 @@ module.exports = {
 				});
 
 				feature.properties.label = _.compact(keys).join(', ');
-
-				layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
+				if(feature.properties.name)
+					layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
 			}
-		}).addTo(self.map);
+		}).addTo(self.map);		
 
 		return this;
 	},
@@ -81673,27 +81725,35 @@ module.exports = {
 		self.map.invalidateSize();
 
 		self.marker.setLatLng(obj.loc).setTooltipContent(obj.address).openTooltip();
-		
-		self.map.setView(obj.loc, 14,{ animate: false });
 
-		var rect = L.rectangle( self.map.getBounds() ),
-			geoArea = L.featureGroup([rect]).toGeoJSON()
+		self.layerIso.clearLayers();
+		iso.search(obj.loc, function(geoIso) {
 
-		self.layerData.clearLayers();
-		
-		iso.search(obj.loc, function(geoRes) {
+			self.layerIso.addData(geoIso);
 
-console.log('iso geo',geoRes)
-			self.layerData.addData(geoRes);
+			var bbox = utils.bufferLoc(obj.loc, 200);
 
-			self.map.fitBounds(self.layerData.getBounds().pad(-.8))
+			if(geoIso.bbox)
+				bbox = L.latLngBounds(L.latLng(geoIso.bbox[1],geoIso.bbox[0]), L.latLng(geoIso.bbox[3],geoIso.bbox[2]) );
 
-			overpass.search(geoArea, function(geoRes) {
-				self.layerData.addData(geoRes);		
+			self.map.fitBounds(bbox.pad(-0.8));
+
+			var rect = L.rectangle( bbox ),
+				geobbox = L.featureGroup([rect]).toGeoJSON();
+
+			var geoSearch = {
+				type: 'FeatureCollection',
+				features: [ _.last(geoIso.features) ]
+			};
+
+			self.layerPoi.clearLayers();
+			overpass.search(geoSearch, function(geoPoi) {
+				
+				self.layerPoi.addData(geoPoi);
+
 			}, self.config.overpassTags);
 
 		});
-
 	}
 };
 },{"./config":183,"./isochrones":184,"./overpass":191,"./utils":193,"jquery":89}],191:[function(require,module,exports){
@@ -81750,7 +81810,7 @@ module.exports = {
 
 			cb(geojson);
 
-		});
+		}, true);
 
 		return this;
 	}
@@ -81863,7 +81923,7 @@ module.exports = {
 	},
 
     polyToBbox: function(geo, prec) {
-        prec = prec || 6;
+        prec = prec || 8;
 
         var bb = L.geoJSON(geo).getBounds(),
             sw = bb.getSouthWest(),
@@ -81876,15 +81936,17 @@ module.exports = {
         return bbox;
     },
 
-    bufferLoc: function(loc, dist, corners) {
+    bufferLoc: function(loc, dist, corners, prec) {
         
+        prec = prec || 8;
+        dist = dist || 300;
         corners = corners || false;
 
         var b = this.meters2rad(dist),
-            lat1 = parseFloat((loc[0]-b).toFixed(4)),
-            lon1 = parseFloat((loc[1]-b).toFixed(4)),
-            lat2 = parseFloat((loc[0]+b).toFixed(4)),
-            lon2 = parseFloat((loc[1]+b).toFixed(4));
+            lat1 = parseFloat((loc[0]-b).toFixed(prec)),
+            lon1 = parseFloat((loc[1]-b).toFixed(prec)),
+            lat2 = parseFloat((loc[0]+b).toFixed(prec)),
+            lon2 = parseFloat((loc[1]+b).toFixed(prec));
 
         return corners ? [[lat1, lon1], [lat2, lon2]] : [lat1, lon1, lat2, lon2];
     },
@@ -81925,7 +81987,7 @@ module.exports = {
 
     getData: function(url, cb, cache) {
 
-        cache = _.isUndefined(cache) ? true : cache;
+        cache = typeof cache === 'undefined' ? true : cache;
 
         if(cache===false) {
             $.getJSON(url, function(json) {

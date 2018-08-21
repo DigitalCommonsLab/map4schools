@@ -52,7 +52,7 @@ $(function() {
 						fillColor:'#f00',
 						fillOpacity:0.8,
 						opacity:0.8
-					})
+					});
 				},
 				onEachFeature: function(feature, layer) {
 					layer.bindPopup( config.tmpls.map_popup(feature.properties) )
@@ -142,6 +142,8 @@ $(function() {
 if(location.hash=='#debug') {
 
 	window.utils = utils;
+
+	$('#card_details').hide();
 
 	$('#charts').css({
 		display: 'block',
