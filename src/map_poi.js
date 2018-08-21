@@ -5,8 +5,10 @@ https://github.com/DigitalCommonsLab/osm4schools/issues/20
 
  */
 var $ = jQuery = require('jquery');
-var utils = require('./utils');
+var H = require('handlebars');
+var geoutils = require('geojson-utils');
 
+var utils = require('./utils');
 var overpass = require('./overpass');
 var config = require('./config'); 
 
@@ -41,6 +43,13 @@ module.exports = {
 		.width(self.config.width)
 		.height(self.config.height);
 
+
+		self.tmplLegend = H.compile($('#tmpl_poi_legend').html());
+
+		$('#poi_legend').html( self.tmplLegend(iso.getLegend()) )
+
+		//window.iso = iso;
+
 		self.map = L.map(el, utils.getMapOpts({
 			scrollWheelZoom: false
 		}) );
@@ -55,13 +64,18 @@ module.exports = {
 		self.layerIso = L.geoJSON([], {
 			style: function(f) {
 				return {
-					weight: 0,
-					//color: f.properties.color,
+					weight: 1,
+					color:'#fff',
 					fillColor: f.properties.color,
-					fillOpacity: 0.3,
+					fillOpacity: 0.8,
 					opacity:1
 				};
-			}
+			},
+			/*onEachFeature: function(feature, layer) {
+				layer.on('click', function(e) {
+					e.target.setStyle({fillColor:'blue'});
+				})
+			}*/
 		}).addTo(self.map);
 
 		self.layerPoi = L.geoJSON([], {
@@ -80,10 +94,19 @@ module.exports = {
 					if(_.contains(self._overpassKeys, k))
 						return v.replace('_',' ');
 				});
+/*
+				if(!feature.properties.time) {
+					self.layerIso.eachLayer(function(l) {
+						console.log('each',l)
+						//if(geoutils.pointInPolygon(feature.geometry, l.to);)
+						//	feature.properties.time = 
+					})
+				}*/
 
 				feature.properties.label = _.compact(keys).join(', ');
 				if(feature.properties.name)
 					layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
+
 			}
 		}).addTo(self.map);		
 
@@ -107,7 +130,7 @@ module.exports = {
 			if(geoIso.bbox)
 				bbox = L.latLngBounds(L.latLng(geoIso.bbox[1],geoIso.bbox[0]), L.latLng(geoIso.bbox[3],geoIso.bbox[2]) );
 
-			self.map.fitBounds(bbox.pad(-0.8));
+			self.map.fitBounds(bbox.pad(-0.9));
 
 			var rect = L.rectangle( bbox ),
 				geobbox = L.featureGroup([rect]).toGeoJSON();

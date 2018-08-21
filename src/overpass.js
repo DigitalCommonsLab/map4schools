@@ -51,7 +51,7 @@ module.exports = {
 
 			cb(geojson);
 
-		}, true);
+		}, false);
 
 		return this;
 	}

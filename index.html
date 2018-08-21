@@ -110,6 +110,9 @@
 				    <p class="card-text small">
 				    	palestre,centri sportivi,pub,parchi,uffici
 				    </p>
+					<div id="poi_legend">
+						<!-- RENDER -->
+					</div>				    
 					<div id="map_poi">
 						<!-- RENDER -->
 					</div>
@@ -160,6 +163,7 @@
 <script id="tmpl_popup" type="text/x-handlebars-template">
 <h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
 <b>{{label}}</b>
+{{#if time}}<br />distanza: <b>{{time}}</b> minuti{{/if}}
 {{#if website}}
 <br /><a href="http://{{website}}" target="_blank">{{website}}</a>
 {{/if}}
@@ -184,6 +188,14 @@
 	{{#if email}}<li class="list-group-item"><label>Email:</label> {{email}} </li>{{/if}}
 	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="{{website}}" target="_blank">{{website}}</a> </li>{{/if}}
 </ul>
+</script>
+<script id="tmpl_poi_legend" type="text/x-handlebars-template">
+{{#with this}}
+	<small>{{title}}</small><br />
+	{{#each list}}
+		<span class="badge badge-success" style="background:{{color}}">{{value}}</span>
+	{{/each}}
+{{/with}}
 </script>
 <script src="bundle.js"></script>
 </body>
