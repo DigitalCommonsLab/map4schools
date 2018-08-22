@@ -89,7 +89,7 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
+		//vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 	};
 
@@ -113,13 +113,13 @@ $(function() {
 
 			//charts.radar.update( utils.randomRadar() );
 			//
-			maps.poi.update( row );
+			//maps.poi.update( row );
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
-			cartella.getDataSchool(row, 'gender', function(data) {
+/*			cartella.getDataSchool(row, 'gender', function(data) {
 				charts.vert.update(data);
-			});
+			});*/
 
 			cartella.getDataSchool(row, 'age', function(data) {
 				charts.oriz.update(data);
@@ -169,10 +169,10 @@ if(location.hash=='#debug') {
 		table.update(geoSchools);
 		
 		var school = geoSchools.features[2].properties;
-
+/*
 		cartella.getDataSchool(school, 'gender', function(data) {
 			charts.vert.update(data);
-		});
+		});*/
 
 		cartella.getDataSchool(school, 'age', function(data) {
 			charts.oriz.update(data);

@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80515,7 +80530,7 @@ module.exports = {
 		else if(name==='age') {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
-				
+
 				if(_.isArray(json) && json.length>0)
 				{
 //					console.clear();
@@ -80559,28 +80574,25 @@ module.exports = {
 					//console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
-
-/*
-columns: [
-    ['< di 11 anni',11,0,0],
-    ['11 anni',121,0,0],
-    ['12 anni',12,114,3],
-    ['13 anni', 0,12,93],
-    ['> 13 anni', 0,1,15]
-],
-groups: [
-        ['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']
-    ]
-},
-axis: {
-    rotated: true,
-     x: {
-        tick: {
-            format: function (x) { return 'classe ' + (x+1) + '^' }
-        }
-    }
-}
-*/						
+/*var test = {
+	columns: [
+	    ['< di 11 anni',11,0,0],
+	    ['11 anni',121,0,0],
+	    ['12 anni',12,114,3],
+	    ['13 anni', 0,12,93],
+	    ['> 13 anni', 0,1,15]
+	],
+	groups: [['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']],
+	axis: {
+	    rotated: true,
+	    x: {
+	        tick: {
+	            format: function(x) { return 'classe ' + (x+1) + '^' }
+	        }
+	    }
+	}
+};	
+*/
 					cb(json);
 				}
 				else
@@ -80613,7 +80625,7 @@ module.exports = {
 	init: function(el, opts) {
 		this.el = el;
 
-		//	this.labels = opts && opts.labels || ['data0','data1','data2'];
+		this.labels = opts && opts.labels || ['data0','data1','data2'];
 
 		this.chart = c3.generate({
 			bindto: this.el,
@@ -80621,11 +80633,11 @@ module.exports = {
 				width: 300,
 				height: 200
 			},
-		    data: _.defaults((opts && opts.data) || {}, {
+		    data: (opts && opts.data) || {
 		        columns: [],
 		        //groups: [],
 		        type: 'bar',
-		    }),
+		    },
 		    //horizontal
 		    axis: {
 		    	//rotated: true,
@@ -80650,20 +80662,43 @@ module.exports = {
 		
 		//this.labels = data.labels || this.labels;
 
-		var groups = _.map(data, function(v) { return v[0] });
+		//var groups = _.map(data, function(v) { return v[0] });
 		
-		//console.log('groups', data, groups);
-
-		return {
-			columns: data,
-			//groups: groups
-			/*columns: [
-				[this.labels[0]].concat(data[0]),
-				[this.labels[1]].concat(data[1]),
-				[this.labels[2]].concat(data[2])
-			],*/
-	        //groups: [this.labels],
+		data = [
+			[110,0,0],
+			[121,0,0],
+			[120,124,3],
+			[0,120,93],
+			[0,10,15]
+		];
+		var lbs = [
+			'< di 11 anni',
+			'11 anni',
+			'12 anni',
+			'13 anni',
+			'> 13 anni'
+		];
+		var ret = {
+			columns: [
+				[lbs[0]].concat(data[0]),
+				[lbs[1]].concat(data[1]),
+				[lbs[2]].concat(data[2]),
+				[lbs[3]].concat(data[3]),
+				[lbs[4]].concat(data[4])
+			],
+			groups: [lbs],
+			type: 'bar',
+			/*axis: {
+			    //rotated: true,
+			    x: {
+			        tick: {
+			            format: function(x) { return 'classe ' + (x+1) + '^' }
+			        }
+			    }
+			}*/
 		};
+		console.log(ret)
+		return ret;
 	},
 
 	update: function(data) {
@@ -80771,13 +80806,14 @@ module.exports = {
 	},
 
 	formatData: function(data) {
-		return {
+		var ret = {
 			columns: [
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1])
 			],
 	        groups: [this.labels]
 		};
+		return ret;
 	},
 
 	update: function(data) {
@@ -81353,7 +81389,7 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
+		//vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 	};
 
@@ -81377,13 +81413,13 @@ $(function() {
 
 			//charts.radar.update( utils.randomRadar() );
 			//
-			maps.poi.update( row );
+			//maps.poi.update( row );
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
-			cartella.getDataSchool(row, 'gender', function(data) {
+/*			cartella.getDataSchool(row, 'gender', function(data) {
 				charts.vert.update(data);
-			});
+			});*/
 
 			cartella.getDataSchool(row, 'age', function(data) {
 				charts.oriz.update(data);
@@ -81433,10 +81469,10 @@ if(location.hash=='#debug') {
 		table.update(geoSchools);
 		
 		var school = geoSchools.features[2].properties;
-
+/*
 		cartella.getDataSchool(school, 'gender', function(data) {
 			charts.vert.update(data);
-		});
+		});*/
 
 		cartella.getDataSchool(school, 'age', function(data) {
 			charts.oriz.update(data);

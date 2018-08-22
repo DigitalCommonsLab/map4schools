@@ -1,0 +1,48 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<!-- Load c3.css -->
+<link href="c3-0.6.7/c3.css" rel="stylesheet">
+
+<!-- Load d3.js and c3.js -->
+<script src="https://d3js.org/d3.v5.min.js"charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.6.7/c3.min.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+</body>
+<script>
+
+var data = {
+    columns: [
+        ['< di 11 anni',11,0,0],
+        ['11 anni',121,0,0],
+        ['12 anni',12,114,3],
+        ['13 anni', 0,12,93],
+        ['> 13 anni', 0,1,15]
+    ],
+    type: 'bar',
+    groups: [
+        ['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']
+    ]
+};
+
+var chart = c3.generate({
+    bindto: '#chart',
+    data: {
+        columns:[]
+    },
+    axis: {
+        rotated: true,
+         x: {
+            tick: {
+                format: function (x) { return 'classe ' + (x+1) + '^' }
+            }
+        }
+    }
+});
+
+chart.load(data);
+
+</script>
+<html>

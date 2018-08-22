@@ -50,13 +50,14 @@ module.exports = {
 	},
 
 	formatData: function(data) {
-		return {
+		var ret = {
 			columns: [
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1])
 			],
 	        groups: [this.labels]
 		};
+		return ret;
 	},
 
 	update: function(data) {

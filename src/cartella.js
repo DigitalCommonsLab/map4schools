@@ -122,7 +122,7 @@ module.exports = {
 		else if(name==='age') {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
-				
+
 				if(_.isArray(json) && json.length>0)
 				{
 //					console.clear();
@@ -166,28 +166,25 @@ module.exports = {
 					//console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
-
-/*
-columns: [
-    ['< di 11 anni',11,0,0],
-    ['11 anni',121,0,0],
-    ['12 anni',12,114,3],
-    ['13 anni', 0,12,93],
-    ['> 13 anni', 0,1,15]
-],
-groups: [
-        ['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']
-    ]
-},
-axis: {
-    rotated: true,
-     x: {
-        tick: {
-            format: function (x) { return 'classe ' + (x+1) + '^' }
-        }
-    }
-}
-*/						
+/*var test = {
+	columns: [
+	    ['< di 11 anni',11,0,0],
+	    ['11 anni',121,0,0],
+	    ['12 anni',12,114,3],
+	    ['13 anni', 0,12,93],
+	    ['> 13 anni', 0,1,15]
+	],
+	groups: [['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']],
+	axis: {
+	    rotated: true,
+	    x: {
+	        tick: {
+	            format: function(x) { return 'classe ' + (x+1) + '^' }
+	        }
+	    }
+	}
+};	
+*/
 					cb(json);
 				}
 				else

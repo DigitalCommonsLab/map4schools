@@ -19,7 +19,7 @@ module.exports = {
 	init: function(el, opts) {
 		this.el = el;
 
-		//	this.labels = opts && opts.labels || ['data0','data1','data2'];
+		this.labels = opts && opts.labels || ['data0','data1','data2'];
 
 		this.chart = c3.generate({
 			bindto: this.el,
@@ -27,11 +27,11 @@ module.exports = {
 				width: 300,
 				height: 200
 			},
-		    data: _.defaults((opts && opts.data) || {}, {
+		    data: (opts && opts.data) || {
 		        columns: [],
 		        //groups: [],
 		        type: 'bar',
-		    }),
+		    },
 		    //horizontal
 		    axis: {
 		    	//rotated: true,
@@ -56,20 +56,43 @@ module.exports = {
 		
 		//this.labels = data.labels || this.labels;
 
-		var groups = _.map(data, function(v) { return v[0] });
+		//var groups = _.map(data, function(v) { return v[0] });
 		
-		//console.log('groups', data, groups);
-
-		return {
-			columns: data,
-			//groups: groups
-			/*columns: [
-				[this.labels[0]].concat(data[0]),
-				[this.labels[1]].concat(data[1]),
-				[this.labels[2]].concat(data[2])
-			],*/
-	        //groups: [this.labels],
+		data = [
+			[110,0,0],
+			[121,0,0],
+			[120,124,3],
+			[0,120,93],
+			[0,10,15]
+		];
+		var lbs = [
+			'< di 11 anni',
+			'11 anni',
+			'12 anni',
+			'13 anni',
+			'> 13 anni'
+		];
+		var ret = {
+			columns: [
+				[lbs[0]].concat(data[0]),
+				[lbs[1]].concat(data[1]),
+				[lbs[2]].concat(data[2]),
+				[lbs[3]].concat(data[3]),
+				[lbs[4]].concat(data[4])
+			],
+			groups: [lbs],
+			type: 'bar',
+			/*axis: {
+			    //rotated: true,
+			    x: {
+			        tick: {
+			            format: function(x) { return 'classe ' + (x+1) + '^' }
+			        }
+			    }
+			}*/
 		};
+		console.log(ret)
+		return ret;
 	},
 
 	update: function(data) {
