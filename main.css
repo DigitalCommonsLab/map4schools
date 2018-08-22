@@ -7,6 +7,14 @@
 #charts .row {
 	margin-bottom: 22px
 }
+#poi_legend .badge {
+	text-shadow: 0 0 1px #000;
+	box-shadow: 0 0 1px #000;
+	min-width: 20px;
+}
+.leaflet-control-layers-scrollbar {
+    overflow-y: auto;
+}
 
 .breadcrumb-item + .breadcrumb-item::before,
 .breadcrumb > li:before {

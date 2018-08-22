@@ -80761,25 +80761,36 @@ var config = require('./config');
 
 module.exports = {
 
-/*  	results: [],
-
-	buildQuery: function(loc, filters) {
-		
-		return filters;
-	},
-*/
 	config: {
 		api_key: config.accounts.openrouteservice.key,
 		profile: 'foot-walking',
-		interval: 600,
-		range: 3600,
+		interval: 300,
+		range: 1200,
 		//colors: ['green','orange','yellow']
-		colors: d3.schemeGreens[9].reverse()
+		colors: d3.schemeGreens[8].reverse()
 	},
 
 	scale: d3.scaleQuantile(),
 	//scale: d3.scaleLinear(),
 	//scale: d3.scaleQuantize(),
+	
+	buildUrl: function(loc) {
+		//DOCS
+		//https://openrouteservice.org/documentation/#/reference/isochrones/isochrones/isochrones-service
+		var urlTmpl ='https://api.openrouteservice.org/isochrones?'+
+					'&range_type=time&units=&location_type=start&intersections=false'+
+					'&profile={profile}'+
+					'&api_key={api_key}'+
+					'&locations={lng},{lat}'+
+					'&interval={interval}'+
+					'&range={range}',
+			params = _.extend(this.config, {
+				lat: loc[0],
+				lng: loc[1]
+			});
+
+		return utils.tmpl(urlTmpl, params );
+	},
 	
   	scaleValue: function(val) {
 
@@ -80811,20 +80822,7 @@ module.exports = {
 
 		var self = this;
 
-		//DOCS
-		//https://openrouteservice.org/documentation/#/reference/isochrones/isochrones/isochrones-service
-		var urlTmpl ='https://api.openrouteservice.org/isochrones?'+
-				'&range_type=time&units=&location_type=start&intersections=false'+
-				'&profile={profile}'+
-				'&api_key={api_key}'+
-				'&locations={lng},{lat}'+
-				'&interval={interval}'+
-				'&range={range}',
-			params = _.extend(self.config, {
-				lat: loc[0],
-				lng: loc[1]
-			}),
-			url = utils.tmpl(urlTmpl, params );
+		var url = self.buildUrl(loc);
 
 		utils.getData(url, function(geojson) {
 			
@@ -80835,6 +80833,11 @@ module.exports = {
 
 				//console.log('values', _.map(geojson.features, function(f){return f.properties.value;}) )
 
+				//API PATH sort by value
+				geojson.features = _.sortBy(geojson.features, function(f) {
+					return f.properties.value;
+				});
+
 				for(var i in geojson.features) {					
 					geojson.features[i].properties.color = self.scaleValue(geojson.features[i].properties.value);
 				}
@@ -80842,20 +80845,17 @@ module.exports = {
 				//TODO split shapes
 				
 				var diffs=[];
-				for (i=0; i<(geojson.features.length-1); i++){
-					
+				diffs.push(geojson.features[0]);
+				for (i=0; i<(geojson.features.length-1); i++){					
 					
 					var fdiff = turf_diff(geojson.features[i+1], geojson.features[i]);
 
-					console.log('fdiff',geojson.features[i+1], geojson.features[i]);
-
 					diffs.push(fdiff);
 				}
-				diffs.push(geojson.features[0]);
+				//add Biggest iso without holes
+				diffs.push( _.last(geojson.features) );
+
 				geojson.features = diffs;
-
-
-				console.log('geojson diff',geojson);
 
 				cb(geojson);
 			}
@@ -81805,9 +81805,9 @@ module.exports = {
   		height: 420,
   		width: 420,
   		overpassTags: [
+  			"amenity=parking",
 			"amenity=bar",
-			"highway=restaurant",
-			"amenity=parking"
+			"highway=restaurant"
 		]
   	},
 
@@ -81819,16 +81819,10 @@ module.exports = {
 		self.onInit = opts && opts.onInit;
 		self.onUpdate = opts && opts.onUpdate;
 
-		self.$el
-		.width(self.config.width)
-		.height(self.config.height);
+		self.$el.width(self.config.width).height(self.config.height);
 
-
-		self.tmplLegend = H.compile($('#tmpl_poi_legend').html());
-
-		$('#poi_legend').html( self.tmplLegend(iso.getLegend()) )
-
-		//window.iso = iso;
+		self.tmplLegend = H.compile($('#tmpl_legend').html());
+		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
 
 		self.map = L.map(el, utils.getMapOpts({
 			scrollWheelZoom: false
@@ -81840,55 +81834,74 @@ module.exports = {
 		self._overpassKeys = _.uniq(_.map(self.config.overpassTags, function(t) {
 			return t.split('=')[0];
 		}));
-
+	
 		self.layerIso = L.geoJSON([], {
 			style: function(f) {
 				return {
 					weight: 1,
 					color:'#fff',
 					fillColor: f.properties.color,
-					fillOpacity: 0.8,
-					opacity:1
+					fillOpacity: 0.6,
+					opacity:0.8
 				};
 			},
-			/*onEachFeature: function(feature, layer) {
+/*			onEachFeature: function(f, layer) {
 				layer.on('click', function(e) {
-					e.target.setStyle({fillColor:'blue'});
+					self.layerIso.eachLayer(function(l){
+						self.layerIso.resetStyle(l);
+					});	
+					e.target.setStyle({
+						fillColor:'orange'
+					});
 				})
 			}*/
+			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
 		}).addTo(self.map);
 
 		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				return L.circleMarker(ll, {
-					radius: 6,
-					weight: 3,
+					radius: 5,
+					weight: 2,
 					opacity: 1,
 					fillColor: 'white',
 					fillOpacity: 1
 				})
 			},
 			onEachFeature: function(feature, layer) {
-				
-				var keys = _.map(feature.properties, function(v,k) {
-					if(_.contains(self._overpassKeys, k))
-						return v.replace('_',' ');
+
+				layer.on('mouseover', function(e) {
+
+					var f = e.target.feature;
+
+					var keys = _.map(f.properties, function(v,k) {
+						if(_.contains(self._overpassKeys, k))
+							return v.replace('_',' ');
+					});
+
+					if(!f.properties.time) {
+						self.layerIso.eachLayer(function(l) {
+							if(geoutils.pointInPolygon(f.geometry, l.feature.geometry))
+								f.properties.time = Math.floor(l.feature.properties.value / 60); 
+						});
+					}
+
+					f.properties.label = _.compact(keys).join(', ');
+
+					layer.bindTooltip( config.tmpls.map_popup(f.properties) ).openTooltip();
 				});
-/*
-				if(!feature.properties.time) {
-					self.layerIso.eachLayer(function(l) {
-						console.log('each',l)
-						//if(geoutils.pointInPolygon(feature.geometry, l.to);)
-						//	feature.properties.time = 
-					})
-				}*/
 
-				feature.properties.label = _.compact(keys).join(', ');
-				if(feature.properties.name)
-					layer.bindTooltip( config.tmpls.map_popup(feature.properties) )
+			},
+			attribution:'<a href="http://overpass-api.de/">OverpassApi</a>',
+		}).addTo(self.map);	
 
-			}
-		}).addTo(self.map);		
+		L.control.layers(null, {
+			'Luoghi di interesse': self.layerPoi,
+			'Isochrone': self.layerIso
+		}, {
+			position:'bottomright',
+			collapsed:false
+		}).addTo(self.map);	
 
 		return this;
 	},
@@ -81902,6 +81915,8 @@ module.exports = {
 
 		self.layerIso.clearLayers();
 		iso.search(obj.loc, function(geoIso) {
+
+			var geoIsoBig = geoIso.features.pop();
 
 			self.layerIso.addData(geoIso);
 
@@ -81917,7 +81932,7 @@ module.exports = {
 
 			var geoSearch = {
 				type: 'FeatureCollection',
-				features: [ _.last(geoIso.features) ]
+				features: [ geoIsoBig ]
 			};
 
 			self.layerPoi.clearLayers();
@@ -81945,8 +81960,10 @@ module.exports = {
   	
   	results: [],
 
-	buildQuery: function(bbox, filters) {
+	buildUrl: function(bbox, filters) {
 		
+		var urlBase = 'https://overpass-api.de/api/interpreter?data=';
+
 		var bboxStr = utils.tmpl('{lat1},{lon1},{lat2},{lon2}', {
             lat1: bbox[0][0].toFixed(2), lon1: bbox[0][1].toFixed(2),
             lat2: bbox[1][0].toFixed(2), lon2: bbox[1][1].toFixed(2)
@@ -81959,20 +81976,15 @@ module.exports = {
 			});
 		});
 
-		return "[out:json];("+ ff.join('') +");(._;>;);out;";
+		return urlBase+"[out:json];("+ ff.join('') +");(._;>;);out;";
 	},
 
 	search: function(geoArea, cb, filters) {
 
-		var self = this;
-
 		filters = filters || ['amenity=school'];
 
-		var bbox = utils.polyToBbox(geoArea); 
-
-		var query = self.buildQuery(bbox, filters);
-
-		var url = 'https://overpass-api.de/api/interpreter?data='+query;
+		var bbox = utils.polyToBbox(geoArea),
+			url = this.buildUrl(bbox, filters);
 
 		utils.getData(url, function(json) {
 			

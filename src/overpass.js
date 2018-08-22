@@ -12,8 +12,10 @@ module.exports = {
   	
   	results: [],
 
-	buildQuery: function(bbox, filters) {
+	buildUrl: function(bbox, filters) {
 		
+		var urlBase = 'https://overpass-api.de/api/interpreter?data=';
+
 		var bboxStr = utils.tmpl('{lat1},{lon1},{lat2},{lon2}', {
             lat1: bbox[0][0].toFixed(2), lon1: bbox[0][1].toFixed(2),
             lat2: bbox[1][0].toFixed(2), lon2: bbox[1][1].toFixed(2)
@@ -26,20 +28,15 @@ module.exports = {
 			});
 		});
 
-		return "[out:json];("+ ff.join('') +");(._;>;);out;";
+		return urlBase+"[out:json];("+ ff.join('') +");(._;>;);out;";
 	},
 
 	search: function(geoArea, cb, filters) {
 
-		var self = this;
-
 		filters = filters || ['amenity=school'];
 
-		var bbox = utils.polyToBbox(geoArea); 
-
-		var query = self.buildQuery(bbox, filters);
-
-		var url = 'https://overpass-api.de/api/interpreter?data='+query;
+		var bbox = utils.polyToBbox(geoArea),
+			url = this.buildUrl(bbox, filters);
 
 		utils.getData(url, function(json) {
 			

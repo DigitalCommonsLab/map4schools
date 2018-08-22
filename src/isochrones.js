@@ -17,25 +17,36 @@ var config = require('./config');
 
 module.exports = {
 
-/*  	results: [],
-
-	buildQuery: function(loc, filters) {
-		
-		return filters;
-	},
-*/
 	config: {
 		api_key: config.accounts.openrouteservice.key,
 		profile: 'foot-walking',
-		interval: 600,
-		range: 3600,
+		interval: 300,
+		range: 1200,
 		//colors: ['green','orange','yellow']
-		colors: d3.schemeGreens[9].reverse()
+		colors: d3.schemeGreens[8].reverse()
 	},
 
 	scale: d3.scaleQuantile(),
 	//scale: d3.scaleLinear(),
 	//scale: d3.scaleQuantize(),
+	
+	buildUrl: function(loc) {
+		//DOCS
+		//https://openrouteservice.org/documentation/#/reference/isochrones/isochrones/isochrones-service
+		var urlTmpl ='https://api.openrouteservice.org/isochrones?'+
+					'&range_type=time&units=&location_type=start&intersections=false'+
+					'&profile={profile}'+
+					'&api_key={api_key}'+
+					'&locations={lng},{lat}'+
+					'&interval={interval}'+
+					'&range={range}',
+			params = _.extend(this.config, {
+				lat: loc[0],
+				lng: loc[1]
+			});
+
+		return utils.tmpl(urlTmpl, params );
+	},
 	
   	scaleValue: function(val) {
 
@@ -67,20 +78,7 @@ module.exports = {
 
 		var self = this;
 
-		//DOCS
-		//https://openrouteservice.org/documentation/#/reference/isochrones/isochrones/isochrones-service
-		var urlTmpl ='https://api.openrouteservice.org/isochrones?'+
-				'&range_type=time&units=&location_type=start&intersections=false'+
-				'&profile={profile}'+
-				'&api_key={api_key}'+
-				'&locations={lng},{lat}'+
-				'&interval={interval}'+
-				'&range={range}',
-			params = _.extend(self.config, {
-				lat: loc[0],
-				lng: loc[1]
-			}),
-			url = utils.tmpl(urlTmpl, params );
+		var url = self.buildUrl(loc);
 
 		utils.getData(url, function(geojson) {
 			
@@ -91,6 +89,11 @@ module.exports = {
 
 				//console.log('values', _.map(geojson.features, function(f){return f.properties.value;}) )
 
+				//API PATH sort by value
+				geojson.features = _.sortBy(geojson.features, function(f) {
+					return f.properties.value;
+				});
+
 				for(var i in geojson.features) {					
 					geojson.features[i].properties.color = self.scaleValue(geojson.features[i].properties.value);
 				}
@@ -98,20 +101,17 @@ module.exports = {
 				//TODO split shapes
 				
 				var diffs=[];
-				for (i=0; i<(geojson.features.length-1); i++){
-					
+				diffs.push(geojson.features[0]);
+				for (i=0; i<(geojson.features.length-1); i++){					
 					
 					var fdiff = turf_diff(geojson.features[i+1], geojson.features[i]);
 
-					console.log('fdiff',geojson.features[i+1], geojson.features[i]);
-
 					diffs.push(fdiff);
 				}
-				diffs.push(geojson.features[0]);
+				//add Biggest iso without holes
+				diffs.push( _.last(geojson.features) );
+
 				geojson.features = diffs;
-
-
-				console.log('geojson diff',geojson);
 
 				cb(geojson);
 			}

@@ -109,11 +109,11 @@
 				    <b class="card-title">Luoghi di interesse nei pressi della scuola</b>
 				    <p class="card-text small">
 				    	palestre,centri sportivi,pub,parchi,uffici
-				    </p>
-					<div id="poi_legend">
-						<!-- RENDER -->
-					</div>				    
+				    </p>		    
 					<div id="map_poi">
+						<!-- RENDER -->
+					</div>
+					<div id="poi_legend">
 						<!-- RENDER -->
 					</div>
 				  </div>
@@ -161,13 +161,12 @@
 </ol>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
-<h5>{{#if name}} {{name}} {{else}} <i>unamed</i> {{/if}}</h5>
+<h5>{{#if name}} {{name}} {{/if}}</h5>
 <b>{{label}}</b>
 {{#if time}}<br />distanza: <b>{{time}}</b> minuti{{/if}}
 {{#if website}}
 <br /><a href="http://{{website}}" target="_blank">{{website}}</a>
 {{/if}}
-
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>
@@ -189,12 +188,14 @@
 	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="{{website}}" target="_blank">{{website}}</a> </li>{{/if}}
 </ul>
 </script>
-<script id="tmpl_poi_legend" type="text/x-handlebars-template">
+<script id="tmpl_legend" type="text/x-handlebars-template">
 {{#with this}}
-	<small>{{title}}</small><br />
+	<div class="legend">
+	<small>{{title}}: </small>
 	{{#each list}}
 		<span class="badge badge-success" style="background:{{color}}">{{value}}</span>
 	{{/each}}
+	</div>
 {{/with}}
 </script>
 <script src="bundle.js"></script>
