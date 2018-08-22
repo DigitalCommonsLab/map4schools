@@ -48,10 +48,10 @@ $(function() {
 					return L.circleMarker(ll, {
 						radius: 5,
 						weight: 2,
-						color: '#c00',
-						fillColor:'#f00',
-						fillOpacity:0.8,
-						opacity:0.8
+						color: '#f00',
+						fillColor:'#fff',
+						fillOpacity:1,
+						opacity:1
 					});
 				},
 				onEachFeature: function(feature, layer) {

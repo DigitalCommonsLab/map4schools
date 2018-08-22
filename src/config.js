@@ -1,6 +1,9 @@
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
+var L = require('leaflet');
+
+L.Icon.Default.imagePath = location.origin+location.pathname+'images/';
 
 module.exports = {
 	accounts: {
