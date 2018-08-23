@@ -29,7 +29,7 @@ module.exports = {
 			},
 		    data: (opts && opts.data) || {
 		        columns: [],
-		        //groups: [],
+		        groups: [],
 		        type: 'bar',
 		    },
 		    //horizontal

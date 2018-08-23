@@ -29,6 +29,15 @@ module.exports = {
 		};
 	},
 
+	_filterData: function(geoSchools) {
+		geoSchools.features = _.filter(geoSchools.features, function(f) {
+			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
+					f.properties.level!=='SCUOLA INFANZIA' &&
+					f.properties.level!=='ISTITUTO COMPRENSIVO';
+		});
+		return geoSchools;
+	},
+
 	searchSchool: function(geoArea, cb) {
 
 		var self = this;

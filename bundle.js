@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80422,6 +80437,15 @@ module.exports = {
 		};
 	},
 
+	_filterData: function(geoSchools) {
+		geoSchools.features = _.filter(geoSchools.features, function(f) {
+			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
+					f.properties.level!=='SCUOLA INFANZIA' &&
+					f.properties.level!=='ISTITUTO COMPRENSIVO';
+		});
+		return geoSchools;
+	},
+
 	searchSchool: function(geoArea, cb) {
 
 		var self = this;
@@ -80620,7 +80644,7 @@ module.exports = {
 			},
 		    data: (opts && opts.data) || {
 		        columns: [],
-		        //groups: [],
+		        groups: [],
 		        type: 'bar',
 		    },
 		    //horizontal
@@ -81374,7 +81398,7 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		//vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
+		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 	};
 
@@ -81402,9 +81426,9 @@ $(function() {
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
-/*			cartella.getDataSchool(row, 'gender', function(data) {
+			cartella.getDataSchool(row, 'gender', function(data) {
 				charts.vert.update(data);
-			});*/
+			});
 
 			cartella.getDataSchool(row, 'age', function(data) {
 				charts.oriz.update(data);
@@ -81447,21 +81471,24 @@ if(location.hash=='#debug') {
 	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
-			return f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
-				   f.properties.level!=='SCUOLA INFANZIA';
+			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
+					f.properties.level!=='SCUOLA INFANZIA' &&
+					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		table.update(geoSchools);
-		
 		var school = geoSchools.features[2].properties;
-/*
+
+		table.update(geoSchools);
+
+/*		
 		cartella.getDataSchool(school, 'gender', function(data) {
 			charts.vert.update(data);
-		});*/
+		});
 
 		cartella.getDataSchool(school, 'age', function(data) {
 			charts.oriz.update(data);
 		});
+*/		
 	});
 
 }//DEBUG

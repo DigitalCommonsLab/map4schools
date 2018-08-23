@@ -89,7 +89,7 @@ $(function() {
 
 	var charts = {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
-		//vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
+		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 	};
 
@@ -117,9 +117,9 @@ $(function() {
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
-/*			cartella.getDataSchool(row, 'gender', function(data) {
+			cartella.getDataSchool(row, 'gender', function(data) {
 				charts.vert.update(data);
-			});*/
+			});
 
 			cartella.getDataSchool(row, 'age', function(data) {
 				charts.oriz.update(data);
@@ -162,21 +162,24 @@ if(location.hash=='#debug') {
 	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
-			return f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
-				   f.properties.level!=='SCUOLA INFANZIA';
+			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
+					f.properties.level!=='SCUOLA INFANZIA' &&
+					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		table.update(geoSchools);
-		
 		var school = geoSchools.features[2].properties;
-/*
+
+		table.update(geoSchools);
+
+/*		
 		cartella.getDataSchool(school, 'gender', function(data) {
 			charts.vert.update(data);
-		});*/
+		});
 
 		cartella.getDataSchool(school, 'age', function(data) {
 			charts.oriz.update(data);
 		});
+*/		
 	});
 
 }//DEBUG
