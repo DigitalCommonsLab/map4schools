@@ -85,7 +85,7 @@ module.exports = {
     },
 
 	getMapOpts: function(opts) {
-		return _.defaults(opts, {
+		return _.defaults(opts || {}, {
 			zoom: 13,
             //maxZoom:16,
             minZoom:5,
