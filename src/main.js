@@ -112,7 +112,7 @@ $(function() {
 			$('#card_details').html(config.tmpls.details(row));
 
 			//charts.radar.update( utils.randomRadar() );
-			//
+			
 			maps.poi.update( row );
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
@@ -167,16 +167,16 @@ if(location.hash=='#debug') {
 					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		var school = geoSchools.features[2].properties;
-
 		table.update(geoSchools);
 
 /*		
-		cartella.getDataSchool(school, 'gender', function(data) {
+		var testSchool = geoSchools.features[2].properties;
+
+		cartella.getDataSchool(testSchool, 'gender', function(data) {
 			charts.vert.update(data);
 		});
 
-		cartella.getDataSchool(school, 'age', function(data) {
+		cartella.getDataSchool(testSchool, 'age', function(data) {
 			charts.oriz.update(data);
 		});
 */		

@@ -24,7 +24,7 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 300,
+				//width: 300,
 				height: 200
 			},
 		    data: (opts && opts.data) || {
@@ -32,9 +32,8 @@ module.exports = {
 		        groups: [],
 		        type: 'bar',
 		    },
-		    //horizontal
 		    axis: {
-		    	//rotated: true,
+		    	rotated: true,
 				x: {
 					tick: {
 						format: function (x) { return (x+1)+' classe' }
@@ -54,10 +53,10 @@ module.exports = {
 
 	formatData: function(data) {
 		
-		//this.labels = data.labels || this.labels;
-
-		//var groups = _.map(data, function(v) { return v[0] });
+		this.labels = _.uniq(_.map(data, function(v) { return v[0] }));
 		
+/*
+//TEST
 		data = [
 			[110,0,0],
 			[121,0,0],
@@ -72,18 +71,20 @@ module.exports = {
 			'13 anni',
 			'> 13 anni'
 		];
-		var ret = {
-			columns: [
+*/		
+		return {
+			columns: data,
+			/*columns: [
 				[lbs[0]].concat(data[0]),
 				[lbs[1]].concat(data[1]),
 				[lbs[2]].concat(data[2]),
 				[lbs[3]].concat(data[3]),
 				[lbs[4]].concat(data[4])
-			],
-			groups: [lbs],
-			type: 'bar',
-			/*axis: {
-			    //rotated: true,
+			],*/
+			groups: [this.labels],
+/*			type: 'bar',
+			axis: {
+			    rotated: true,
 			    x: {
 			        tick: {
 			            format: function(x) { return 'classe ' + (x+1) + '^' }
@@ -91,16 +92,25 @@ module.exports = {
 			    }
 			}*/
 		};
-		console.log(ret)
-		return ret;
 	},
 
 	update: function(data) {
+
 		if(!_.isArray(data))
 			return false;
 
-		if(data.length)
-			this.chart.load( this.formatData(data) );
+		if(data.length) {
+			
+			var fdata = this.formatData(data);
+
+			console.log('formatData', fdata, this.labels);
+
+			this.chart.unload();
+			this.chart.load( fdata );
+			
+			if(fdata.groups)
+				this.chart.groups(fdata.groups);
+		}
 		else
 			this.chart.unload();
 	}

@@ -7,6 +7,7 @@ var _ = require('underscore');
 var utils = require('./utils');
 var geoutils = require('geojson-utils');
 
+var config = require('./config');
 
 var urls = {
 	baseUrlPro: window.baseUrlPro || 'https://api-test.smartcommunitylab.it/t/sco.cartella/',
@@ -14,8 +15,6 @@ var urls = {
 };
 
 module.exports = {
-  	
-  	results: [],
 
 	_getProperties: function(o) {
 		return {
@@ -29,6 +28,7 @@ module.exports = {
 		};
 	},
 
+//TODO apply to the results
 	_filterData: function(geoSchools) {
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
@@ -132,10 +132,11 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
+console.clear();
+console.log('getAgeData',obj.name, obj.level, json);
+
 				if(_.isArray(json) && json.length>0)
 				{
-//					console.clear();
-					
 					json = _.map(json, function(o) {
 						return _.omit(o,'codicescuola');
 					});
@@ -148,52 +149,48 @@ module.exports = {
 						return v.annoscolastico === ymax;
 					});
 
-					//console.log('getAgeData',json);
+					var fasciaetaGroup = _.groupBy(json,'fasciaeta');
 
-					json = _.groupBy(json,'fasciaeta');
+					var anni = _.uniq(_.map(json, function(v) { return v.annocorso })).sort();
 
-					//console.log('getAgeData1',json);
+//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
+//console.log('tutti anni',anni);
 
-					json = _.map(json, function(etas, eta) {
+					json = _.map(fasciaetaGroup, function(etas, eta) {
+
+//console.log('fasciaetaGroup', etas);
+
 						return {
 							'eta': eta,
-							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
-							'annocorso': _.reduce(_.pluck(etas,'annocorso'), function(s,v) { return s+v; })
+							'alunni': _.map(anni, function(anno) {
+								var alunni = 0;
+
+								_.each(fasciaetaGroup, function(vv,e) {
+									_.each(vv, function(v) {
+										
+										if(e===eta && v.annocorso===anno)
+											alunni += v.alunni;
+										//console.log('alunni',eta,v)
+									});
+								});
+
+								return alunni;
+							})
 						}
 					});
-
-					//console.log('getAgeData2',json);
+					
+					//console.log('somme anni',json);
 
 					json = _.map(json, function(v,k) {						
-						return [
-							v.eta,
-							v.alunni,
-							v.annocorso
-						]
+						return [v.eta].concat(v.alunni)
+						//return [v.eta, v.alunni]
+						//return [v.eta, v.alunni]
 					});
 
-					//console.log('getAgeData3',json);
+					console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
-/*var test = {
-	columns: [
-	    ['< di 11 anni',11,0,0],
-	    ['11 anni',121,0,0],
-	    ['12 anni',12,114,3],
-	    ['13 anni', 0,12,93],
-	    ['> 13 anni', 0,1,15]
-	],
-	groups: [['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']],
-	axis: {
-	    rotated: true,
-	    x: {
-	        tick: {
-	            format: function(x) { return 'classe ' + (x+1) + '^' }
-	        }
-	    }
-	}
-};	
-*/
+
 					cb(json);
 				}
 				else
