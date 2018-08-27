@@ -55,7 +55,7 @@ module.exports = {
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1])
 			],
-	        groups: [this.labels]
+			groups: [this.labels]
 		};
 		return ret;
 	},

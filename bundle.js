@@ -80415,6 +80415,7 @@ var _ = require('underscore');
 var utils = require('./utils');
 var geoutils = require('geojson-utils');
 
+var config = require('./config');
 
 var urls = {
 	baseUrlPro: window.baseUrlPro || 'https://api-test.smartcommunitylab.it/t/sco.cartella/',
@@ -80422,8 +80423,6 @@ var urls = {
 };
 
 module.exports = {
-  	
-  	results: [],
 
 	_getProperties: function(o) {
 		return {
@@ -80437,6 +80436,7 @@ module.exports = {
 		};
 	},
 
+//TODO apply to the results
 	_filterData: function(geoSchools) {
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
@@ -80540,10 +80540,11 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
+console.clear();
+console.log('getAgeData',json);
+
 				if(_.isArray(json) && json.length>0)
 				{
-//					console.clear();
-					
 					json = _.map(json, function(o) {
 						return _.omit(o,'codicescuola');
 					});
@@ -80556,52 +80557,49 @@ module.exports = {
 						return v.annoscolastico === ymax;
 					});
 
-					//console.log('getAgeData',json);
-
 					json = _.groupBy(json,'fasciaeta');
+/*
+//TODO due group uno eta e uno annocorso poi sommare gli alunni in ciclo
+					
+					json = _.map(json, function(etas, eta) {
+						return {
+							'eta': eta,
+							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; })
+						}
+					});*/
 
-					//console.log('getAgeData1',json);
-
+					console.log('getAgeData1',json);
+ 
 					json = _.map(json, function(etas, eta) {
 						return {
 							'eta': eta,
 							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
-							'annocorso': _.reduce(_.pluck(etas,'annocorso'), function(s,v) { return s+v; })
+							/*'annocorso': _.reduce(_.pluck(etas,'annocorso'), function(s,v) {
+								return s+v;
+							})*/
+							//'annocorso': _.pluck(etas,'annocorso')
 						}
 					});
 
-					//console.log('getAgeData2',json);
-
-					json = _.map(json, function(v,k) {						
-						return [
-							v.eta,
-							v.alunni,
-							v.annocorso
-						]
+					/*var anni = _.map(json, function(v) {
+						return v.annocorso.length;
 					});
 
-					//console.log('getAgeData3',json);
+				console.log('getAgeData2', json);
+				console.log('anni', anni);
+*/
+					json = _.map(json, function(v,k) {						
+						//return [v.eta, v.alunni].concat(_.range(v.anni))
+						//return [v.eta, v.alunni]
+						return [v.eta, v.alunni]
+					});
+
+
+
+					console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
-/*var test = {
-	columns: [
-	    ['< di 11 anni',11,0,0],
-	    ['11 anni',121,0,0],
-	    ['12 anni',12,114,3],
-	    ['13 anni', 0,12,93],
-	    ['> 13 anni', 0,1,15]
-	],
-	groups: [['< di 11 anni','11 anni','12 anni', '13 anni','> 13 anni']],
-	axis: {
-	    rotated: true,
-	    x: {
-	        tick: {
-	            format: function(x) { return 'classe ' + (x+1) + '^' }
-	        }
-	    }
-	}
-};	
-*/
+
 					cb(json);
 				}
 				else
@@ -80612,7 +80610,7 @@ module.exports = {
 		}
 	}
 }
-},{"./utils":194,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+},{"./config":184,"./utils":194,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80647,12 +80645,11 @@ module.exports = {
 		        groups: [],
 		        type: 'bar',
 		    },
-		    //horizontal
 		    axis: {
-		    	//rotated: true,
+		    	rotated: true,
 				x: {
 					tick: {
-						format: function (x) { return (x+1)+' classe' }
+						format: function (x) { return (x+1)+' annocorso' }
 					}
 				}
 		    },
@@ -80669,10 +80666,10 @@ module.exports = {
 
 	formatData: function(data) {
 		
-		//this.labels = data.labels || this.labels;
-
-		//var groups = _.map(data, function(v) { return v[0] });
+		this.labels = _.uniq(_.map(data, function(v) { return v[0] }));
 		
+/*
+//TEST
 		data = [
 			[110,0,0],
 			[121,0,0],
@@ -80687,18 +80684,20 @@ module.exports = {
 			'13 anni',
 			'> 13 anni'
 		];
-		var ret = {
-			columns: [
+*/		
+		return {
+			columns: data,
+			/*columns: [
 				[lbs[0]].concat(data[0]),
 				[lbs[1]].concat(data[1]),
 				[lbs[2]].concat(data[2]),
 				[lbs[3]].concat(data[3]),
 				[lbs[4]].concat(data[4])
-			],
-			groups: [lbs],
-			type: 'bar',
-			/*axis: {
-			    //rotated: true,
+			],*/
+			groups: [this.labels],
+/*			type: 'bar',
+			axis: {
+			    rotated: true,
 			    x: {
 			        tick: {
 			            format: function(x) { return 'classe ' + (x+1) + '^' }
@@ -80706,16 +80705,25 @@ module.exports = {
 			    }
 			}*/
 		};
-		console.log(ret)
-		return ret;
 	},
 
 	update: function(data) {
+
 		if(!_.isArray(data))
 			return false;
 
-		if(data.length)
-			this.chart.load( this.formatData(data) );
+		if(data.length) {
+			
+			var fdata = this.formatData(data);
+
+			console.log('formatData', fdata, this.labels);
+
+			this.chart.unload();
+			this.chart.load( fdata );
+			
+			if(fdata.groups)
+				this.chart.groups(fdata.groups);
+		}
 		else
 			this.chart.unload();
 	}
@@ -80820,7 +80828,7 @@ module.exports = {
 				[this.labels[0]].concat(data[0]),
 				[this.labels[1]].concat(data[1])
 			],
-	        groups: [this.labels]
+			groups: [this.labels]
 		};
 		return ret;
 	},
@@ -80869,25 +80877,25 @@ module.exports = {
 		'femmine'
 	],
 	ageLabels: [
-		'16 anni',
-		'11 anni',
-		'13 anni',
+		'< di 6 anni',
+		'6 anni',
 		'7 anni',
 		'8 anni',
-		'> di 18 anni',
-		'18 anni',
 		'9 anni',
 		'10 anni',
-		'15 anni',
-		'6 anni',
 		'> di 10 anni',
-		'12 anni',
-		'17 anni',
-		'14 anni',
 		'< di 11 anni',
-		'< di 14 anni',
-		'< di 6 anni',
+		'11 anni',
+		'12 anni',
+		'13 anni',
 		'> di 13 anni',
+		'< di 14 anni',
+		'14 anni',
+		'15 anni',
+		'16 anni',
+		'17 anni',
+		'18 anni',
+		'> di 18 anni',		
 	],	
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
@@ -81421,8 +81429,8 @@ $(function() {
 			$('#card_details').html(config.tmpls.details(row));
 
 			//charts.radar.update( utils.randomRadar() );
-			//
-			maps.poi.update( row );
+			
+			//maps.poi.update( row );
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
@@ -81476,16 +81484,16 @@ if(location.hash=='#debug') {
 					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		var school = geoSchools.features[2].properties;
-
 		table.update(geoSchools);
 
 /*		
-		cartella.getDataSchool(school, 'gender', function(data) {
+		var testSchool = geoSchools.features[2].properties;
+
+		cartella.getDataSchool(testSchool, 'gender', function(data) {
 			charts.vert.update(data);
 		});
 
-		cartella.getDataSchool(school, 'age', function(data) {
+		cartella.getDataSchool(testSchool, 'age', function(data) {
 			charts.oriz.update(data);
 		});
 */		
