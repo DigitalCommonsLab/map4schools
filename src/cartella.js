@@ -133,7 +133,7 @@ module.exports = {
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
 console.clear();
-console.log('getAgeData',json);
+console.log('getAgeData',obj.name, obj.level, json);
 
 				if(_.isArray(json) && json.length>0)
 				{
@@ -149,44 +149,43 @@ console.log('getAgeData',json);
 						return v.annoscolastico === ymax;
 					});
 
-					json = _.groupBy(json,'fasciaeta');
-/*
-//TODO due group uno eta e uno annocorso poi sommare gli alunni in ciclo
+					var fasciaetaGroup = _.groupBy(json,'fasciaeta');
+
+					var anni = _.uniq(_.map(json, function(v) { return v.annocorso })).sort();
+
+//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
+//console.log('tutti anni',anni);
+
+					json = _.map(fasciaetaGroup, function(etas, eta) {
+
+//console.log('fasciaetaGroup', etas);
+
+						return {
+							'eta': eta,
+							'alunni': _.map(anni, function(anno) {
+								var alunni = 0;
+
+								_.each(fasciaetaGroup, function(vv,e) {
+									_.each(vv, function(v) {
+										
+										if(e===eta && v.annocorso===anno)
+											alunni += v.alunni;
+										//console.log('alunni',eta,v)
+									});
+								});
+
+								return alunni;
+							})
+						}
+					});
 					
-					json = _.map(json, function(etas, eta) {
-						return {
-							'eta': eta,
-							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; })
-						}
-					});*/
+					//console.log('somme anni',json);
 
-					console.log('getAgeData1',json);
- 
-					json = _.map(json, function(etas, eta) {
-						return {
-							'eta': eta,
-							'alunni': _.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
-							/*'annocorso': _.reduce(_.pluck(etas,'annocorso'), function(s,v) {
-								return s+v;
-							})*/
-							//'annocorso': _.pluck(etas,'annocorso')
-						}
-					});
-
-					/*var anni = _.map(json, function(v) {
-						return v.annocorso.length;
-					});
-
-				console.log('getAgeData2', json);
-				console.log('anni', anni);
-*/
 					json = _.map(json, function(v,k) {						
-						//return [v.eta, v.alunni].concat(_.range(v.anni))
+						return [v.eta].concat(v.alunni)
 						//return [v.eta, v.alunni]
-						return [v.eta, v.alunni]
+						//return [v.eta, v.alunni]
 					});
-
-
 
 					console.log('getAgeData3',json);
 

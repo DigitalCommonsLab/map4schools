@@ -24,7 +24,7 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 300,
+				//width: 300,
 				height: 200
 			},
 		    data: (opts && opts.data) || {
@@ -36,7 +36,7 @@ module.exports = {
 		    	rotated: true,
 				x: {
 					tick: {
-						format: function (x) { return (x+1)+' annocorso' }
+						format: function (x) { return (x+1)+' classe' }
 					}
 				}
 		    },

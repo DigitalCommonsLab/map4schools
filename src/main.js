@@ -113,7 +113,7 @@ $(function() {
 
 			//charts.radar.update( utils.randomRadar() );
 			
-			//maps.poi.update( row );
+			maps.poi.update( row );
 
 			//TODO mostrare altro tipo di grafico per provincia uguale trento
 
