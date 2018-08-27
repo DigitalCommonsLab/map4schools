@@ -132,8 +132,8 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
-//console.clear();
-//console.log('getAgeData',obj.name, obj.level, json);
+				//console.clear();
+				//console.log('getAgeData',obj.name, obj.level, json);
 
 				if(_.isArray(json) && json.length>0)
 				{
@@ -153,12 +153,12 @@ module.exports = {
 
 					var anni = _.uniq(_.map(json, function(v) { return v.annocorso })).sort();
 
-//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
-//console.log('tutti anni',anni);
+					//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
+					//console.log('tutti anni',anni);
 
 					json = _.map(fasciaetaGroup, function(etas, eta) {
 
-//console.log('fasciaetaGroup', etas);
+					//console.log('fasciaetaGroup', etas);
 
 						return {
 							'eta': eta,
@@ -198,6 +198,62 @@ module.exports = {
 
 			}, false);
 
+		}
+		else if(name==='registers') {
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
+				
+				if(_.isArray(json) && json.length>0) {
+			
+				console.clear();
+				console.log('getTrentinoRegistrationStats',obj.id, json);
+
+				//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
+
+					
+console.log('anni',json);
+					
+					json = _.groupBy(json,'annoScolastico');
+
+					var anni = _.uniq(_.map(json, function(v) { return v.annoDiCorso }));
+
+
+
+					json = _.map(json, function(years, year) {
+
+						return {
+							'annoScolastico': year,
+							'numeroAlunni': _.map(anni, function(anno) {
+								var alunni = 0;
+
+								_.each(json, function(vv,y) {
+									_.each(vv, function(v) {
+										
+										if(y===year && v.annoDiCorso===anno)
+											alunni += v.numeroAlunni;
+										//console.log('alunni',eta,v)
+									});
+								});
+
+								return alunni;
+							})
+						}
+					});
+
+			console.log('registers',anni,json);
+
+					json = _.map(json, function(v,k) {
+						return [v.annoScolastico].concat(v.numeroAlunni);
+					});
+
+
+
+					cb(json);
+				}
+				else
+					cb([]);
+
+			}, false);
 		}
 	}
 }

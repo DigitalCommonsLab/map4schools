@@ -32,6 +32,7 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 var chartOriz = require('./chart_oriz');
+var chartLine = require('./chart_line');
 
 var config = require('./config'); 
 
@@ -91,6 +92,7 @@ $(function() {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
+		line: chartLine.init('#chart_line'),
 	};
 
 	table.init('#table_selection', {
@@ -111,24 +113,23 @@ $(function() {
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			maps.poi.update( row );
+			//maps.poi.update( row );
 
 			if(row.raw.PROVINCIA==='TRENTO') {
+
 				$('#charts_age_gender').hide();
-				$('#charts_registrations').show();
+				$('#charts_registers').show();
 
-
+				cartella.getDataSchool(row, 'registers', function(data) {
+					charts.line.update(data);
+				});
 			}
 			else
 			{
 				$('#charts_age_gender').show();
-				$('#charts_registrations').hide();
+				$('#charts_registers').hide();
 				//charts.radar.update( utils.randomRadar() );
 				
-				
-
-				//TODO mostrare altro tipo di grafico per provincia uguale trento
-
 				cartella.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
 				});
@@ -156,6 +157,9 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
+	//var testUrl = './data/debug/searchSchool_bologna.json';
+	var testUrl = './data/debug/searchSchool_trento.json';
+
 	$('#card_details').hide();
 
 	$('#charts').css({
@@ -172,7 +176,7 @@ if(location.hash=='#debug') {
 		boxShadow:'0 0 16px #666'
 	}).show();
 
-	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
+	$.getJSON(testUrl, function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&

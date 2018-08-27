@@ -38,6 +38,11 @@ module.exports = {
 			//showToggle:true,//cardView: true,
 			data: [],
 		    columns: [
+		    	{
+			        field: 'level',
+			        title: 'Grado Istruzione',
+			        filterControl: 'select'
+			    },
 				{
 		    		field: 'id',
 		    		title: 'Codice MIUR',
@@ -48,11 +53,6 @@ module.exports = {
 			    {
 			        field: 'name',
 			        title: 'Nome'
-			    },
-			    {
-			        field: 'level',
-			        title: 'Grado Istruzione',
-			        filterControl: 'select'
 			    }
 		    ]
 		});

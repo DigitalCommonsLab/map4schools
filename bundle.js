@@ -80540,8 +80540,8 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
-//console.clear();
-//console.log('getAgeData',obj.name, obj.level, json);
+				//console.clear();
+				//console.log('getAgeData',obj.name, obj.level, json);
 
 				if(_.isArray(json) && json.length>0)
 				{
@@ -80561,12 +80561,12 @@ module.exports = {
 
 					var anni = _.uniq(_.map(json, function(v) { return v.annocorso })).sort();
 
-//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
-//console.log('tutti anni',anni);
+					//_.reduce(_.pluck(etas,'alunni'), function(s,v) { return s+v; }),
+					//console.log('tutti anni',anni);
 
 					json = _.map(fasciaetaGroup, function(etas, eta) {
 
-//console.log('fasciaetaGroup', etas);
+					//console.log('fasciaetaGroup', etas);
 
 						return {
 							'eta': eta,
@@ -80607,9 +80607,144 @@ module.exports = {
 			}, false);
 
 		}
+		else if(name==='registers') {
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
+				
+				if(_.isArray(json) && json.length>0) {
+			
+				console.clear();
+				console.log('getTrentinoRegistrationStats',obj.id, json);
+
+				//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
+
+					
+console.log('anni',json);
+					
+					json = _.groupBy(json,'annoScolastico');
+
+					var anni = _.uniq(_.map(json, function(v) { return v.annoDiCorso }));
+
+
+
+					json = _.map(json, function(years, year) {
+
+						return {
+							'annoScolastico': year,
+							'numeroAlunni': _.map(anni, function(anno) {
+								var alunni = 0;
+
+								_.each(json, function(vv,y) {
+									_.each(vv, function(v) {
+										
+										if(y===year && v.annoDiCorso===anno)
+											alunni += v.numeroAlunni;
+										//console.log('alunni',eta,v)
+									});
+								});
+
+								return alunni;
+							})
+						}
+					});
+
+			console.log('registers',anni,json);
+
+					json = _.map(json, function(v,k) {
+						return [v.annoScolastico].concat(v.numeroAlunni);
+					});
+
+
+
+					cb(json);
+				}
+				else
+					cb([]);
+
+			}, false);
+		}
 	}
 }
-},{"./config":184,"./utils":194,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+},{"./config":185,"./utils":195,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+
+// var d3 = require('d3');
+var c3 = require('c3');
+require('../node_modules/c3/c3.min.css');
+
+var utils = require('./utils');
+
+module.exports = {
+  	
+  	chart: null,
+
+	init: function(el, opts) {
+		this.el =  el;
+
+		this.labels = opts && opts.labels || ['data0','data1','data2'];
+
+		this.chart = c3.generate({
+			bindto: this.el,
+			size: {
+				width: 300,
+				height: 200
+			},
+			data: _.defaults((opts && opts.data) || {}, {
+				columns: [
+					[this.labels[0], 120, 200, 100, 100, 150],
+					[this.labels[1], 130, 110, 140, 200, 130],
+					[this.labels[2], 100, 100, 120, 180, 100]
+				],
+				groups: [this.labels],
+				type: 'line'
+			}),
+			bar: {
+				width: {
+					ratio: 0.5 // this makes bar width 50% of length between ticks
+				}
+				// or
+				//width: 100 // this makes bar width 100px
+			},
+			axis: {
+				x: {
+					tick: {
+						format: function (x) { return (x+1)+' anno' }
+					}
+				}
+			}
+		});
+		return this;
+	},
+
+	formatData: function(data) {
+
+		this.labels = _.uniq(_.map(data, function(v) { return v[0] })).sort();
+		
+		console.log('formatData', data, this.labels)
+		
+		var ret = {
+			columns: data,
+			groups: [this.labels]
+		};
+		return ret;
+	},
+
+	update: function(data) {
+		if(!_.isArray(data))
+			return false;
+
+		this.chart.unload();
+
+		if(data.length)
+			this.chart.load( this.formatData(data) );
+		else
+			this.chart.unload();
+		
+	}
+}
+},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80727,7 +80862,7 @@ module.exports = {
 			this.chart.unload();
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":194,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80769,7 +80904,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":186,"./utils":194,"d3":43,"jquery":77,"underscore":177}],183:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":187,"./utils":195,"d3":43,"jquery":77,"underscore":177}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80843,7 +80978,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":194,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
@@ -80902,7 +81037,7 @@ module.exports = {
 		map_popup: H.compile($('#tmpl_popup').html())
 	}
 }
-},{"handlebars":76,"jquery":77,"leaflet":85}],185:[function(require,module,exports){
+},{"handlebars":76,"jquery":77,"leaflet":85}],186:[function(require,module,exports){
 /*
 
 	http://www.digital-geography.com/openrouteservice-api-a-leaflet-example-for-isochrones/
@@ -81028,7 +81163,7 @@ module.exports = {
 	}
 }
 
-},{"./config":184,"./utils":194,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],186:[function(require,module,exports){
+},{"./config":185,"./utils":195,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],187:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -81313,7 +81448,7 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{"d3":43}],187:[function(require,module,exports){
+},{"d3":43}],188:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81348,6 +81483,7 @@ var table = require('./table');
 var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 var chartOriz = require('./chart_oriz');
+var chartLine = require('./chart_line');
 
 var config = require('./config'); 
 
@@ -81407,6 +81543,7 @@ $(function() {
 		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
+		line: chartLine.init('#chart_line'),
 	};
 
 	table.init('#table_selection', {
@@ -81427,24 +81564,23 @@ $(function() {
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			maps.poi.update( row );
+			//maps.poi.update( row );
 
 			if(row.raw.PROVINCIA==='TRENTO') {
+
 				$('#charts_age_gender').hide();
-				$('#charts_registrations').show();
+				$('#charts_registers').show();
 
-
+				cartella.getDataSchool(row, 'registers', function(data) {
+					charts.line.update(data);
+				});
 			}
 			else
 			{
 				$('#charts_age_gender').show();
-				$('#charts_registrations').hide();
+				$('#charts_registers').hide();
 				//charts.radar.update( utils.randomRadar() );
 				
-				
-
-				//TODO mostrare altro tipo di grafico per provincia uguale trento
-
 				cartella.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
 				});
@@ -81472,6 +81608,9 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
+	//var testUrl = './data/debug/searchSchool_bologna.json';
+	var testUrl = './data/debug/searchSchool_trento.json';
+
 	$('#card_details').hide();
 
 	$('#charts').css({
@@ -81488,7 +81627,7 @@ if(location.hash=='#debug') {
 		boxShadow:'0 0 16px #666'
 	}).show();
 
-	$.getJSON('./data/debug/searchSchool_bologna.json', function(geoSchools) {
+	$.getJSON(testUrl, function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
@@ -81515,7 +81654,7 @@ if(location.hash=='#debug') {
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"./cartella":180,"./chart_oriz":181,"./chart_radar":182,"./chart_vert":183,"./config":184,"./map_admin":188,"./map_area":189,"./map_gps":190,"./map_poi":191,"./overpass":192,"./table":193,"./utils":194,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],188:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"./cartella":180,"./chart_line":181,"./chart_oriz":182,"./chart_radar":183,"./chart_vert":184,"./config":185,"./map_admin":189,"./map_area":190,"./map_gps":191,"./map_poi":192,"./overpass":193,"./table":194,"./utils":195,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],189:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81760,7 +81899,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":194,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],189:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":195,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],190:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -81897,7 +82036,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":194,"jquery":77,"leaflet-draw":80}],190:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":195,"jquery":77,"leaflet-draw":80}],191:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -81955,7 +82094,7 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":194,"jquery":77,"leaflet-gps":84}],191:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":195,"jquery":77,"leaflet-gps":84}],192:[function(require,module,exports){
 /*
 
 https://github.com/DigitalCommonsLab/osm4schools/issues/20
@@ -82123,7 +82262,7 @@ module.exports = {
 		});
 	}
 };
-},{"./config":184,"./isochrones":185,"./overpass":192,"./utils":194,"geojson-utils":46,"handlebars":76,"jquery":77}],192:[function(require,module,exports){
+},{"./config":185,"./isochrones":186,"./overpass":193,"./utils":195,"geojson-utils":46,"handlebars":76,"jquery":77}],193:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -82179,7 +82318,7 @@ module.exports = {
 		return this;
 	}
 }
-},{"./utils":194,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],193:[function(require,module,exports){
+},{"./utils":195,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],194:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82220,6 +82359,11 @@ module.exports = {
 			//showToggle:true,//cardView: true,
 			data: [],
 		    columns: [
+		    	{
+			        field: 'level',
+			        title: 'Grado Istruzione',
+			        filterControl: 'select'
+			    },
 				{
 		    		field: 'id',
 		    		title: 'Codice MIUR',
@@ -82230,11 +82374,6 @@ module.exports = {
 			    {
 			        field: 'name',
 			        title: 'Nome'
-			    },
-			    {
-			        field: 'level',
-			        title: 'Grado Istruzione',
-			        filterControl: 'select'
 			    }
 		    ]
 		});
@@ -82249,7 +82388,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":194,"bootstrap-table":2,"jquery":77,"underscore":177}],194:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":195,"bootstrap-table":2,"jquery":77,"underscore":177}],195:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82613,4 +82752,4 @@ module.exports = {
 
 };
 
-},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[187]);
+},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[188]);
