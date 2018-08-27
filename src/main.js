@@ -111,19 +111,32 @@ $(function() {
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			//charts.radar.update( utils.randomRadar() );
-			
 			maps.poi.update( row );
 
-			//TODO mostrare altro tipo di grafico per provincia uguale trento
+			if(row.raw.PROVINCIA==='TRENTO') {
+				$('#charts_age_gender').hide();
+				$('#charts_registrations').show();
 
-			cartella.getDataSchool(row, 'gender', function(data) {
-				charts.vert.update(data);
-			});
 
-			cartella.getDataSchool(row, 'age', function(data) {
-				charts.oriz.update(data);
-			});			
+			}
+			else
+			{
+				$('#charts_age_gender').show();
+				$('#charts_registrations').hide();
+				//charts.radar.update( utils.randomRadar() );
+				
+				
+
+				//TODO mostrare altro tipo di grafico per provincia uguale trento
+
+				cartella.getDataSchool(row, 'gender', function(data) {
+					charts.vert.update(data);
+				});
+
+				cartella.getDataSchool(row, 'age', function(data) {
+					charts.oriz.update(data);
+				});
+			}
 		}
 	});
 

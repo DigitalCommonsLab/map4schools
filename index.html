@@ -63,7 +63,7 @@
 
 	<div id="charts" style="display: none" class="container">
 		<h3>Parametri Scuola <b class="title"></b></h3>
-		<div class="row">
+		<div class="row" id="charts_age_gender">
 			<div class="col-md-6">
 				<div class="card">
 				  <div class="card-body">
@@ -88,7 +88,35 @@
 				  </div>
 				</div>
 			</div>
-		</div>		
+		</div>
+		<div class="row" id="charts_registrations" style="display:none">
+			<div class="col-md-6">
+				<div class="card">
+				  <div class="card-body">
+				    <b class="card-title">Alunni iscritti</b>
+				    <p class="card-text small">
+				    	Numero iscritti alla scuola negli ultimi tre anni scolastici
+				    </p>
+				  </div>
+				  <div id="chart_vert">
+				  	<!-- RENDER -->
+				  </div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card">
+				  <div class="card-body">
+				    <b class="card-title">Esami di stato</b>
+				    <p class="card-text small">
+				    	Risultati degli esami di stato (valido solo per le scuole di grado superiore)
+					</p>
+				  </div>
+				  <div id="chart_oriz">
+				  	<!-- RENDER -->
+				  </div>
+				</div>
+			</div>
+		</div>	
 		<div class="row">
 			<div class="col-md-6">
 				<div class="card" >

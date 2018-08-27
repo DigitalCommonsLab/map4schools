@@ -132,8 +132,8 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
-console.clear();
-console.log('getAgeData',obj.name, obj.level, json);
+//console.clear();
+//console.log('getAgeData',obj.name, obj.level, json);
 
 				if(_.isArray(json) && json.length>0)
 				{
@@ -187,7 +187,7 @@ console.log('getAgeData',obj.name, obj.level, json);
 						//return [v.eta, v.alunni]
 					});
 
-					console.log('getAgeData3',json);
+					//console.log('getAgeData3',json);
 
 					//json = utils.arrayTranspose(json);
 
