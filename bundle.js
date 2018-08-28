@@ -80612,21 +80612,25 @@ module.exports = {
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0) {
-			
-				console.clear();
-				console.log('getTrentinoRegistrationStats',obj.id, json);
 
-				//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
+					//WORK AROUND for API
+					json = _.map(json, function(o) {
+						o.annoDiCorso = _.random(1, o.annoDiCorso);
+						return o;
+					});
 
+					console.clear();
+					console.log('getTrentinoRegistrationStats',obj.id, json);
+
+					//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
 					
-console.log('anni',json);
-					
+					var anni = _.uniq(_.pluck(json,'annoDiCorso')).sort();
+
+					//console.log('anni', anni);
+
 					json = _.groupBy(json,'annoScolastico');
 
-					var anni = _.uniq(_.map(json, function(v) { return v.annoDiCorso }));
-
-
-
+					
 					json = _.map(json, function(years, year) {
 
 						return {
@@ -80653,8 +80657,6 @@ console.log('anni',json);
 					json = _.map(json, function(v,k) {
 						return [v.annoScolastico].concat(v.numeroAlunni);
 					});
-
-
 
 					cb(json);
 				}
