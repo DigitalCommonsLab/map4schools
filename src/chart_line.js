@@ -25,11 +25,11 @@ module.exports = {
 			},
 			data: _.defaults((opts && opts.data) || {}, {
 				columns: [
-					[this.labels[0], 120, 200, 100, 100, 150],
+					/*[this.labels[0], 120, 200, 100, 100, 150],
 					[this.labels[1], 130, 110, 140, 200, 130],
-					[this.labels[2], 100, 100, 120, 180, 100]
+					[this.labels[2], 100, 100, 120, 180, 100]*/
 				],
-				groups: [this.labels],
+				//groups: [this.labels],
 				type: 'line'
 			}),
 			bar: {
@@ -42,7 +42,7 @@ module.exports = {
 			axis: {
 				x: {
 					tick: {
-						format: function (x) { return (x+1)+' anno' }
+						format: function (x) { return (x+1)+' classe' }
 					}
 				}
 			}
@@ -54,11 +54,11 @@ module.exports = {
 
 		this.labels = _.uniq(_.map(data, function(v) { return v[0] })).sort();
 		
-		console.log('formatData', data, this.labels)
+		console.log('formatData', data)
 		
 		var ret = {
 			columns: data,
-			groups: [this.labels]
+			//groups: [this.labels]
 		};
 		return ret;
 	},
@@ -74,5 +74,7 @@ module.exports = {
 		else
 			this.chart.unload();
 		
+		//this.chart.resize();
+		this.chart.flush();
 	}
 }

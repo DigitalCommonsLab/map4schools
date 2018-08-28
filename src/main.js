@@ -113,7 +113,7 @@ $(function() {
 
 			$('#card_details').html(config.tmpls.details(row));
 
-			//maps.poi.update( row );
+			maps.poi.update( row );
 
 			if(row.raw.PROVINCIA==='TRENTO') {
 
