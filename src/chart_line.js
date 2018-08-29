@@ -23,7 +23,7 @@ module.exports = {
 				width: 300,
 				height: 200
 			},
-			data: _.defaults((opts && opts.data) || {}, {
+			data: (opts && opts.data) || {
 				columns: [
 					/*[this.labels[0], 120, 200, 100, 100, 150],
 					[this.labels[1], 130, 110, 140, 200, 130],
@@ -31,13 +31,6 @@ module.exports = {
 				],
 				//groups: [this.labels],
 				type: 'line'
-			}),
-			bar: {
-				width: {
-					ratio: 0.5 // this makes bar width 50% of length between ticks
-				}
-				// or
-				//width: 100 // this makes bar width 100px
 			},
 			axis: {
 				x: {
@@ -54,7 +47,7 @@ module.exports = {
 
 		this.labels = _.uniq(_.map(data, function(v) { return v[0] })).sort();
 		
-		console.log('formatData', data)
+		//console.log('formatData', data)
 		
 		var ret = {
 			columns: data,
@@ -69,12 +62,13 @@ module.exports = {
 
 		this.chart.unload();
 
-		if(data.length)
+		if(data.length){
 			this.chart.load( this.formatData(data) );
+		}
 		else
 			this.chart.unload();
 		
 		//this.chart.resize();
-		this.chart.flush();
+		
 	}
 }

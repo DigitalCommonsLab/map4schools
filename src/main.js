@@ -35,6 +35,7 @@ var chartOriz = require('./chart_oriz');
 var chartLine = require('./chart_line');
 
 var config = require('./config'); 
+window.config = config;
 
 $(function() {
 
@@ -89,7 +90,7 @@ $(function() {
 	var mapActive = maps.admin;
 
 	var charts = {
-		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
+		radar: chartRadar.init('#chart_radar', {labels: _.values(config.radarLabels) }),
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 		line: chartLine.init('#chart_line'),
@@ -98,7 +99,7 @@ $(function() {
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			//console.log('onSelect',row)
+			console.log('onSelect',row)
 
 			if(mapActive.layerData) {
 				mapActive.layerData.eachLayer(function(layer) {
@@ -117,6 +118,7 @@ $(function() {
 
 			if(row.raw.PROVINCIA==='TRENTO') {
 
+				$('#charts_radar').hide();
 				$('#charts_age_gender').hide();
 				$('#charts_registers').show();
 
@@ -126,9 +128,9 @@ $(function() {
 			}
 			else
 			{
+				$('#charts_radar').show();
 				$('#charts_age_gender').show();
 				$('#charts_registers').hide();
-				//charts.radar.update( utils.randomRadar() );
 				
 				cartella.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
@@ -136,6 +138,10 @@ $(function() {
 
 				cartella.getDataSchool(row, 'age', function(data) {
 					charts.oriz.update(data);
+				});
+
+				cartella.getDataSchool(row, 'evaluations', function(data) {
+					charts.radar.update(data);
 				});
 			}
 		}
@@ -157,10 +163,8 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
-	//var testUrl = './data/debug/searchSchool_bologna.json';
-	var testUrl = './data/debug/searchSchool_trento.json';
-
-	$('#card_details').hide();
+	var testUrl = './data/debug/searchSchool_bologna.json';
+	//var testUrl = './data/debug/searchSchool_trento.json';
 
 	$('#charts').css({
 		display: 'block',

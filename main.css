@@ -10,6 +10,7 @@
 #poi_legend .badge {
 	text-shadow: 0 0 1px #000;
 	box-shadow: 0 0 1px #000;
+	border-radius: 2px;
 	min-width: 20px;
 }
 .leaflet-control-layers-scrollbar {

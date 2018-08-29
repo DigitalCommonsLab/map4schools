@@ -103,7 +103,7 @@ module.exports = {
 			
 			var fdata = this.formatData(data);
 
-			console.log('formatData', fdata, this.labels);
+			//console.log('formatData', fdata, this.labels);
 
 			this.chart.unload();
 			this.chart.load( fdata );

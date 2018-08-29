@@ -80602,26 +80602,14 @@ module.exports = {
 						o.annoDiCorso = _.random(1, o.annoDiCorso);
 						return o;
 					});*/
-					console.clear();
-					console.log('getTrentinoRegistrationStats',obj.id, json);
+					//console.clear();
+					//console.log('getTrentinoRegistrationStats',obj.id, json);
 
 					//PATCH FOR API
 					json = _.map(json, function(v) {
 						v.annoScolastico = parseFloat(v.annoScolastico.replace('/',''));
 						return v;
 					});
-
-					console.log('getTrentinoRegistrationStats',obj.id, json);
-					
-/*					var gyears = _.groupBy(json,'annoScolastico'),
-						years = _.map(_.keys(gyears),parseFloat),
-						ymax = _.max(years);
-					json = _.filter(json, function(v) {
-						return v.annoScolastico === ymax;
-					});*/
-
-					//console.log('filter', years,ymax,json);
-
 					//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
 					
 					var anni = _.uniq(_.pluck(json,'annoDiCorso')).sort();
@@ -80630,7 +80618,6 @@ module.exports = {
 
 					json = _.groupBy(json,'annoScolastico');
 
-					
 					json = _.map(json, function(years, year) {
 
 						return {
@@ -80640,10 +80627,8 @@ module.exports = {
 
 								_.each(json, function(vv,y) {
 									_.each(vv, function(v) {
-										
 										if(y===year && v.annoDiCorso===anno)
 											alunni += v.numeroAlunni;
-										//console.log('alunni',eta,v)
 									});
 								});
 
@@ -80652,13 +80637,74 @@ module.exports = {
 						}
 					});
 
+					//console.log('prechart',_.pluck(json,'numeroAlunni'))
+
 					json = _.map(json, function(v,k) {
 						return [v.annoScolastico].concat(v.numeroAlunni);
 					});
 
-					console.log('registers',anni,json);
+					//console.log('registers',anni,json);
 
 					cb(json);
+				}
+				else
+					cb([]);
+
+			}, false);
+		}
+		else if(name==='evaluations') {
+
+			var istituteId = obj.raw.CODICEISTITUTORIFERIMENTO;
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
+
+				if(_.isArray(json) && json.length>0) {
+
+				json = _.sortBy(json,'CODICECRITERIO');
+
+				console.log('getEvaluations',json);
+				console.log('criteri',_.pluck(json,'CODICECRITERIO').sort())
+
+				json = [
+					_.map(json, function(o) {
+						return {
+							value: o.PUNTEGGIOSCUOLA
+						}
+					}),
+					_.map(json, function(o) {	//media nazionale
+						return {
+							value: 4
+						};
+					}),					
+				];
+/*
+					var gyears = _.groupBy(json,'annoscolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
+
+					json = _.filter(json, function(v) {
+						return v.annoscolastico === ymax;
+					});
+
+					json = _.groupBy(json,'annocorsoclasse');
+
+					json = _.map(json, function(years, year) {
+						return {
+							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
+							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
+						}
+					});
+					
+					json = _.map(json, function(v,k) {
+						return [
+							v.alunnimaschi,
+							v.alunnifemmine
+						]
+					});
+
+					json = utils.arrayTranspose(json);*/
+
+					cb(json)
 				}
 				else
 					cb([]);
@@ -80693,7 +80739,7 @@ module.exports = {
 				width: 300,
 				height: 200
 			},
-			data: _.defaults((opts && opts.data) || {}, {
+			data: (opts && opts.data) || {
 				columns: [
 					/*[this.labels[0], 120, 200, 100, 100, 150],
 					[this.labels[1], 130, 110, 140, 200, 130],
@@ -80701,13 +80747,6 @@ module.exports = {
 				],
 				//groups: [this.labels],
 				type: 'line'
-			}),
-			bar: {
-				width: {
-					ratio: 0.5 // this makes bar width 50% of length between ticks
-				}
-				// or
-				//width: 100 // this makes bar width 100px
 			},
 			axis: {
 				x: {
@@ -80724,7 +80763,7 @@ module.exports = {
 
 		this.labels = _.uniq(_.map(data, function(v) { return v[0] })).sort();
 		
-		console.log('formatData', data)
+		//console.log('formatData', data)
 		
 		var ret = {
 			columns: data,
@@ -80739,13 +80778,14 @@ module.exports = {
 
 		this.chart.unload();
 
-		if(data.length)
+		if(data.length){
 			this.chart.load( this.formatData(data) );
+		}
 		else
 			this.chart.unload();
 		
 		//this.chart.resize();
-		this.chart.flush();
+		
 	}
 }
 },{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
@@ -80854,7 +80894,7 @@ module.exports = {
 			
 			var fdata = this.formatData(data);
 
-			console.log('formatData', fdata, this.labels);
+			//console.log('formatData', fdata, this.labels);
 
 			this.chart.unload();
 			this.chart.load( fdata );
@@ -80997,19 +81037,19 @@ module.exports = {
 			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
 		}
 	},
-	radarLabels: [
-		"Risultati scolastici",
-		"Risultati nelle prove standardizzate nazionali",
-		"Competenze chiave europee",
-		"Risultati a distanza",
-		"Curricolo, progettazione e valutazione",
-		"Ambiente di apprendimento",
-		"Inclusione e differenziazione",
-		"Continuita' e orientamento",
-		"Orientamento strategico e organizzazione della scuola",
-		"Sviluppo e valorizzazione delle risorse umane",
-		"Integrazione con il territorio e rapporti con le famiglie"
-	],
+	radarLabels: {
+		"21": "Risultati scolastici",
+		"22": "Risultati nelle prove standardizzate nazionali",
+		"23": "Competenze chiave europee",
+		"24": "Risultati a distanza",
+		"31": "Curricolo, progettazione e valutazione",
+		"32": "Ambiente di apprendimento",
+		"33": "Inclusione e differenziazione",
+		"34": "Continuita' e orientamento",
+		"35": "Orientamento strategico e organizzazione della scuola",
+		"36": "Sviluppo e valorizzazione delle risorse umane",
+		"37": "Integrazione con il territorio e rapporti con le famiglie ",
+	},
 	genderLabels: [
 		'maschi',
 		'femmine'
@@ -81034,7 +81074,7 @@ module.exports = {
 		'17 anni',
 		'18 anni',
 		'> di 18 anni',		
-	],	
+	],
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
@@ -81490,6 +81530,7 @@ var chartOriz = require('./chart_oriz');
 var chartLine = require('./chart_line');
 
 var config = require('./config'); 
+window.config = config;
 
 $(function() {
 
@@ -81544,7 +81585,7 @@ $(function() {
 	var mapActive = maps.admin;
 
 	var charts = {
-		radar: chartRadar.init('#chart_radar', {labels: config.radarLabels }),
+		radar: chartRadar.init('#chart_radar', {labels: _.values(config.radarLabels) }),
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 		line: chartLine.init('#chart_line'),
@@ -81553,7 +81594,7 @@ $(function() {
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			//console.log('onSelect',row)
+			console.log('onSelect',row)
 
 			if(mapActive.layerData) {
 				mapActive.layerData.eachLayer(function(layer) {
@@ -81572,6 +81613,7 @@ $(function() {
 
 			if(row.raw.PROVINCIA==='TRENTO') {
 
+				$('#charts_radar').hide();
 				$('#charts_age_gender').hide();
 				$('#charts_registers').show();
 
@@ -81581,9 +81623,9 @@ $(function() {
 			}
 			else
 			{
+				$('#charts_radar').show();
 				$('#charts_age_gender').show();
 				$('#charts_registers').hide();
-				//charts.radar.update( utils.randomRadar() );
 				
 				cartella.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
@@ -81591,6 +81633,10 @@ $(function() {
 
 				cartella.getDataSchool(row, 'age', function(data) {
 					charts.oriz.update(data);
+				});
+
+				cartella.getDataSchool(row, 'evaluations', function(data) {
+					charts.radar.update(data);
 				});
 			}
 		}
@@ -81612,10 +81658,8 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
-	//var testUrl = './data/debug/searchSchool_bologna.json';
-	var testUrl = './data/debug/searchSchool_trento.json';
-
-	$('#card_details').hide();
+	var testUrl = './data/debug/searchSchool_bologna.json';
+	//var testUrl = './data/debug/searchSchool_trento.json';
 
 	$('#charts').css({
 		display: 'block',
@@ -82693,23 +82737,10 @@ module.exports = {
                     value: _.shuffle(_.range(3.2,4.8,0.4))[0]
                 };
             }),
-            _.map([
-                //TODO USING type attribute or split in more Radar charts
-                {type: 'esiti' },
-                {type: 'esiti' },
-                {type: 'esiti' },
-                {type: 'esiti' },
-                {type: 'processi' },
-                {type: 'processi' },
-                {type: 'processi' },
-                {type: 'processi' },
-                {type: 'processi' },
-                {type: 'processi' },
-                {type: 'processi' },
-            ], function(o) {
-                //ADD RANDOM VALUES
-                o.value = _.shuffle(_.range(1,7,0.2))[0];   
-                return o;
+            _.map(_.range(1,num), function(o) {
+                return {
+                    value: _.shuffle(_.range(1,7,0.2))[0]
+                };
             })
         ];
     },

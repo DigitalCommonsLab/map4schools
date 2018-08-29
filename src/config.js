@@ -12,19 +12,19 @@ module.exports = {
 			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
 		}
 	},
-	radarLabels: [
-		"Risultati scolastici",
-		"Risultati nelle prove standardizzate nazionali",
-		"Competenze chiave europee",
-		"Risultati a distanza",
-		"Curricolo, progettazione e valutazione",
-		"Ambiente di apprendimento",
-		"Inclusione e differenziazione",
-		"Continuita' e orientamento",
-		"Orientamento strategico e organizzazione della scuola",
-		"Sviluppo e valorizzazione delle risorse umane",
-		"Integrazione con il territorio e rapporti con le famiglie"
-	],
+	radarLabels: {
+		"21": "Risultati scolastici",
+		"22": "Risultati nelle prove standardizzate nazionali",
+		"23": "Competenze chiave europee",
+		"24": "Risultati a distanza",
+		"31": "Curricolo, progettazione e valutazione",
+		"32": "Ambiente di apprendimento",
+		"33": "Inclusione e differenziazione",
+		"34": "Continuita' e orientamento",
+		"35": "Orientamento strategico e organizzazione della scuola",
+		"36": "Sviluppo e valorizzazione delle risorse umane",
+		"37": "Integrazione con il territorio e rapporti con le famiglie ",
+	},
 	genderLabels: [
 		'maschi',
 		'femmine'
@@ -49,7 +49,7 @@ module.exports = {
 		'17 anni',
 		'18 anni',
 		'> di 18 anni',		
-	],	
+	],
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
