@@ -219,15 +219,6 @@ module.exports = {
 					});
 
 					console.log('getTrentinoRegistrationStats',obj.id, json);
-					
-/*					var gyears = _.groupBy(json,'annoScolastico'),
-						years = _.map(_.keys(gyears),parseFloat),
-						ymax = _.max(years);
-					json = _.filter(json, function(v) {
-						return v.annoScolastico === ymax;
-					});*/
-
-					//console.log('filter', years,ymax,json);
 
 					//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
 					
