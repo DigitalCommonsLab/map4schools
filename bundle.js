@@ -80537,7 +80537,6 @@ module.exports = {
 					var gyears = _.groupBy(json,'annoscolastico'),
 						years = _.map(_.keys(gyears),parseFloat),
 						ymax = _.max(years);
-
 					json = _.filter(json, function(v) {
 						return v.annoscolastico === ymax;
 					});
@@ -80599,13 +80598,29 @@ module.exports = {
 				if(_.isArray(json) && json.length>0) {
 
 					//WORK AROUND for API
-					json = _.map(json, function(o) {
+/*					json = _.map(json, function(o) {
 						o.annoDiCorso = _.random(1, o.annoDiCorso);
 						return o;
-					});
-
+					});*/
 					console.clear();
 					console.log('getTrentinoRegistrationStats',obj.id, json);
+
+					//PATCH FOR API
+					json = _.map(json, function(v) {
+						v.annoScolastico = parseFloat(v.annoScolastico.replace('/',''));
+						return v;
+					});
+
+					console.log('getTrentinoRegistrationStats',obj.id, json);
+					
+/*					var gyears = _.groupBy(json,'annoScolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
+					json = _.filter(json, function(v) {
+						return v.annoScolastico === ymax;
+					});*/
+
+					//console.log('filter', years,ymax,json);
 
 					//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
 					
@@ -80637,11 +80652,11 @@ module.exports = {
 						}
 					});
 
-			console.log('registers',anni,json);
-
 					json = _.map(json, function(v,k) {
 						return [v.annoScolastico].concat(v.numeroAlunni);
 					});
+
+					console.log('registers',anni,json);
 
 					cb(json);
 				}
@@ -80680,11 +80695,11 @@ module.exports = {
 			},
 			data: _.defaults((opts && opts.data) || {}, {
 				columns: [
-					[this.labels[0], 120, 200, 100, 100, 150],
+					/*[this.labels[0], 120, 200, 100, 100, 150],
 					[this.labels[1], 130, 110, 140, 200, 130],
-					[this.labels[2], 100, 100, 120, 180, 100]
+					[this.labels[2], 100, 100, 120, 180, 100]*/
 				],
-				groups: [this.labels],
+				//groups: [this.labels],
 				type: 'line'
 			}),
 			bar: {
@@ -80697,7 +80712,7 @@ module.exports = {
 			axis: {
 				x: {
 					tick: {
-						format: function (x) { return (x+1)+' anno' }
+						format: function (x) { return (x+1)+' classe' }
 					}
 				}
 			}
@@ -80709,11 +80724,11 @@ module.exports = {
 
 		this.labels = _.uniq(_.map(data, function(v) { return v[0] })).sort();
 		
-		console.log('formatData', data, this.labels)
+		console.log('formatData', data)
 		
 		var ret = {
 			columns: data,
-			groups: [this.labels]
+			//groups: [this.labels]
 		};
 		return ret;
 	},
@@ -80729,6 +80744,8 @@ module.exports = {
 		else
 			this.chart.unload();
 		
+		//this.chart.resize();
+		this.chart.flush();
 	}
 }
 },{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){

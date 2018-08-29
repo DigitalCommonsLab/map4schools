@@ -144,7 +144,6 @@ module.exports = {
 					var gyears = _.groupBy(json,'annoscolastico'),
 						years = _.map(_.keys(gyears),parseFloat),
 						ymax = _.max(years);
-
 					json = _.filter(json, function(v) {
 						return v.annoscolastico === ymax;
 					});
@@ -206,12 +205,19 @@ module.exports = {
 				if(_.isArray(json) && json.length>0) {
 
 					//WORK AROUND for API
-					json = _.map(json, function(o) {
+/*					json = _.map(json, function(o) {
 						o.annoDiCorso = _.random(1, o.annoDiCorso);
 						return o;
+					});*/
+					console.clear();
+					console.log('getTrentinoRegistrationStats',obj.id, json);
+
+					//PATCH FOR API
+					json = _.map(json, function(v) {
+						v.annoScolastico = parseFloat(v.annoScolastico.replace('/',''));
+						return v;
 					});
 
-					console.clear();
 					console.log('getTrentinoRegistrationStats',obj.id, json);
 
 					//https://dev.smartcommunitylab.it/jira/projects/CED/issues/CED-34?filter=myopenissues
@@ -244,11 +250,11 @@ module.exports = {
 						}
 					});
 
-			console.log('registers',anni,json);
-
 					json = _.map(json, function(v,k) {
 						return [v.annoScolastico].concat(v.numeroAlunni);
 					});
+
+					console.log('registers',anni,json);
 
 					cb(json);
 				}
