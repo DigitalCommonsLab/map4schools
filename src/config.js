@@ -50,6 +50,15 @@ module.exports = {
 		'18 anni',
 		'> di 18 anni',		
 	],
+	examLabels: [
+		"60",
+		"fra 61 e 70",
+		"fra 71 e 80",
+		"fra 81 e 90",
+		"fra 91 e 99",
+		"100",
+		"100 e lode",
+    ],
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),

@@ -26,12 +26,15 @@ module.exports = {
 
 		this.table = $(el);
 
+		this.onSelect = opts && opts.onSelect;
+
 		this.table.bootstrapTable({
 			
-			onClickRow: opts && opts.onSelect,
+			onClickRow: this.onSelect,
 			//radio:true,
 			pagination:true,
 			//showColumns: true,
+			clickToSelect:true,
 			
 			pageSize: 5,
 			pageList: [5],

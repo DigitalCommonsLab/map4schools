@@ -33,6 +33,7 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 var chartOriz = require('./chart_oriz');
 var chartLine = require('./chart_line');
+var chartBar = require('./chart_bar');
 
 var config = require('./config'); 
 window.config = config;
@@ -94,6 +95,7 @@ $(function() {
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 		line: chartLine.init('#chart_line'),
+		bar: chartBar.init('#chart_bar', {labels: config.examLabels }),
 	};
 
 	table.init('#table_selection', {
@@ -124,6 +126,10 @@ $(function() {
 
 				cartella.getDataSchool(row, 'registers', function(data) {
 					charts.line.update(data);
+				});
+
+				cartella.getDataSchool(row, 'exams', function(data) {
+					charts.bar.update(data);
 				});
 			}
 			else
@@ -163,8 +169,8 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
-	var testUrl = './data/debug/searchSchool_bologna.json';
-	//var testUrl = './data/debug/searchSchool_trento.json';
+	//var testUrl = './data/debug/searchSchool_bologna.json';
+	var testUrl = './data/debug/searchSchool_trento.json';
 
 	$('#charts').css({
 		display: 'block',
@@ -188,11 +194,12 @@ if(location.hash=='#debug') {
 					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		table.update(geoSchools);
-
-/*		
 		var testSchool = geoSchools.features[2].properties;
 
+		table.update(geoSchools);
+
+		table.onSelect(testSchool);
+/*		
 		cartella.getDataSchool(testSchool, 'gender', function(data) {
 			charts.vert.update(data);
 		});

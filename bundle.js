@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80711,9 +80726,170 @@ module.exports = {
 
 			}, false);
 		}
+		else if(name==='exams') {
+
+			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
+
+			console.log('getExams', json);
+
+/*
+			json = [
+			{
+				"codicemiur": "TNPC04000G",
+				"codiceprovinciale": 222057213,
+				"intervallo_0": 60,
+				"intervallo_1": "fra 61 e 70",
+				"intervallo_2": "fra 71 e 80",
+				"intervallo_3": "fra 81 e 90",
+				"intervallo_4": "fra 91 e 99",
+				"intervallo_5": 100,
+				"intervallo_6": "100 e lode",
+				"percentuale_0": 4.040404040404041,
+				"percentuale_1": 15.151515151515152,
+				"percentuale_2": 33.33333333333333,
+				"percentuale_3": 23.232323232323232,
+				"percentuale_4": 15.151515151515152,
+				"percentuale_5": 8.080808080808081,
+				"percentuale_6": 1.0101010101010102,
+				"tipologiaTitolo": "DIPLOMA DI MATURITA'"
+			},
+			{
+				"codicemiur": "TNPC04000G",
+				"codiceprovinciale": 222059512,
+				"intervallo_0": 60,
+				"intervallo_1": "fra 61 e 70",
+				"intervallo_2": "fra 71 e 80",
+				"intervallo_3": "fra 81 e 90",
+				"intervallo_4": "fra 91 e 99",
+				"intervallo_5": 100,
+				"intervallo_6": "100 e lode",
+				"percentuale_0": 4.040404040404041,
+				"percentuale_1": 15.151515151515152,
+				"percentuale_2": 33.33333333333333,
+				"percentuale_3": 23.232323232323232,
+				"percentuale_4": 15.151515151515152,
+				"percentuale_5": 8.080808080808081,
+				"percentuale_6": 1.0101010101010102,
+				"tipologiaTitolo": "DIPLOMA DI MATURITA'"
+			}
+			];*/
+				if(_.isArray(json) && json.length>0) {
+/*
+					json = _.map(json, function(o) {
+						return _.omit(o,'codicescuola','ordinescuola','classi');
+					});
+
+					var gyears = _.groupBy(json,'annoscolastico'),
+						years = _.map(_.keys(gyears),parseFloat),
+						ymax = _.max(years);
+
+					json = _.filter(json, function(v) {
+						return v.annoscolastico === ymax;
+					});
+
+					json = _.groupBy(json,'annocorsoclasse');
+
+					json = _.map(json, function(years, year) {
+						return {
+							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
+							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
+						}
+					});
+					*/
+
+					json = _.map(json, function(v,k) {
+						return [
+							v.alunnimaschi,
+							v.alunnifemmine
+						]
+					});
+
+					json = utils.arrayTranspose(json);
+
+					cb(json)
+				}
+				else
+					cb([]);
+
+			}, false);
+		}
 	}
 }
-},{"./config":185,"./utils":195,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+},{"./config":186,"./utils":196,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+
+// var d3 = require('d3');
+var c3 = require('c3');
+require('../node_modules/c3/c3.min.css');
+
+var utils = require('./utils');
+
+module.exports = {
+  	
+  	chart: null,
+
+	init: function(el, opts) {
+		this.el =  el;
+
+		this.labels = opts && opts.labels || ['data0','data1'];
+
+		this.chart = c3.generate({
+			bindto: this.el,
+			size: {
+				width: 300,
+				height: 200
+			},
+			data: _.defaults((opts && opts.data) || {}, {
+				columns: [
+					[this.labels[0], 120, 200, 100, 100, 150],
+					[this.labels[1], 130, 100, 140, 200, 110]
+				],
+				//groups: [this.labels],
+				type: 'bar'
+			}),
+			bar: {
+				width: {
+					ratio: 0.5 // this makes bar width 50% of length between ticks
+				}
+				// or
+				//width: 100 // this makes bar width 100px
+			},
+			axis: {
+				x: {
+					tick: {
+						format: function (x) { return (x+1)+' anno' }
+					}
+				}
+			}
+		});
+		return this;
+	},
+
+	formatData: function(data) {
+		var ret = {
+			columns: [
+				[this.labels[0]].concat(data[0]),
+				[this.labels[1]].concat(data[1])
+			],
+			//groups: [this.labels]
+		};
+		return ret;
+	},
+
+	update: function(data) {
+		if(!_.isArray(data))
+			return false;
+
+		if(data.length)
+			this.chart.load( this.formatData(data) );
+		else
+			this.chart.unload();
+		
+	}
+}
+},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80788,7 +80964,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80906,7 +81082,7 @@ module.exports = {
 			this.chart.unload();
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80948,7 +81124,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":187,"./utils":195,"d3":43,"jquery":77,"underscore":177}],184:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":188,"./utils":196,"d3":43,"jquery":77,"underscore":177}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81022,7 +81198,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":195,"c3":10,"jquery":77,"underscore":177}],185:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
@@ -81075,13 +81251,22 @@ module.exports = {
 		'18 anni',
 		'> di 18 anni',		
 	],
+	examLabels: [
+		"60",
+		"fra 61 e 70",
+		"fra 71 e 80",
+		"fra 81 e 90",
+		"fra 91 e 99",
+		"100",
+		"100 e lode",
+    ],
 	tmpls: {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	}
 }
-},{"handlebars":76,"jquery":77,"leaflet":85}],186:[function(require,module,exports){
+},{"handlebars":76,"jquery":77,"leaflet":85}],187:[function(require,module,exports){
 /*
 
 	http://www.digital-geography.com/openrouteservice-api-a-leaflet-example-for-isochrones/
@@ -81207,7 +81392,7 @@ module.exports = {
 	}
 }
 
-},{"./config":185,"./utils":195,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],187:[function(require,module,exports){
+},{"./config":186,"./utils":196,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],188:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -81492,7 +81677,7 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{"d3":43}],188:[function(require,module,exports){
+},{"d3":43}],189:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81528,6 +81713,7 @@ var chartRadar = require('./chart_radar');
 var chartVert = require('./chart_vert');
 var chartOriz = require('./chart_oriz');
 var chartLine = require('./chart_line');
+var chartBar = require('./chart_bar');
 
 var config = require('./config'); 
 window.config = config;
@@ -81589,6 +81775,7 @@ $(function() {
 		vert: chartVert.init('#chart_vert', {labels: config.genderLabels }),
 		oriz: chartOriz.init('#chart_oriz', {labels: config.ageLabels }),
 		line: chartLine.init('#chart_line'),
+		bar: chartBar.init('#chart_bar', {labels: config.examLabels }),
 	};
 
 	table.init('#table_selection', {
@@ -81619,6 +81806,10 @@ $(function() {
 
 				cartella.getDataSchool(row, 'registers', function(data) {
 					charts.line.update(data);
+				});
+
+				cartella.getDataSchool(row, 'exams', function(data) {
+					charts.bar.update(data);
 				});
 			}
 			else
@@ -81658,8 +81849,8 @@ if(location.hash=='#debug') {
 
 	window.utils = utils;
 
-	var testUrl = './data/debug/searchSchool_bologna.json';
-	//var testUrl = './data/debug/searchSchool_trento.json';
+	//var testUrl = './data/debug/searchSchool_bologna.json';
+	var testUrl = './data/debug/searchSchool_trento.json';
 
 	$('#charts').css({
 		display: 'block',
@@ -81683,11 +81874,12 @@ if(location.hash=='#debug') {
 					f.properties.level!=='ISTITUTO COMPRENSIVO';
 		});
 
-		table.update(geoSchools);
-
-/*		
 		var testSchool = geoSchools.features[2].properties;
 
+		table.update(geoSchools);
+
+		table.onSelect(testSchool);
+/*		
 		cartella.getDataSchool(testSchool, 'gender', function(data) {
 			charts.vert.update(data);
 		});
@@ -81702,7 +81894,7 @@ if(location.hash=='#debug') {
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"./cartella":180,"./chart_line":181,"./chart_oriz":182,"./chart_radar":183,"./chart_vert":184,"./config":185,"./map_admin":189,"./map_area":190,"./map_gps":191,"./map_poi":192,"./overpass":193,"./table":194,"./utils":195,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],189:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"./cartella":180,"./chart_bar":181,"./chart_line":182,"./chart_oriz":183,"./chart_radar":184,"./chart_vert":185,"./config":186,"./map_admin":190,"./map_area":191,"./map_gps":192,"./map_poi":193,"./overpass":194,"./table":195,"./utils":196,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],190:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81947,7 +82139,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":195,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],190:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":196,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],191:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82084,7 +82276,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":195,"jquery":77,"leaflet-draw":80}],191:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":196,"jquery":77,"leaflet-draw":80}],192:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82142,7 +82334,7 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":195,"jquery":77,"leaflet-gps":84}],192:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":196,"jquery":77,"leaflet-gps":84}],193:[function(require,module,exports){
 /*
 
 https://github.com/DigitalCommonsLab/osm4schools/issues/20
@@ -82310,7 +82502,7 @@ module.exports = {
 		});
 	}
 };
-},{"./config":185,"./isochrones":186,"./overpass":193,"./utils":195,"geojson-utils":46,"handlebars":76,"jquery":77}],193:[function(require,module,exports){
+},{"./config":186,"./isochrones":187,"./overpass":194,"./utils":196,"geojson-utils":46,"handlebars":76,"jquery":77}],194:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -82366,7 +82558,7 @@ module.exports = {
 		return this;
 	}
 }
-},{"./utils":195,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],194:[function(require,module,exports){
+},{"./utils":196,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],195:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82395,12 +82587,15 @@ module.exports = {
 
 		this.table = $(el);
 
+		this.onSelect = opts && opts.onSelect;
+
 		this.table.bootstrapTable({
 			
-			onClickRow: opts && opts.onSelect,
+			onClickRow: this.onSelect,
 			//radio:true,
 			pagination:true,
 			//showColumns: true,
+			clickToSelect:true,
 			
 			pageSize: 5,
 			pageList: [5],
@@ -82436,7 +82631,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":195,"bootstrap-table":2,"jquery":77,"underscore":177}],195:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":196,"bootstrap-table":2,"jquery":77,"underscore":177}],196:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82787,4 +82982,4 @@ module.exports = {
 
 };
 
-},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[188]);
+},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[189]);
