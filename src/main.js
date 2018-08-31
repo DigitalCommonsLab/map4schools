@@ -128,9 +128,9 @@ $(function() {
 					charts.line.update(data);
 				});
 
-/*				cartella.getDataSchool(row, 'exams', function(data) {
+				cartella.getDataSchool(row, 'exams', function(data) {
 					charts.bar.update(data);
-				});*/
+				});
 			}
 			else
 			{

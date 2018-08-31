@@ -80449,6 +80449,8 @@ module.exports = {
 
 		utils.getData(url, function(json) {
 
+			console.log('seach schools', json);
+
 			json = _.map(json, function(v) {
 				return {
 					type: 'Feature',
@@ -80660,49 +80662,24 @@ module.exports = {
 
 				if(_.isArray(json) && json.length>0) {
 
-				json = _.sortBy(json,'CODICECRITERIO');
+					json = _.sortBy(json,'CODICECRITERIO');
 
-				console.log('getEvaluations',json);
-				console.log('criteri',_.pluck(json,'CODICECRITERIO').sort())
+					//console.log('getEvaluations',json);
+					//console.log('criteri',_.pluck(json,'CODICECRITERIO').sort())
 
-				json = [
-					_.map(json, function(o) {
-						return {
-							value: o.PUNTEGGIOSCUOLA
-						}
-					}),
-					_.map(json, function(o) {	//media nazionale
-						return {
-							value: 4
-						};
-					}),					
-				];
-/*
-					var gyears = _.groupBy(json,'annoscolastico'),
-						years = _.map(_.keys(gyears),parseFloat),
-						ymax = _.max(years);
-
-					json = _.filter(json, function(v) {
-						return v.annoscolastico === ymax;
-					});
-
-					json = _.groupBy(json,'annocorsoclasse');
-
-					json = _.map(json, function(years, year) {
-						return {
-							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
-							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
-						}
-					});
-					
-					json = _.map(json, function(v,k) {
-						return [
-							v.alunnimaschi,
-							v.alunnifemmine
-						]
-					});
-
-					json = utils.arrayTranspose(json);*/
+					json = [
+						_.map(json, function(o) {
+							return {
+								value: o.PUNTEGGIOSCUOLA
+							}
+						}),
+						_.map(json, function(o) {	//media nazionale
+							return {
+								//TODO COLLEGA API MEDIA NAZIONALE
+								value: 4
+							};
+						})			
+					];
 
 					cb(json)
 				}
@@ -80715,81 +80692,37 @@ module.exports = {
 
 			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
 
-			console.log('getExams', json);
-
-/*
-			json = [
-			{
-				"codicemiur": "TNPC04000G",
-				"codiceprovinciale": 222057213,
-				"intervallo_0": 60,
-				"intervallo_1": "fra 61 e 70",
-				"intervallo_2": "fra 71 e 80",
-				"intervallo_3": "fra 81 e 90",
-				"intervallo_4": "fra 91 e 99",
-				"intervallo_5": 100,
-				"intervallo_6": "100 e lode",
-				"percentuale_0": 4.040404040404041,
-				"percentuale_1": 15.151515151515152,
-				"percentuale_2": 33.33333333333333,
-				"percentuale_3": 23.232323232323232,
-				"percentuale_4": 15.151515151515152,
-				"percentuale_5": 8.080808080808081,
-				"percentuale_6": 1.0101010101010102,
-				"tipologiaTitolo": "DIPLOMA DI MATURITA'"
-			},
-			{
-				"codicemiur": "TNPC04000G",
-				"codiceprovinciale": 222059512,
-				"intervallo_0": 60,
-				"intervallo_1": "fra 61 e 70",
-				"intervallo_2": "fra 71 e 80",
-				"intervallo_3": "fra 81 e 90",
-				"intervallo_4": "fra 91 e 99",
-				"intervallo_5": 100,
-				"intervallo_6": "100 e lode",
-				"percentuale_0": 4.040404040404041,
-				"percentuale_1": 15.151515151515152,
-				"percentuale_2": 33.33333333333333,
-				"percentuale_3": 23.232323232323232,
-				"percentuale_4": 15.151515151515152,
-				"percentuale_5": 8.080808080808081,
-				"percentuale_6": 1.0101010101010102,
-				"tipologiaTitolo": "DIPLOMA DI MATURITA'"
-			}
-			];*/
 				if(_.isArray(json) && json.length>0) {
-/*
-					json = _.map(json, function(o) {
-						return _.omit(o,'codicescuola','ordinescuola','classi');
-					});
 
-					var gyears = _.groupBy(json,'annoscolastico'),
-						years = _.map(_.keys(gyears),parseFloat),
-						ymax = _.max(years);
+					console.log('getExams',json);
 
-					json = _.filter(json, function(v) {
-						return v.annoscolastico === ymax;
-					});
+					json = json[0];
+					//PATCH API
 
-					json = _.groupBy(json,'annocorsoclasse');
-
-					json = _.map(json, function(years, year) {
-						return {
-							'alunnimaschi': _.reduce(_.pluck(years,'alunnimaschi'), function(s,v) { return s+v; }),
-							'alunnifemmine': _.reduce(_.pluck(years,'alunnifemmine'), function(s,v) { return s+v; })
+					var labels = [];
+					_.each(json, function(v,k) {
+						if(k.startsWith('intervallo_')) {
+							json[k] = ""+v;
+							labels.push(json[k]);
 						}
-					});
-					*/
-
-					json = _.map(json, function(v,k) {
-						return [
-							v.alunnimaschi,
-							v.alunnifemmine
-						]
+						return v;
 					});
 
-					json = utils.arrayTranspose(json);
+					var vals = [];
+					_.each(json, function(v,k) {
+						if(k.startsWith('percentuale_'))
+							vals.push(v)
+					});
+
+				
+					json = _.map(labels, function(l,i) {
+						return [l, parseFloat(vals[i])];
+					});
+
+					//json = utils.arrayTranspose(json);
+
+					console.log('exams columns',json);
+
 
 					cb(json)
 				}
@@ -80818,8 +80751,6 @@ module.exports = {
 	init: function(el, opts) {
 		this.el =  el;
 
-		this.labels = opts && opts.labels || ['data0','data1'];
-
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
@@ -80827,11 +80758,8 @@ module.exports = {
 				height: 200
 			},
 			data: _.defaults((opts && opts.data) || {}, {
-				columns: [
-					[this.labels[0], 120, 200, 100, 100, 150],
-					[this.labels[1], 130, 100, 140, 200, 110]
-				],
-				//groups: [this.labels],
+				columns: [],
+				groups: [],
 				type: 'bar'
 			}),
 			bar: {
@@ -80841,24 +80769,21 @@ module.exports = {
 				// or
 				//width: 100 // this makes bar width 100px
 			},
-			axis: {
+/*			axis: {
 				x: {
 					tick: {
 						format: function (x) { return (x+1)+' anno' }
 					}
 				}
-			}
+			}*/
 		});
 		return this;
 	},
 
 	formatData: function(data) {
 		var ret = {
-			columns: [
-				[this.labels[0]].concat(data[0]),
-				[this.labels[1]].concat(data[1])
-			],
-			//groups: [this.labels]
+			columns: data,
+			groups:[]
 		};
 		return ret;
 	},
@@ -80866,6 +80791,8 @@ module.exports = {
 	update: function(data) {
 		if(!_.isArray(data))
 			return false;
+
+		this.chart.unload();
 
 		if(data.length)
 			this.chart.load( this.formatData(data) );
@@ -81793,9 +81720,9 @@ $(function() {
 					charts.line.update(data);
 				});
 
-/*				cartella.getDataSchool(row, 'exams', function(data) {
+				cartella.getDataSchool(row, 'exams', function(data) {
 					charts.bar.update(data);
-				});*/
+				});
 			}
 			else
 			{

@@ -15,8 +15,6 @@ module.exports = {
 	init: function(el, opts) {
 		this.el =  el;
 
-		this.labels = opts && opts.labels || ['data0','data1'];
-
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
@@ -24,11 +22,8 @@ module.exports = {
 				height: 200
 			},
 			data: _.defaults((opts && opts.data) || {}, {
-				columns: [
-					[this.labels[0], 120, 200, 100, 100, 150],
-					[this.labels[1], 130, 100, 140, 200, 110]
-				],
-				//groups: [this.labels],
+				columns: [],
+				groups: [],
 				type: 'bar'
 			}),
 			bar: {
@@ -38,24 +33,21 @@ module.exports = {
 				// or
 				//width: 100 // this makes bar width 100px
 			},
-			axis: {
+/*			axis: {
 				x: {
 					tick: {
 						format: function (x) { return (x+1)+' anno' }
 					}
 				}
-			}
+			}*/
 		});
 		return this;
 	},
 
 	formatData: function(data) {
 		var ret = {
-			columns: [
-				[this.labels[0]].concat(data[0]),
-				[this.labels[1]].concat(data[1])
-			],
-			//groups: [this.labels]
+			columns: data,
+			groups:[]
 		};
 		return ret;
 	},
@@ -63,6 +55,8 @@ module.exports = {
 	update: function(data) {
 		if(!_.isArray(data))
 			return false;
+
+		this.chart.unload();
 
 		if(data.length)
 			this.chart.load( this.formatData(data) );
