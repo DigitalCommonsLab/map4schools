@@ -56,27 +56,30 @@ module.exports = {
 
 		utils.getData(url, function(json) {
 
-			console.log('seach schools', json);
+			//console.log('search schools', json);
 
-			json = _.map(json, function(v) {
-				return {
-					type: 'Feature',
-					properties: self._getProperties(v),
-					geometry: {
-						type: 'Point',
-						coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
-					}
+			if(json.length) {
+
+				json = _.map(json, function(v) {
+					return {
+						type: 'Feature',
+						properties: self._getProperties(v),
+						geometry: {
+							type: 'Point',
+							coordinates: [ v.LONGITUDINE, v.LATITUDINE ]
+						}
+					};
+				});
+
+				var geojson = {
+					type: 'FeatureCollection',
+					features: _.filter(json, function(f) {
+						return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
+					})
 				};
-			});
 
-			var geojson = {
-				type: 'FeatureCollection',
-				features: _.filter(json, function(f) {
-					return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
-				})
-			};
-
-			cb(geojson);
+				cb(geojson);
+			}
 
 		}, false);
 
