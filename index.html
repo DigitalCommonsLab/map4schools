@@ -1,36 +1,81 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
-<html xmlns="http://www.w3.org/1999/xhtml"> 
+<!DOCTYPE html>
+<html>
 <head> 
-	<title>Cedus4School</title> 
+	<title>Cedus4School - SCUOLA</title> 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	
+	<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
 	<link rel="stylesheet" href="main.css" />
-</head> 	
-<body>
+</head> 
+
+<body id="page_index">
+
+<header class="navbar navbar-expand flex-column flex-md-row bd-navbar">
+
+  <div class="navbar-nav-scroll">
+    <ul class="navbar-nav bd-navbar-nav flex-row">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">SCUOLA</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="index.html">IL MIO PERCORSO</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="search.html">ASPIRAZIONI</a>
+      </li>
+    </ul>
+  </div>
+
+  <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+    <li class="nav-item">
+      <a class="nav-item nav-link mr-md-2" href="#" id="bd-versions" aria-haspopup="true" aria-expanded="false">
+        NOME STUDENTE
+      </a>
+    </li>
+    <li class="nav-item logout">
+      <a class="nav-item nav-link mr-md-2 orange-text" href="#" id="bd-versions" aria-haspopup="true" aria-expanded="false">
+        LOGOUT
+      </a>
+    </li>    
+	<li class="nav-item">
+		<a class="navbar-brand mr-0 mr-md-2" href="/" aria-label="Bootstrap">
+			<img src="images/cedus_logo.png" />
+		</a>
+    </li>
+  </ul>
+
+</header>
+
+<div id="version"></div>
+
 	<div class="container-fluid">		
 
 		<div class="row">
-		    <div class="col-md-9">
+		    <div class="col-md-12" style="padding: 0">
 		    	
-		    	<h4>Zona geografica <b class="title"></b></h4>
-				
-		    	<ul id="tabs_maps" class="nav nav-tabs" role="tablist">
+		    	<ul id="tabs_maps" class="nav nav-tabs blue-bg float-left" role="tablist">
 				     <li class="nav-item">
-				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">Amministrazione</a>
+				          <a href="#tab_admin" class="nav-link active" data-toggle="tab" role="tab">SELEZIONA ZONA</a>
 				     </li>
 				     <li class="nav-item">
-				          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">Area</a>
+				          <a href="#tab_area" class="nav-link" data-toggle="tab" role="tab">DISEGNA AREA</a>
 				     </li>
 				     <li class="nav-item">
-				          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">Vicino a te</a>
+				          <a href="#tab_gps" class="nav-link" data-toggle="tab" role="tab">VICINO A TE</a>
 				     </li>
 				</ul>
-				<div class="tab-content">
+				<div class="clearfix"></div>
+
+				<div class="tab-content blue-bg">
 				  <div class="tab-pane active" id="tab_admin" role="tabpanel">
-				  	<nav id="breadcrumb" aria-label="breadcrumb">
+
+				  	<nav id="breadcrumb" aria-label="breadcrumb" class="float-left clearfix">
 				  		<!-- TMPLS -->
 					</nav>
+
 				  	<div id="map_admin" class="map"></div>
+
 				  </div>
 				  <div class="tab-pane" id="tab_area" role="tabpanel">
 				  	<div id="map_area" class="map"></div>
@@ -44,10 +89,10 @@
 		    </div>
 		</div>
 		<div class="row">
-			<div id="table" class="col-sm">
+			<div class="col-sm-8">
 				<br />
-      			<h4>Scuole <b class="title"></b></h4>
-      			<br />
+      			<h4>Seleziona il grado di istruzione che ti interessa</h4>
+      			
  				<table id="table_selection" class="table" data-filter-control="true">
  					<tr>
 			            <th data-field="name" data-filter-control="input"></th>
@@ -56,14 +101,31 @@
 			        </tr>
 				</table>
 			</div>
+			<div class="col-sm-4">
+				<br />
+				<h4>&nbsp;</h4>
+				<div class="card">
+					<div class="card-body">
+						<b class="card-title">ANAGRAFICA SCUOLA</b>
+						<div id="card_details">
+							<!-- RENDER -->
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<hr />
-
-	<div id="charts" style="display: none" class="container">
-
-		<h3>Parametri Scuola <b class="title"></b></h3>
+	<div id="charts" style="display: none">
+		
+		<div class="row" role="tablist">
+			<div class="col-md-5 blue-bg">
+				<p>
+					<h4>&nbsp;&nbsp;Parametri istituto selezionato</h4>
+				</p>
+			</div>
+		</div>
+		
 		<div class="row" id="charts_age_gender">
 			<div class="col-md-6">
 				<div class="card">
@@ -113,7 +175,6 @@
 					</p>
 				  </div>
 				  <div id="chart_bar">
-				  	<p>[TODO]</p>
 				  	<!-- RENDER -->
 				  </div>
 				</div>
@@ -130,6 +191,7 @@
 					<div id="map_poi">
 						<!-- RENDER -->
 					</div>
+					<br />
 					<div id="poi_legend">
 						<!-- RENDER -->
 					</div>
@@ -151,32 +213,23 @@
 				  </div>
 				</div>
 			</div>		
-		</div>	
-
-		<h3>Anagrafica Scuola <b class="title"></b></h3>
-		<div class="row">
-			<div class="col-md-10">
-				<div id="card_details">
-					<!-- RENDER -->
-				</div>
-			</div>
 		</div>
 
 	</div>
 
 <!-- DYNAMIC TEMAPLATES -->
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
-<ol class="breadcrumb">
+<ol class="breadcrumb blue-bg">
 	<li class="breadcrumb-item">
-		<a href="#" data-country="{{country.properties.id}}">regioni {{country.properties.name}}</a>
+		<a href="#" data-country="{{country.properties.id}}">Copertura scolastica {{country.properties.name}}</a>
 	</li>
 	{{#if region}}
 		<li class="breadcrumb-item">
-			<a href="#" data-region="{{region.properties.id}}">province {{region.properties.name}}</a>
+			<a href="#" data-region="{{region.properties.id}}">{{region.properties.name}}</a>
 		</li>
 		{{#if province}}
 			<li class="breadcrumb-item">
-				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}">comuni {{province.properties.name}}</a>
+				<a href="#" data-region="{{region.properties.id}}" data-province="{{province.properties.id}}">{{province.properties.name}}</a>
 			</li>
 			{{#if municipality}}
 			<li class="breadcrumb-item" aria-current="page">
@@ -206,14 +259,12 @@
 	<option value="6">Second stage</option>
 </script>
 <script id="tmpl_details" type="text/x-handlebars-template">
-<ul class="list-group">
-	{{#if name}}<li class="list-group-item"><label>Nome:</label> {{name}} </li>{{/if}}
-	{{#if level}}<li class="list-group-item"><label>Grado Istruzione:</label> {{level}} </li>{{/if}}
-	{{#if id}}<li class="list-group-item"><label>Codice MIUR:</label> <a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/{{id}}/cedus" target="_blank">{{id}}</a> </li>{{/if}}
-	{{#if address}}<li class="list-group-item"><label>Indirizzo:</label> {{address}} </li>{{/if}}
-	{{#if email}}<li class="list-group-item"><label>Email:</label> {{email}} </li>{{/if}}
-	{{#if website}}<li class="list-group-item"><label>Sito Web:</label> <a href="{{website}}" target="_blank">{{website}}</a> </li>{{/if}}
-</ul>
+	{{#if name}}<i>Nome:</i> {{name}} <br />{{/if}}
+	{{#if level}}<i>Grado Istruzione:</i> {{level}} <br />{{/if}}
+	{{#if id}}<i>Codice MIUR:</i> <a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/{{id}}/cedus" target="_blank">{{id}}</a> <br />{{/if}}
+	{{#if address}}<i>Indirizzo:</i> {{address}} <br />{{/if}}
+	{{#if email}}<i>Email:</i> {{email}} <br />{{/if}}
+	{{#if website}}<i>Sito Web:</i> <a href="{{website}}" target="_blank">{{website}}</a> <br />{{/if}}
 </script>
 <script id="tmpl_legend" type="text/x-handlebars-template">
 {{#with this}}

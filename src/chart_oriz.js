@@ -24,8 +24,8 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				//width: 300,
-				height: 200
+				width: 500,
+				height: 300
 			},
 		    data: (opts && opts.data) || {
 		        columns: [],

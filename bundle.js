@@ -80391,6 +80391,64 @@ module.exports.FLATTENING = 1/298.257223563;
 module.exports.POLAR_RADIUS = 6356752.3142;
 
 },{}],180:[function(require,module,exports){
+module.exports={
+  "name": "osm4schools",
+  "version": "1.9.0",
+  "description": "mappa delle scuole",
+  "author": {
+    "name": "Stefano Cudini",
+    "email": "stefano.cudini@gmail.com",
+    "url": "http://labs.easyblog.it/"
+  },
+  "license": "MIT",
+  "main": "bundle.js",
+  "dependencies": {
+    "bootstrap": "^4.1.1",
+    "bootstrap-table": "^1.12.1",
+    "c3": "^0.6.5",
+    "d3": "5.4.0",
+    "geojson-utils": "^1.1.0",
+    "handlebars": "^4.0.11",
+    "jquery": "3.3.1",
+    "leaflet": "1.3.1",
+    "leaflet-draw": "^1.0.2",
+    "leaflet-geojson-selector": "^0.4.5",
+    "leaflet-gps": "^1.7.6",
+    "leaflet-panel-layers": "^1.2.2",
+    "leaflet-search": "^2.9.0",
+    "osmtogeojson": "^3.0.0-beta.3",
+    "popper.js": "^1.14.3",
+    "turf-difference": "^3.0.12",
+    "underscore": "1.8.3",
+    "underscore.string": "3.3.4"
+  },
+  "scripts": {
+    "build": "browserify src/main.js -o bundle.js",
+    "start": "watchify -p browserify-livereload src/main.js -o bundle.js",
+    "test_radar": "watchify -p browserify-livereload tests/radar.js -o tests/radar_bundle.js"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "browserify-css": "^0.14.0",
+    "browserify-livereload": "^1.0.10",
+    "watchify": "^3.11.0"
+  },
+  "browserify-css": {
+    "autoInject": true,
+    "autoInjectOptions": {
+      "insertAt": "top"
+    },
+    "minify": true,
+    "rootDir": "."
+  },
+  "browserify": {
+    "transform": [
+      "browserify-css"
+    ]
+  }
+}
+
+},{}],181:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -80733,7 +80791,7 @@ module.exports = {
 		}
 	}
 }
-},{"./config":186,"./utils":196,"geojson-utils":46,"jquery":77,"underscore":177}],181:[function(require,module,exports){
+},{"./config":187,"./utils":197,"geojson-utils":46,"jquery":77,"underscore":177}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80754,8 +80812,8 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 300,
-				height: 200
+				width: 500,
+				height: 300
 			},
 			data: _.defaults((opts && opts.data) || {}, {
 				columns: [],
@@ -80801,7 +80859,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],182:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80824,8 +80882,8 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 300,
-				height: 200
+				width: 500,
+				height: 300
 			},
 			data: (opts && opts.data) || {
 				columns: [
@@ -80876,7 +80934,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80903,8 +80961,8 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				//width: 300,
-				height: 200
+				width: 500,
+				height: 300
 			},
 		    data: (opts && opts.data) || {
 		        columns: [],
@@ -80994,7 +81052,7 @@ module.exports = {
 			this.chart.unload();
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81021,8 +81079,8 @@ module.exports = {
 
 		var marginAll = 70,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
-			width = Math.min(420, window.innerWidth - 10) - margin.left - margin.right,
-			height = Math.min(400, window.innerHeight - margin.top - margin.bottom - 20);
+			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
+			height = Math.min(380, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,
@@ -81036,7 +81094,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":188,"./utils":196,"d3":43,"jquery":77,"underscore":177}],185:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":189,"./utils":197,"d3":43,"jquery":77,"underscore":177}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81059,8 +81117,8 @@ module.exports = {
 		this.chart = c3.generate({
 			bindto: this.el,
 			size: {
-				width: 300,
-				height: 200
+				width: 500,
+				height: 300
 			},
 			data: _.defaults((opts && opts.data) || {}, {
 				columns: [
@@ -81110,7 +81168,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":196,"c3":10,"jquery":77,"underscore":177}],186:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],187:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
@@ -81178,7 +81236,7 @@ module.exports = {
 		map_popup: H.compile($('#tmpl_popup').html())
 	}
 }
-},{"handlebars":76,"jquery":77,"leaflet":85}],187:[function(require,module,exports){
+},{"handlebars":76,"jquery":77,"leaflet":85}],188:[function(require,module,exports){
 /*
 
 	http://www.digital-geography.com/openrouteservice-api-a-leaflet-example-for-isochrones/
@@ -81304,7 +81362,7 @@ module.exports = {
 	}
 }
 
-},{"./config":186,"./utils":196,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],188:[function(require,module,exports){
+},{"./config":187,"./utils":197,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],189:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -81589,7 +81647,9 @@ module.exports = function(el, options) {
 	
 }//RadarChart
 
-},{"d3":43}],189:[function(require,module,exports){
+},{"d3":43}],190:[function(require,module,exports){
+
+var pkg = require('../package.json'); 
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81632,6 +81692,8 @@ window.config = config;
 
 $(function() {
 
+  $('#version').text('v'+pkg.version);
+
 	function loadSelection(geoArea) {
 
 		var self = this,
@@ -81664,7 +81726,6 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 
 		
@@ -81704,7 +81765,6 @@ $(function() {
 			}
 
 			$('#charts').show();
-			//.find('.title').text(': '+row.name);
 
 			$('#card_details').html(config.tmpls.details(row));
 
@@ -81763,7 +81823,7 @@ if(location.hash=='#debug') {
 
 	//var testUrl = './data/debug/searchSchool_bologna.json';
 	var testUrl = './data/debug/searchSchool_trento.json';
-
+/*
 	$('#charts').css({
 		display: 'block',
 		zIndex: 2000,
@@ -81776,7 +81836,7 @@ if(location.hash=='#debug') {
 		overflowY: 'auto',
 		background: '#eee',
 		boxShadow:'0 0 16px #666'
-	}).show();
+	}).show();*/
 
 	$.getJSON(testUrl, function(geoSchools) {
 		
@@ -81806,7 +81866,7 @@ if(location.hash=='#debug') {
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"./cartella":180,"./chart_bar":181,"./chart_line":182,"./chart_oriz":183,"./chart_radar":184,"./chart_vert":185,"./config":186,"./map_admin":190,"./map_area":191,"./map_gps":192,"./map_poi":193,"./overpass":194,"./table":195,"./utils":196,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],190:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"../package.json":180,"./cartella":181,"./chart_bar":182,"./chart_line":183,"./chart_oriz":184,"./chart_radar":185,"./chart_vert":186,"./config":187,"./map_admin":191,"./map_area":192,"./map_gps":193,"./map_poi":194,"./overpass":195,"./table":196,"./utils":197,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],191:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82051,7 +82111,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":196,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],191:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":197,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],192:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82188,7 +82248,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":196,"jquery":77,"leaflet-draw":80}],192:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":197,"jquery":77,"leaflet-draw":80}],193:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82246,7 +82306,7 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":196,"jquery":77,"leaflet-gps":84}],193:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":197,"jquery":77,"leaflet-gps":84}],194:[function(require,module,exports){
 /*
 
 https://github.com/DigitalCommonsLab/osm4schools/issues/20
@@ -82271,8 +82331,8 @@ module.exports = {
 	onUpdate: function(e){ console.log('onUpdate',e); },
 
   	config: {
-  		height: 420,
-  		width: 420,
+  		width: 500,
+  		height: 500,
   		overpassTags: [
   			"amenity=parking",
 			"amenity=bar",
@@ -82293,9 +82353,7 @@ module.exports = {
 		self.tmplLegend = H.compile($('#tmpl_legend').html());
 		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
 
-		self.map = L.map(el, utils.getMapOpts({
-			scrollWheelZoom: false
-		}) );
+		self.map = L.map(el, utils.getMapOpts());
 
 		self.map.addControl(L.control.zoom({position:'topright'}));
 		self.marker = L.marker([0,0]).addTo(self.map).bindTooltip('',{direction:'top', offset: L.point(0,-10)});
@@ -82414,7 +82472,7 @@ module.exports = {
 		});
 	}
 };
-},{"./config":186,"./isochrones":187,"./overpass":194,"./utils":196,"geojson-utils":46,"handlebars":76,"jquery":77}],194:[function(require,module,exports){
+},{"./config":187,"./isochrones":188,"./overpass":195,"./utils":197,"geojson-utils":46,"handlebars":76,"jquery":77}],195:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -82470,7 +82528,7 @@ module.exports = {
 		return this;
 	}
 }
-},{"./utils":196,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],195:[function(require,module,exports){
+},{"./utils":197,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],196:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82519,13 +82577,13 @@ module.exports = {
 			        title: 'Grado Istruzione',
 			        filterControl: 'select'
 			    },
-				{
+				/*{
 		    		field: 'id',
 		    		title: 'Codice MIUR',
 		    		formatter: function(id, row, index, field) {
 						return '<a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/'+id+'/cedus" target="_blank">'+id+'</a>';
 					}
-		    	},		    
+		    	},*/		    
 			    {
 			        field: 'name',
 			        title: 'Nome'
@@ -82543,7 +82601,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":196,"bootstrap-table":2,"jquery":77,"underscore":177}],196:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":197,"bootstrap-table":2,"jquery":77,"underscore":177}],197:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82635,6 +82693,7 @@ module.exports = {
 			zoom: 13,
             //maxZoom:16,
             minZoom:5,
+            scrollWheelZoom: false,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -82894,4 +82953,4 @@ module.exports = {
 
 };
 
-},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[189]);
+},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[190]);

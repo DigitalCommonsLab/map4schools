@@ -22,8 +22,8 @@ module.exports = {
 	onUpdate: function(e){ console.log('onUpdate',e); },
 
   	config: {
-  		height: 420,
-  		width: 420,
+  		width: 500,
+  		height: 500,
   		overpassTags: [
   			"amenity=parking",
 			"amenity=bar",
@@ -44,9 +44,7 @@ module.exports = {
 		self.tmplLegend = H.compile($('#tmpl_legend').html());
 		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
 
-		self.map = L.map(el, utils.getMapOpts({
-			scrollWheelZoom: false
-		}) );
+		self.map = L.map(el, utils.getMapOpts());
 
 		self.map.addControl(L.control.zoom({position:'topright'}));
 		self.marker = L.marker([0,0]).addTo(self.map).bindTooltip('',{direction:'top', offset: L.point(0,-10)});

@@ -24,8 +24,8 @@ module.exports = {
 
 		var marginAll = 70,
 			margin = {top: marginAll, right: marginAll, bottom: marginAll, left: marginAll},
-			width = Math.min(420, window.innerWidth - 10) - margin.left - margin.right,
-			height = Math.min(400, window.innerHeight - margin.top - margin.bottom - 20);
+			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
+			height = Math.min(380, window.innerHeight - margin.top - margin.bottom - 20);
 
 		this.chart = RadarChart(this.el, {
 			data: data,

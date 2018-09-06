@@ -46,13 +46,13 @@ module.exports = {
 			        title: 'Grado Istruzione',
 			        filterControl: 'select'
 			    },
-				{
+				/*{
 		    		field: 'id',
 		    		title: 'Codice MIUR',
 		    		formatter: function(id, row, index, field) {
 						return '<a href="http://cercalatuascuola.istruzione.it/cercalatuascuola/istituti/'+id+'/cedus" target="_blank">'+id+'</a>';
 					}
-		    	},		    
+		    	},*/		    
 			    {
 			        field: 'name',
 			        title: 'Nome'

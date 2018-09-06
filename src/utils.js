@@ -89,6 +89,7 @@ module.exports = {
 			zoom: 13,
             //maxZoom:16,
             minZoom:5,
+            scrollWheelZoom: false,
 			center: new L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

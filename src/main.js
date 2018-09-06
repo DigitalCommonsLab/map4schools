@@ -1,4 +1,6 @@
 
+var pkg = require('../package.json'); 
+
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var S = require('underscore.string');
@@ -40,6 +42,8 @@ window.config = config;
 
 $(function() {
 
+  $('#version').text('v'+pkg.version);
+
 	function loadSelection(geoArea) {
 
 		var self = this,
@@ -72,7 +76,6 @@ $(function() {
 
 			table.update(geoRes);
 
-			$('#table').find('.title').html(geoRes.features.length+" risultati &bull; "+ (geoArea.properties && geoArea.properties.title));
 		});
 
 		
@@ -112,7 +115,6 @@ $(function() {
 			}
 
 			$('#charts').show();
-			//.find('.title').text(': '+row.name);
 
 			$('#card_details').html(config.tmpls.details(row));
 
@@ -171,7 +173,7 @@ if(location.hash=='#debug') {
 
 	//var testUrl = './data/debug/searchSchool_bologna.json';
 	var testUrl = './data/debug/searchSchool_trento.json';
-
+/*
 	$('#charts').css({
 		display: 'block',
 		zIndex: 2000,
@@ -184,7 +186,7 @@ if(location.hash=='#debug') {
 		overflowY: 'auto',
 		background: '#eee',
 		boxShadow:'0 0 16px #666'
-	}).show();
+	}).show();*/
 
 	$.getJSON(testUrl, function(geoSchools) {
 		
