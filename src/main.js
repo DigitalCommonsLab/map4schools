@@ -126,11 +126,11 @@ $(function() {
 				$('#charts_age_gender').hide();
 				$('#charts_registers').show();
 
-				cartella.getDataSchool(row, 'registers', function(data) {
+				cartella
+				.getDataSchool(row, 'registers', function(data) {
 					charts.line.update(data);
-				});
-
-				cartella.getDataSchool(row, 'exams', function(data) {
+				})
+				.getDataSchool(row, 'exams', function(data) {
 					charts.bar.update(data);
 				});
 			}
@@ -140,15 +140,14 @@ $(function() {
 				$('#charts_age_gender').show();
 				$('#charts_registers').hide();
 				
-				cartella.getDataSchool(row, 'gender', function(data) {
+				cartella
+				.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
-				});
-
-				cartella.getDataSchool(row, 'age', function(data) {
+				})
+				.getDataSchool(row, 'age', function(data) {
 					charts.oriz.update(data);
-				});
-
-				cartella.getDataSchool(row, 'evaluations', function(data) {
+				})
+				.getDataSchool(row, 'evaluations', function(data) {
 					charts.radar.update(data);
 				});
 			}

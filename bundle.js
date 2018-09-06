@@ -80652,7 +80652,6 @@ module.exports = {
 					cb([]);
 
 			}, false);
-
 		}
 		else if(name==='registers') {
 
@@ -80661,7 +80660,7 @@ module.exports = {
 				if(_.isArray(json) && json.length>0) {
 
 					//WORK AROUND for API
-/*					json = _.map(json, function(o) {
+					/*json = _.map(json, function(o) {
 						o.annoDiCorso = _.random(1, o.annoDiCorso);
 						return o;
 					});*/
@@ -80792,6 +80791,8 @@ module.exports = {
 
 			}, false);
 		}
+
+		return this;
 	}
 }
 },{"./config":187,"./utils":197,"geojson-utils":46,"jquery":77,"underscore":177}],182:[function(require,module,exports){
@@ -81779,11 +81780,11 @@ $(function() {
 				$('#charts_age_gender').hide();
 				$('#charts_registers').show();
 
-				cartella.getDataSchool(row, 'registers', function(data) {
+				cartella
+				.getDataSchool(row, 'registers', function(data) {
 					charts.line.update(data);
-				});
-
-				cartella.getDataSchool(row, 'exams', function(data) {
+				})
+				.getDataSchool(row, 'exams', function(data) {
 					charts.bar.update(data);
 				});
 			}
@@ -81793,15 +81794,14 @@ $(function() {
 				$('#charts_age_gender').show();
 				$('#charts_registers').hide();
 				
-				cartella.getDataSchool(row, 'gender', function(data) {
+				cartella
+				.getDataSchool(row, 'gender', function(data) {
 					charts.vert.update(data);
-				});
-
-				cartella.getDataSchool(row, 'age', function(data) {
+				})
+				.getDataSchool(row, 'age', function(data) {
 					charts.oriz.update(data);
-				});
-
-				cartella.getDataSchool(row, 'evaluations', function(data) {
+				})
+				.getDataSchool(row, 'evaluations', function(data) {
 					charts.radar.update(data);
 				});
 			}
@@ -81950,7 +81950,7 @@ module.exports = {
 		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 		
-		self.map = L.map(el, utils.getMapOpts({ minZoom:5}) )
+		self.map = L.map(el, utils.getMapOpts({ minZoom:5,scrollWheelZoom: false}) )
 			.on('popupopen', function(e) {
 			    var p = self.map.project(e.popup._latlng);
 			    p.y -= e.popup._container.clientHeight/2;
@@ -82310,12 +82310,7 @@ module.exports = {
 	}	
 };
 },{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":197,"jquery":77,"leaflet-gps":84}],194:[function(require,module,exports){
-/*
 
-https://github.com/DigitalCommonsLab/osm4schools/issues/20
-
-
- */
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
 var geoutils = require('geojson-utils');
@@ -82369,7 +82364,7 @@ module.exports = {
 			style: function(f) {
 				return {
 					weight: 1,
-					color:'#fff',
+					color: '#fff',
 					fillColor: f.properties.color,
 					fillOpacity: 0.6,
 					opacity:0.8

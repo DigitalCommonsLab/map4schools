@@ -201,7 +201,6 @@ module.exports = {
 					cb([]);
 
 			}, false);
-
 		}
 		else if(name==='registers') {
 
@@ -210,7 +209,7 @@ module.exports = {
 				if(_.isArray(json) && json.length>0) {
 
 					//WORK AROUND for API
-/*					json = _.map(json, function(o) {
+					/*json = _.map(json, function(o) {
 						o.annoDiCorso = _.random(1, o.annoDiCorso);
 						return o;
 					});*/
@@ -341,5 +340,7 @@ module.exports = {
 
 			}, false);
 		}
+
+		return this;
 	}
 }

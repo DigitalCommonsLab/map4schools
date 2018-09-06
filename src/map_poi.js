@@ -1,9 +1,4 @@
-/*
 
-https://github.com/DigitalCommonsLab/osm4schools/issues/20
-
-
- */
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
 var geoutils = require('geojson-utils');
@@ -57,7 +52,7 @@ module.exports = {
 			style: function(f) {
 				return {
 					weight: 1,
-					color:'#fff',
+					color: '#fff',
 					fillColor: f.properties.color,
 					fillOpacity: 0.6,
 					opacity:0.8

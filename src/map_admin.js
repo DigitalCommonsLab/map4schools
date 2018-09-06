@@ -78,7 +78,7 @@ module.exports = {
 		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 		
-		self.map = L.map(el, utils.getMapOpts({ minZoom:5}) )
+		self.map = L.map(el, utils.getMapOpts({ minZoom:5,scrollWheelZoom: false}) )
 			.on('popupopen', function(e) {
 			    var p = self.map.project(e.popup._latlng);
 			    p.y -= e.popup._container.clientHeight/2;
