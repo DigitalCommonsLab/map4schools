@@ -102,8 +102,10 @@ module.exports = {
 
         cache = typeof cache === 'undefined' ? true : cache;
 
+        var ret = false;
+
         if(cache===false) {
-            $.getJSON(url, function(json) {
+            ret = $.getJSON(url, function(json) {
                 
                 if(_.isObject(json) && _.isObject(json['Entries']))
                 {
@@ -116,12 +118,11 @@ module.exports = {
                 if(_.isObject(json) || _.isArray(json) )
                     cb(json);
                 else
-                    console.warn('no results',url)
-
+                    console.warn('no results',url);
             });
         }
         else if(cache && !localStorage[url]) {
-            $.getJSON(url, function(json) {
+            ret = $.getJSON(url, function(json) {
 
                 if(_.isObject(json) && json['Entries'])
                 {           
@@ -144,6 +145,8 @@ module.exports = {
         {
             cb( JSON.parse(localStorage.getItem(url)) )
         }
+
+        return ret;
     },
 
 	createPolygonFromBounds: function(latLngBounds) {
