@@ -33,7 +33,7 @@ body {
 }
 
 .leaflet-container a {
-    color: inherit;
+    color: #000
 }
 
 .leaflet-tooltip {
