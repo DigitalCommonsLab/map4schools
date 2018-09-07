@@ -241,12 +241,10 @@
 </ol>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
-<h5>{{#if name}} {{name}} {{/if}}</h5>
-<b>{{label}}</b>
-{{#if time}}<br />distanza: <b>{{time}}</b> minuti{{/if}}
-{{#if website}}
-<br /><a href="http://{{website}}" target="_blank">{{website}}</a>
-{{/if}}
+<big>{{#if name}} {{name}} {{/if}}</big>
+{{#if address}} <b>{{label}}</b> <br />{{/if}}
+{{#if address}} <i>{{address}}</i> <br />{{/if}}
+{{#if time}} distanza: <b>{{time}}</b> minuti <br />{{/if}}
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
 	<option selected>Open this select menu</option>

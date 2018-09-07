@@ -53,7 +53,7 @@ $(function() {
 			self.layerData = L.geoJSON([], {
 				pointToLayer: function(f, ll) {
 					return L.circleMarker(ll, {
-						radius: 5,
+						radius: 6,
 						weight: 2,
 						color: '#f00',
 						fillColor:'#fff',
@@ -61,8 +61,8 @@ $(function() {
 						opacity:1
 					});
 				},
-				onEachFeature: function(feature, layer) {
-					layer.bindPopup( config.tmpls.map_popup(feature.properties) )
+				onEachFeature: function(f, layer) {
+					layer.bindTooltip( config.tmpls.map_popup(f.properties), {direction:'top'} )
 				}
 			}).addTo(map);
 		}
@@ -104,12 +104,12 @@ $(function() {
 	table.init('#table_selection', {
 		onSelect: function(row) {
 
-			console.log('onSelect',row)
-
 			if(mapActive.layerData) {
-				mapActive.layerData.eachLayer(function(layer) {
-					if(layer.feature.id==row.id) {
-						layer.openPopup();
+				mapActive.layerData.eachLayer(function(l) {
+					l.closeTooltip();
+					if(row.id===l.feature.properties.id) {
+						mapActive.map.setView(l.getLatLng(), 14);
+						l.openTooltip();
 					}
 				});
 			}
