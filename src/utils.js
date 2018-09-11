@@ -9,6 +9,17 @@ module.exports = {
     
     tmpl: L.Util.template,
 
+    hashParams: function() {
+        //https://stackoverflow.com/questions/8486099/how-do-i-parse-a-url-query-parameters-in-javascript
+        var query = location.hash.substr(1);
+        var result = {};
+        query.split("&").forEach(function(part) {
+            var item = part.split("=");
+            result[item[0]] = decodeURIComponent(item[1]);
+        });
+        return result;
+    },
+    
     humanDist: function(d, sign) {
         sign = sign || false;
         var len='',unit='',s='';
