@@ -120,7 +120,6 @@ module.exports = {
         var ret = false;
 
         if(cache===false) {
-            //ret = $.getJSON(url, function(json) {
             ret = $.ajax({
                 url: url,
                 dataType: 'json',
@@ -148,7 +147,6 @@ module.exports = {
             });
         }
         else if(cache && !localStorage[url]) {
-            //ret = $.getJSON(url, function(json) {
             ret = $.ajax({
                 url: url,
                 dataType: 'json',

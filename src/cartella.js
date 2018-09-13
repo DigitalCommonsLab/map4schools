@@ -9,11 +9,6 @@ var geoutils = require('geojson-utils');
 
 var config = require('./config');
 
-var urls = {
-	baseUrlPro: window.baseUrlPro || 'https://api-test.smartcommunitylab.it/t/sco.cartella/',
-	//baseUrlDev: window.baseUrlDev || "./data/debug/"
-};
-
 module.exports = {
 
 	_getProperties: function(o) {
@@ -42,7 +37,7 @@ module.exports = {
 
 		var self = this;
 
-		var tmplUrl = urls.baseUrlPro+'isfol/1.0.0/searchSchool?{bbox}',
+		var tmplUrl = config.urls.baseUrlPro+'isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
 			bbox = utils.polyToBbox(geoArea),
             bboxStr = utils.tmpl(tmplBbox, {
@@ -92,7 +87,7 @@ module.exports = {
 
 		if(name==='gender') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0) {
 
@@ -135,7 +130,7 @@ module.exports = {
 		}
 		else if(name==='age') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
 				//console.clear();
 				//console.log('getAgeData',obj.name, obj.level, json);
@@ -204,7 +199,7 @@ module.exports = {
 		}
 		else if(name==='registers') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0) {
 
@@ -267,7 +262,7 @@ module.exports = {
 
 			var istituteId = obj.raw.CODICEISTITUTORIFERIMENTO;
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
 
 				if(_.isArray(json) && json.length>0) {
 
@@ -299,7 +294,7 @@ module.exports = {
 		}
 		else if(name==='exams') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
 
 				if(_.isArray(json) && json.length>0) {
 

@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80408,7 +80393,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "1.9.8",
+  "version": "2.0.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
@@ -80475,11 +80460,6 @@ var geoutils = require('geojson-utils');
 
 var config = require('./config');
 
-var urls = {
-	baseUrlPro: window.baseUrlPro || 'https://api-test.smartcommunitylab.it/t/sco.cartella/',
-	//baseUrlDev: window.baseUrlDev || "./data/debug/"
-};
-
 module.exports = {
 
 	_getProperties: function(o) {
@@ -80508,7 +80488,7 @@ module.exports = {
 
 		var self = this;
 
-		var tmplUrl = urls.baseUrlPro+'isfol/1.0.0/searchSchool?{bbox}',
+		var tmplUrl = config.urls.baseUrlPro+'isfol/1.0.0/searchSchool?{bbox}',
 			tmplBbox = 'sud={sud}&nord={nord}&est={est}&ovest={ovest}',
 			bbox = utils.polyToBbox(geoArea),
             bboxStr = utils.tmpl(tmplBbox, {
@@ -80558,7 +80538,7 @@ module.exports = {
 
 		if(name==='gender') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getGenderData/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0) {
 
@@ -80601,7 +80581,7 @@ module.exports = {
 		}
 		else if(name==='age') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getAgeData/'+obj.id, function(json) {
 
 				//console.clear();
 				//console.log('getAgeData',obj.name, obj.level, json);
@@ -80670,7 +80650,7 @@ module.exports = {
 		}
 		else if(name==='registers') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getTrentinoRegistrationStats/'+obj.id, function(json) {
 				
 				if(_.isArray(json) && json.length>0) {
 
@@ -80733,7 +80713,7 @@ module.exports = {
 
 			var istituteId = obj.raw.CODICEISTITUTORIFERIMENTO;
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
 
 				if(_.isArray(json) && json.length>0) {
 
@@ -80765,7 +80745,7 @@ module.exports = {
 		}
 		else if(name==='exams') {
 
-			utils.getData(urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
+			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
 
 				if(_.isArray(json) && json.length>0) {
 
@@ -80810,7 +80790,7 @@ module.exports = {
 		return this;
 	}
 }
-},{"./config":187,"./utils":197,"geojson-utils":46,"jquery":77,"underscore":177}],182:[function(require,module,exports){
+},{"./config":187,"./utils":198,"geojson-utils":46,"jquery":77,"underscore":177}],182:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80878,7 +80858,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":198,"c3":10,"jquery":77,"underscore":177}],183:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -80953,7 +80933,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":198,"c3":10,"jquery":77,"underscore":177}],184:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81071,7 +81051,7 @@ module.exports = {
 			this.chart.unload();
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],185:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":198,"c3":10,"jquery":77,"underscore":177}],185:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81113,7 +81093,7 @@ module.exports = {
 		});
 	}
 }
-},{"./lib/radarChart_d3_5.4":189,"./utils":197,"d3":43,"jquery":77,"underscore":177}],186:[function(require,module,exports){
+},{"./lib/radarChart_d3_5.4":189,"./utils":198,"d3":43,"jquery":77,"underscore":177}],186:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -81187,7 +81167,7 @@ module.exports = {
 		
 	}
 }
-},{"../node_modules/c3/c3.min.css":11,"./utils":197,"c3":10,"jquery":77,"underscore":177}],187:[function(require,module,exports){
+},{"../node_modules/c3/c3.min.css":11,"./utils":198,"c3":10,"jquery":77,"underscore":177}],187:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
@@ -81195,7 +81175,82 @@ var L = require('leaflet');
 
 L.Icon.Default.imagePath = location.origin+location.pathname+'images/';
 
+var urls = {
+		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
+		baseUrlDev: window.baseUrlDev || "./data/debug/",
+		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
+		aacRedirect: window.aacRedirect || location.href
+	},
+	cfg = {
+		aacClientId: window.aacClientId || '69b61f8f-0562-45fb-ba15-b0a61d4456f0',
+		//aacClientSecret: window.clientSecret || null
+	};
+
+urls.aacUrl = H.compile(urls.aacBaseUrl + 'response_type=token'+
+	'&client_id='+cfg.aacClientId+
+	'&redirect_uri='+urls.aacRedirect);
+
+
+if(!window.DEBUG_MODE)	//API defined here: https://docs.google.com/spreadsheets/d/1vXnu9ZW9QXw9igx5vdslzfkfhgp_ojAslS4NV-MhRng/edit#gid=0
+{
+	_.extend(urls, {
+		getProfileStudent: H.compile(urls.baseUrlPro+'cs-stats/1.0/api/statistics/profile/student'),
+		getProfileSkills: H.compile(urls.baseUrlPro+'asl-stats/1.0/api/statistics/skills/student'),
+		//ISFOL API
+		getIsfolLevels: H.compile(urls.baseUrlPro+'isfol/1.0.0/istatLevel{{level}}{{#if parentId}}/{{parentId}}{{else}}{{/if}}'),
+		getJobsByLevel: H.compile(urls.baseUrlPro+'isfol/1.0.0/jobsByLevel5/{{idLevel5}}'),
+		getSkillsByJob: H.compile(urls.baseUrlPro+'isfol/1.0.0/skillsByJob/{{idJob}}'),
+		getAllSkillsLabels: H.compile(urls.baseUrlPro+'isfol/1.0.0/allSkillsLabels'),
+		getSkillsThresholds: H.compile(urls.baseUrlPro+'isfol/1.0.0/getStatsThresholds'),
+		getJobsByName: H.compile(urls.baseUrlPro+'isfol/1.0.0/jobsByName?param={{name}}'),
+		getJobsBySkills: function(o) {
+			//remove 'a' from end of codes
+			var pars = $.param(o).replace(/[a]/g,'');
+			return urls.baseUrlPro+'isfol/1.0.0/jobsBySkills' + '?' + pars;
+		}
+	});
+}
+else	//DEBUG API via json files in
+{
+	_.extend(urls, {
+		getProfileStudent: H.compile(urls.baseUrlDev+'statistics_profile_student.json'),
+		getProfileSkills: H.compile(urls.baseUrlDev+'statistics_skills_student.json'),
+		//ISFOL API
+		getIsfolLevels: H.compile(urls.baseUrlDev+'istatLevel{{level}}_{{parentId}}.json'),
+		getJobsByLevel: H.compile(urls.baseUrlDev+'jobsByLevel5_{{idLevel5}}.json'),
+		getSkillsByJob: H.compile(urls.baseUrlDev+'skillsByJob_{{idJob}}.json'),
+		getAllSkillsLabels: H.compile(urls.baseUrlDev+'allSkillsLabels.json'),
+		getSkillsThresholds: H.compile(urls.baseUrlPro+'getStatsThresholds.json'),
+		getJobsByName: H.compile(urls.baseUrlDev+'jobsByName.json'),
+		getJobsBySkills: function(o) {
+			var pars = '';
+			for(var p in o) {
+				pars += "_"+p+o[p];
+			}
+			return urls.baseUrlDev+'jobsBySkills' + '_' + pars + '.json';
+		}
+	});
+};
+
 module.exports = {
+
+
+	urls: urls,
+
+	init: function(opts, cb) {
+
+		var self = this;
+
+		cb = cb || _.noop;
+
+		self.token = null;
+		
+		self.getToken();/*function(t) {
+			load labels
+		});*/
+		
+		cb({urls: self.urls});
+	},
 	accounts: {
 		openrouteservice: {
 			name: "osm4school",
@@ -81254,11 +81309,23 @@ module.exports = {
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
 	},
+
+    hashParams: function(key) {
+        //https://stackoverflow.com/questions/8486099/how-do-i-parse-a-url-query-parameters-in-javascript
+        var query = location.hash.substr(1);
+        var result = {};
+        query.split("&").forEach(function(part) {
+            var item = part.split("=");
+            result[ item[0] ] = decodeURIComponent( item[1] );
+        });
+        return key ? result[key] : result;
+    },
+
 	getToken: function(cb) {
 
-		return false;
+		//return false;
 
-		/*var self = this;
+		var self = this;
 
 		var passedToken = self.hashParams('access_token');
 
@@ -81280,7 +81347,7 @@ module.exports = {
 			window.location.reload();
 		}
 
-		return self.token;*/
+		return self.token;
 	}
 }
 },{"handlebars":76,"jquery":77,"leaflet":85}],188:[function(require,module,exports){
@@ -81409,7 +81476,7 @@ module.exports = {
 	}
 }
 
-},{"./config":187,"./utils":197,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],189:[function(require,module,exports){
+},{"./config":187,"./utils":198,"d3":43,"geojson-utils":46,"jquery":77,"turf-difference":106,"underscore":177}],189:[function(require,module,exports){
 /////////////////////////////////////////////////////////
 /////////////// The Radar Chart Function ////////////////
 /////////////// Written by Nadieh Bremer ////////////////
@@ -81737,9 +81804,18 @@ var chartBar = require('./chart_bar');
 var config = require('./config'); 
 window.config = config;
 
+var profile = require('./profile');
+
 $(function() {
 
-  $('#version').text('v'+pkg.version);
+	$('#version').text('v'+pkg.version);
+
+
+	config.init();
+
+	var $profile = $('#profile');
+
+	profile.init('#profile');
 
 	function loadSelection(geoArea) {
 
@@ -81912,7 +81988,7 @@ if(location.hash=='#debug') {
 
 });
 
-},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"../package.json":180,"./cartella":181,"./chart_bar":182,"./chart_line":183,"./chart_oriz":184,"./chart_radar":185,"./chart_vert":186,"./config":187,"./map_admin":191,"./map_area":192,"./map_gps":193,"./map_poi":194,"./overpass":195,"./table":196,"./utils":197,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],191:[function(require,module,exports){
+},{"../node_modules/bootstrap/dist/css/bootstrap.min.css":6,"../node_modules/leaflet/dist/leaflet.css":86,"../package.json":180,"./cartella":181,"./chart_bar":182,"./chart_line":183,"./chart_oriz":184,"./chart_radar":185,"./chart_vert":186,"./config":187,"./map_admin":191,"./map_area":192,"./map_gps":193,"./map_poi":194,"./overpass":195,"./profile":196,"./table":197,"./utils":198,"bootstrap":7,"handlebars":76,"jquery":77,"leaflet":85,"popper.js":92,"underscore":177,"underscore.string":131}],191:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82157,7 +82233,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":197,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],192:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":198,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],192:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82294,7 +82370,7 @@ module.exports = {
 	}
 };
 
-},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":197,"jquery":77,"leaflet-draw":80}],193:[function(require,module,exports){
+},{"../node_modules/leaflet-draw/dist/leaflet.draw.css":79,"./utils":198,"jquery":77,"leaflet-draw":80}],193:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
@@ -82352,7 +82428,7 @@ module.exports = {
 		return 'Nel raggio di '+ utils.humanDist( dist.toFixed(0) );
 	}	
 };
-},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":197,"jquery":77,"leaflet-gps":84}],194:[function(require,module,exports){
+},{"../node_modules/leaflet-gps/dist/leaflet-gps.min.css":83,"./utils":198,"jquery":77,"leaflet-gps":84}],194:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
@@ -82513,7 +82589,7 @@ module.exports = {
 		});
 	}
 };
-},{"./config":187,"./isochrones":188,"./overpass":195,"./utils":197,"geojson-utils":46,"handlebars":76,"jquery":77}],195:[function(require,module,exports){
+},{"./config":187,"./isochrones":188,"./overpass":195,"./utils":198,"geojson-utils":46,"handlebars":76,"jquery":77}],195:[function(require,module,exports){
 
 //https://github.com/Keplerjs/Kepler/blob/master/packages/osm/server/Osm.js
 //
@@ -82569,7 +82645,101 @@ module.exports = {
 		return this;
 	}
 }
-},{"./utils":197,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],196:[function(require,module,exports){
+},{"./utils":198,"geojson-utils":46,"jquery":77,"osmtogeojson":89,"underscore":177}],196:[function(require,module,exports){
+
+var $ = jQuery = require('jquery');
+var _ = require('underscore'); 
+
+var config = require('./config');
+var utils = require('./utils');
+
+module.exports = {
+
+	init: function(el, opts) {
+
+		var self = this;
+
+		self.$profile = $(el);
+
+		self.data = {
+			//
+		};
+
+		self.getData('student', function(json) {
+			self.$profile.find('#username').text( json.name+' '+json.surname );
+		});
+
+		self.$profile.find('#logout').on('click', function(e) {
+			e.preventDefault();
+			self.logout();
+		});
+	},
+
+	isLogged: function() {
+		return !!config.getToken();
+	},
+	
+	logout: function() {
+		delete sessionStorage.access_token;
+		location.href = '../professioni_istat/login.html';
+	},
+
+	getData: function(name, cb) {
+		
+		var self = this;
+
+		cb = cb || _.noop;
+
+		if(name==='skills') {
+
+			if(self.data.skills) {
+				cb(self.data.skills);
+			}
+			else
+			{
+				utils.getData(config.urls.getProfileSkills(), function(json) {
+
+					self.data.skills = [];
+
+					if(!json || !json.skills)
+						return self.data.skills;
+
+					_.each(json.skills.acquired, function(ss, id) {
+
+						for(var i in ss) {
+							var code = ss[i];
+
+							//ONLY ISFOL CODES "CxxA"
+							if(code[0]==='C') {
+								self.data.skills.push( code.toLowerCase() );
+							}
+						}
+					});
+					
+					cb(self.data.skills);
+				});	
+			}
+		}
+		else if(name==='student') {
+			
+			if(self.data.student) {
+				cb(self.data.student);
+			}
+			else
+			{
+				utils.getData(config.urls.getProfileStudent(), function(json) {
+
+					if(!json) return false;
+
+					self.data.student = json;
+
+					cb(self.data.student);
+				});	
+			}
+		}
+	}
+};
+},{"./config":187,"./utils":198,"jquery":77,"underscore":177}],197:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82642,7 +82812,7 @@ module.exports = {
 		this.table.bootstrapTable('load', json);
 	}
 }
-},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":197,"bootstrap-table":2,"jquery":77,"underscore":177}],197:[function(require,module,exports){
+},{"../node_modules/bootstrap-table/dist/bootstrap-table.min.css":3,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control":5,"../node_modules/bootstrap-table/src/extensions/filter-control/bootstrap-table-filter-control.css":4,"./utils":198,"bootstrap-table":2,"jquery":77,"underscore":177}],198:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
@@ -82765,7 +82935,6 @@ module.exports = {
         var ret = false;
 
         if(cache===false) {
-            //ret = $.getJSON(url, function(json) {
             ret = $.ajax({
                 url: url,
                 dataType: 'json',
@@ -82793,7 +82962,6 @@ module.exports = {
             });
         }
         else if(cache && !localStorage[url]) {
-            //ret = $.getJSON(url, function(json) {
             ret = $.ajax({
                 url: url,
                 dataType: 'json',

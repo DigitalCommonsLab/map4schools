@@ -40,9 +40,18 @@ var chartBar = require('./chart_bar');
 var config = require('./config'); 
 window.config = config;
 
+var profile = require('./profile');
+
 $(function() {
 
-  $('#version').text('v'+pkg.version);
+	$('#version').text('v'+pkg.version);
+
+
+	config.init();
+
+	var $profile = $('#profile');
+
+	profile.init('#profile');
 
 	function loadSelection(geoArea) {
 
