@@ -195,10 +195,14 @@ module.exports = {
                 url: url,
                 dataType: 'json',
                 //async: false,
-                beforeSend: function (xhr) {
-                    var token = config.getToken();
-                    if(token)
-                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                beforeSend: function (xhr, req) {
+                    if(self.getDomain(req.url) === config.urls.aacDomain) {
+
+                        var token = config.getToken();
+                        if(token) {
+                            xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                        }
+                    }
                 },
                 success: function(json) {
 

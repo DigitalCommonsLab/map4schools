@@ -38,9 +38,11 @@ var chartLine = require('./chart_line');
 var chartBar = require('./chart_bar');
 
 var config = require('./config'); 
-window.config = config;
-
 var profile = require('./profile');
+
+window.config = config;
+window.utils = utils;
+window.profile = profile;
 
 $(function() {
 
