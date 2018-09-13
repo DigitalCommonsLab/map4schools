@@ -38,7 +38,8 @@ module.exports = {
 		var bbox = utils.polyToBbox(geoArea),
 			url = this.buildUrl(bbox, filters);
 
-		utils.getData(url, function(json) {
+		//utils.getData(url, function(json) {
+		$.getJSON(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 

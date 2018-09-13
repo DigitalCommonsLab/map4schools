@@ -47,11 +47,12 @@ $(function() {
 	$('#version').text('v'+pkg.version);
 
 
-	config.init();
+	config.init(null, function(opts) {
 
-	var $profile = $('#profile');
+console.log('CONFIG INIT', config.token)
+		profile.init('#profile');
 
-	profile.init('#profile');
+	});
 
 	function loadSelection(geoArea) {
 

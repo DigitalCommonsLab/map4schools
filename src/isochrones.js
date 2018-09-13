@@ -80,7 +80,8 @@ module.exports = {
 
 		var url = self.buildUrl(loc);
 
-		utils.getData(url, function(geojson) {
+		//utils.getData(url, function(geojson) {
+		$.getJSON(url, function(geojson) {
 			
 			if(!_.isObject(geojson) || _.isObject(geojson.error)) {
 				console.warn('Isochrones error', geojson.error.message);

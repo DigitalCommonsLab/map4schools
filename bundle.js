@@ -81245,11 +81245,11 @@ module.exports = {
 
 		self.token = null;
 		
-		self.getToken();/*function(t) {
-			load labels
-		});*/
-		
-		cb({urls: self.urls});
+		self.getToken(function(t) {
+			
+			cb({urls: self.urls});
+
+		});
 	},
 	accounts: {
 		openrouteservice: {
@@ -81323,7 +81323,7 @@ module.exports = {
 
 	getToken: function(cb) {
 
-		//return false;
+		cb = cb || _.noop;
 
 		var self = this;
 
@@ -81336,10 +81336,8 @@ module.exports = {
 			if (!self.token || self.token == 'null' || self.token == 'undefined') {
 				window.location = self.urls.aacUrl();   
 			}
-			else {
-				if(_.isFunction(cb))
-					cb(self.token);
-			}
+			else 
+				cb(self.token);
 
 		} else {
 			sessionStorage.access_token = passedToken;
@@ -81433,7 +81431,8 @@ module.exports = {
 
 		var url = self.buildUrl(loc);
 
-		utils.getData(url, function(geojson) {
+		//utils.getData(url, function(geojson) {
+		$.getJSON(url, function(geojson) {
 			
 			if(!_.isObject(geojson) || _.isObject(geojson.error)) {
 				console.warn('Isochrones error', geojson.error.message);
@@ -81811,11 +81810,12 @@ $(function() {
 	$('#version').text('v'+pkg.version);
 
 
-	config.init();
+	config.init(null, function(opts) {
 
-	var $profile = $('#profile');
+console.log('CONFIG INIT', config.token)
+		profile.init('#profile');
 
-	profile.init('#profile');
+	});
 
 	function loadSelection(geoArea) {
 
@@ -82630,7 +82630,8 @@ module.exports = {
 		var bbox = utils.polyToBbox(geoArea),
 			url = this.buildUrl(bbox, filters);
 
-		utils.getData(url, function(json) {
+		//utils.getData(url, function(json) {
+		$.getJSON(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 
@@ -82676,7 +82677,8 @@ module.exports = {
 	},
 
 	isLogged: function() {
-		return !!config.getToken();
+		//TODO check if is expired
+		return !!sessionStorage.access_token;
 	},
 	
 	logout: function() {
