@@ -80776,7 +80776,7 @@ module.exports = {
 
 					//json = utils.arrayTranspose(json);
 
-					console.log('exams columns',json);
+					//console.log('exams columns',json);
 
 
 					cb(json)
@@ -81179,7 +81179,8 @@ var urls = {
 		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
 		baseUrlDev: window.baseUrlDev || "./data/debug/",
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
-		aacRedirect: window.aacRedirect || location.href
+		aacRedirect: window.aacRedirect || location.href,
+		aacDomain: window.aacDomain || "smartcommunitylab.it"	//domain to send auth header
 	},
 	cfg = {
 		aacClientId: window.aacClientId || '69b61f8f-0562-45fb-ba15-b0a61d4456f0',
@@ -81251,64 +81252,6 @@ module.exports = {
 
 		});
 	},
-	accounts: {
-		openrouteservice: {
-			name: "osm4school",
-			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
-		}
-	},
-	radarLabels: {
-		"21": "Risultati scolastici",
-		"22": "Risultati nelle prove standardizzate nazionali",
-		"23": "Competenze chiave europee",
-		"24": "Risultati a distanza",
-		"31": "Curricolo, progettazione e valutazione",
-		"32": "Ambiente di apprendimento",
-		"33": "Inclusione e differenziazione",
-		"34": "Continuita' e orientamento",
-		"35": "Orientamento strategico e organizzazione della scuola",
-		"36": "Sviluppo e valorizzazione delle risorse umane",
-		"37": "Integrazione con il territorio e rapporti con le famiglie ",
-	},
-	genderLabels: [
-		'maschi',
-		'femmine'
-	],
-	ageLabels: [
-		'< di 6 anni',
-		'6 anni',
-		'7 anni',
-		'8 anni',
-		'9 anni',
-		'10 anni',
-		'> di 10 anni',
-		'< di 11 anni',
-		'11 anni',
-		'12 anni',
-		'13 anni',
-		'> di 13 anni',
-		'< di 14 anni',
-		'14 anni',
-		'15 anni',
-		'16 anni',
-		'17 anni',
-		'18 anni',
-		'> di 18 anni',		
-	],
-	examLabels: [
-		"60",
-		"fra 61 e 70",
-		"fra 71 e 80",
-		"fra 81 e 90",
-		"fra 91 e 99",
-		"100",
-		"100 e lode",
-    ],
-	tmpls: {
-		details: H.compile($('#tmpl_details').html()),
-		sel_level: H.compile($('#tmpl_sel_level').html()),
-		map_popup: H.compile($('#tmpl_popup').html())
-	},
 
     hashParams: function(key) {
         //https://stackoverflow.com/questions/8486099/how-do-i-parse-a-url-query-parameters-in-javascript
@@ -81346,7 +81289,71 @@ module.exports = {
 		}
 
 		return self.token;
-	}
+	},
+
+	accounts: {
+		openrouteservice: {
+			name: "osm4school",
+			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
+		}
+	},
+
+	radarLabels: {
+		"21": "Risultati scolastici",
+		"22": "Risultati nelle prove standardizzate nazionali",
+		"23": "Competenze chiave europee",
+		"24": "Risultati a distanza",
+		"31": "Curricolo, progettazione e valutazione",
+		"32": "Ambiente di apprendimento",
+		"33": "Inclusione e differenziazione",
+		"34": "Continuita' e orientamento",
+		"35": "Orientamento strategico e organizzazione della scuola",
+		"36": "Sviluppo e valorizzazione delle risorse umane",
+		"37": "Integrazione con il territorio e rapporti con le famiglie ",
+	},
+	
+	genderLabels: [
+		'maschi',
+		'femmine'
+	],
+
+	ageLabels: [
+		'< di 6 anni',
+		'6 anni',
+		'7 anni',
+		'8 anni',
+		'9 anni',
+		'10 anni',
+		'> di 10 anni',
+		'< di 11 anni',
+		'11 anni',
+		'12 anni',
+		'13 anni',
+		'> di 13 anni',
+		'< di 14 anni',
+		'14 anni',
+		'15 anni',
+		'16 anni',
+		'17 anni',
+		'18 anni',
+		'> di 18 anni',		
+	],
+
+	examLabels: [
+		"60",
+		"fra 61 e 70",
+		"fra 71 e 80",
+		"fra 81 e 90",
+		"fra 91 e 99",
+		"100",
+		"100 e lode",
+    ],
+    
+	tmpls: {
+		details: H.compile($('#tmpl_details').html()),
+		sel_level: H.compile($('#tmpl_sel_level').html()),
+		map_popup: H.compile($('#tmpl_popup').html())
+	}	
 }
 },{"handlebars":76,"jquery":77,"leaflet":85}],188:[function(require,module,exports){
 /*
@@ -81431,8 +81438,7 @@ module.exports = {
 
 		var url = self.buildUrl(loc);
 
-		//utils.getData(url, function(geojson) {
-		$.getJSON(url, function(geojson) {
+		utils.getData(url, function(geojson) {
 			
 			if(!_.isObject(geojson) || _.isObject(geojson.error)) {
 				console.warn('Isochrones error', geojson.error.message);
@@ -81812,7 +81818,6 @@ $(function() {
 
 	config.init(null, function(opts) {
 
-console.log('CONFIG INIT', config.token)
 		profile.init('#profile');
 
 	});
@@ -82630,8 +82635,7 @@ module.exports = {
 		var bbox = utils.polyToBbox(geoArea),
 			url = this.buildUrl(bbox, filters);
 
-		//utils.getData(url, function(json) {
-		$.getJSON(url, function(json) {
+		utils.getData(url, function(json) {
 			
 			var geojson = osmtogeo(json);
 
@@ -82679,6 +82683,17 @@ module.exports = {
 	isLogged: function() {
 		//TODO check if is expired
 		return !!sessionStorage.access_token;
+	},
+
+	login: function(cb) {
+		
+		cb = cb || _.noop;
+
+		config.getToken(function(t) {
+			
+			cb({token: t});
+
+		});
 	},
 	
 	logout: function() {
@@ -82928,23 +82943,67 @@ module.exports = {
 		});
 	},
 
+    getHostname: function(url) {
+        var hostname;
+        //find & remove protocol (http, ftp, etc.) and get hostname
+
+        if (url.indexOf("//") > -1) {
+            hostname = url.split('/')[2];
+        }
+        else {
+            hostname = url.split('/')[0];
+        }
+
+        //find & remove port number
+        hostname = hostname.split(':')[0];
+        //find & remove "?"
+        hostname = hostname.split('?')[0];
+
+        return hostname;
+    },
+
+    getDomain: function(url) {
+        
+        var domain = this.getHostname(url),
+            splitArr = domain.split('.'),
+            arrLen = splitArr.length;
+
+        //extracting the root domain here
+        //if there is a subdomain 
+        if (arrLen > 2) {
+            domain = splitArr[arrLen - 2] + '.' + splitArr[arrLen - 1];
+            //check to see if it's using a Country Code Top Level Domain (ccTLD) (i.e. ".me.uk")
+            if (splitArr[arrLen - 2].length == 2 && splitArr[arrLen - 1].length == 2) {
+                //this is using a ccTLD
+                domain = splitArr[arrLen - 3] + '.' + domain;
+            }
+        }
+        return domain;
+    },
+
     getData: function(url, cb, cache) {
 
         cb = cb || _.noop;
 
         cache = typeof cache === 'undefined' ? true : cache;
 
-        var ret = false;
+        var self = this,
+            ret = false;
 
         if(cache===false) {
             ret = $.ajax({
                 url: url,
                 dataType: 'json',
                 //async: false,
-                beforeSend: function (xhr) {
-                    var token = config.getToken();
-                    if(token)
-                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                beforeSend: function (xhr, req) {
+
+                    if(self.getDomain(req.url) === config.urls.aacDomain) {
+
+                        var token = config.getToken();
+                        if(token) {
+                            xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                        }
+                    }
                 },
                 success: function(json) {
                     

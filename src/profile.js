@@ -31,6 +31,17 @@ module.exports = {
 		//TODO check if is expired
 		return !!sessionStorage.access_token;
 	},
+
+	login: function(cb) {
+		
+		cb = cb || _.noop;
+
+		config.getToken(function(t) {
+			
+			cb({token: t});
+
+		});
+	},
 	
 	logout: function() {
 		delete sessionStorage.access_token;

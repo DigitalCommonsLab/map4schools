@@ -325,7 +325,7 @@ module.exports = {
 
 					//json = utils.arrayTranspose(json);
 
-					console.log('exams columns',json);
+					//console.log('exams columns',json);
 
 
 					cb(json)

@@ -49,7 +49,6 @@ $(function() {
 
 	config.init(null, function(opts) {
 
-console.log('CONFIG INIT', config.token)
 		profile.init('#profile');
 
 	});
