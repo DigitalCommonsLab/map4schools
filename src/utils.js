@@ -5,6 +5,8 @@ var S = require('underscore.string');
 _.mixin({str: S});
 var L = require('leaflet');
 
+var config = require('./config');
+
 module.exports = {
     
     tmpl: L.Util.template,
@@ -111,45 +113,69 @@ module.exports = {
 
     getData: function(url, cb, cache) {
 
+        cb = cb || _.noop;
+
         cache = typeof cache === 'undefined' ? true : cache;
 
         var ret = false;
 
         if(cache===false) {
-            ret = $.getJSON(url, function(json) {
-                
-                if(_.isObject(json) && _.isObject(json['Entries']))
-                {
-                    var ee = json['Entries']['Entry'];
-                    json = _.isArray(ee) ? ee : [ee];
+            //ret = $.getJSON(url, function(json) {
+            ret = $.ajax({
+                url: url,
+                dataType: 'json',
+                //async: false,
+                beforeSend: function (xhr) {
+                    var token = config.getToken();
+                    if(token)
+                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                },
+                success: function(json) {
+                    
+                    if(_.isObject(json) && _.isObject(json['Entries']))
+                    {
+                        var ee = json['Entries']['Entry'];
+                        json = _.isArray(ee) ? ee : [ee];
+                    }
+                    else
+                        json = json;
+                    
+                    if(_.isObject(json) || _.isArray(json) )
+                        cb(json);
+                    else
+                        console.warn('no results',url);
                 }
-                else
-                    json = json;
-                
-                if(_.isObject(json) || _.isArray(json) )
-                    cb(json);
-                else
-                    console.warn('no results',url);
             });
         }
         else if(cache && !localStorage[url]) {
-            ret = $.getJSON(url, function(json) {
+            //ret = $.getJSON(url, function(json) {
+            ret = $.ajax({
+                url: url,
+                dataType: 'json',
+                //async: false,
+                beforeSend: function (xhr) {
+                    var token = config.getToken();
+                    if(token)
+                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                },
+                success: function(json) {
 
-                if(_.isObject(json) && json['Entries'])
-                {           
-                    var ee = json['Entries']['Entry'];
-                    json = _.isArray(ee) ? ee : [ee];
-                }
+                    if(_.isObject(json) && json['Entries'])
+                    {           
+                        var ee = json['Entries']['Entry'];
+                        json = _.isArray(ee) ? ee : [ee];
+                    }
 
-                try {
-                    localStorage.setItem(url, JSON.stringify(json));
-                }
-                catch (e) {
-                    localStorage.clear();
-                    localStorage.setItem(url, JSON.stringify(json));
-                }
+                    try {
+                        localStorage.setItem(url, JSON.stringify(json));
+                    }
+                    catch (e) {
+                        localStorage.clear();
+                        localStorage.setItem(url, JSON.stringify(json));
+                    }
 
-                cb(json);
+                    cb(json);
+                }
             });
         }
         else

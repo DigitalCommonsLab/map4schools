@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -81238,6 +81253,34 @@ module.exports = {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
+	},
+	getToken: function(cb) {
+
+		return false;
+
+		/*var self = this;
+
+		var passedToken = self.hashParams('access_token');
+
+		if (!passedToken) {
+
+			self.token = sessionStorage.access_token;
+
+			if (!self.token || self.token == 'null' || self.token == 'undefined') {
+				window.location = self.urls.aacUrl();   
+			}
+			else {
+				if(_.isFunction(cb))
+					cb(self.token);
+			}
+
+		} else {
+			sessionStorage.access_token = passedToken;
+			window.location.hash = '';
+			window.location.reload();
+		}
+
+		return self.token;*/
 	}
 }
 },{"handlebars":76,"jquery":77,"leaflet":85}],188:[function(require,module,exports){
@@ -81841,7 +81884,7 @@ if(location.hash=='#debug') {
 		boxShadow:'0 0 16px #666'
 	}).show();*/
 
-	$.getJSON(testUrl, function(geoSchools) {
+	utils.getData(testUrl, function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&
@@ -82607,10 +82650,23 @@ var S = require('underscore.string');
 _.mixin({str: S});
 var L = require('leaflet');
 
+var config = require('./config');
+
 module.exports = {
     
     tmpl: L.Util.template,
 
+    hashParams: function() {
+        //https://stackoverflow.com/questions/8486099/how-do-i-parse-a-url-query-parameters-in-javascript
+        var query = location.hash.substr(1);
+        var result = {};
+        query.split("&").forEach(function(part) {
+            var item = part.split("=");
+            result[item[0]] = decodeURIComponent(item[1]);
+        });
+        return result;
+    },
+    
     humanDist: function(d, sign) {
         sign = sign || false;
         var len='',unit='',s='';
@@ -82702,50 +82758,77 @@ module.exports = {
 
     getData: function(url, cb, cache) {
 
+        cb = cb || _.noop;
+
         cache = typeof cache === 'undefined' ? true : cache;
 
-        if(cache===false) {
-            $.getJSON(url, function(json) {
-                
-                if(_.isObject(json) && _.isObject(json['Entries']))
-                {
-                    var ee = json['Entries']['Entry'];
-                    json = _.isArray(ee) ? ee : [ee];
-                }
-                else
-                    json = json;
-                
-                if(_.isObject(json) || _.isArray(json) )
-                    cb(json);
-                else
-                    console.warn('no results',url)
+        var ret = false;
 
+        if(cache===false) {
+            //ret = $.getJSON(url, function(json) {
+            ret = $.ajax({
+                url: url,
+                dataType: 'json',
+                //async: false,
+                beforeSend: function (xhr) {
+                    var token = config.getToken();
+                    if(token)
+                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                },
+                success: function(json) {
+                    
+                    if(_.isObject(json) && _.isObject(json['Entries']))
+                    {
+                        var ee = json['Entries']['Entry'];
+                        json = _.isArray(ee) ? ee : [ee];
+                    }
+                    else
+                        json = json;
+                    
+                    if(_.isObject(json) || _.isArray(json) )
+                        cb(json);
+                    else
+                        console.warn('no results',url);
+                }
             });
         }
         else if(cache && !localStorage[url]) {
-            $.getJSON(url, function(json) {
+            //ret = $.getJSON(url, function(json) {
+            ret = $.ajax({
+                url: url,
+                dataType: 'json',
+                //async: false,
+                beforeSend: function (xhr) {
+                    var token = config.getToken();
+                    if(token)
+                        xhr.setRequestHeader('Authorization', 'Bearer '+token);
+                },
+                success: function(json) {
 
-                if(_.isObject(json) && json['Entries'])
-                {           
-                    var ee = json['Entries']['Entry'];
-                    json = _.isArray(ee) ? ee : [ee];
-                }
+                    if(_.isObject(json) && json['Entries'])
+                    {           
+                        var ee = json['Entries']['Entry'];
+                        json = _.isArray(ee) ? ee : [ee];
+                    }
 
-                try {
-                    localStorage.setItem(url, JSON.stringify(json));
-                }
-                catch (e) {
-                    localStorage.clear();
-                    localStorage.setItem(url, JSON.stringify(json));
-                }
+                    try {
+                        localStorage.setItem(url, JSON.stringify(json));
+                    }
+                    catch (e) {
+                        localStorage.clear();
+                        localStorage.setItem(url, JSON.stringify(json));
+                    }
 
-                cb(json);
+                    cb(json);
+                }
             });
         }
         else
         {
             cb( JSON.parse(localStorage.getItem(url)) )
         }
+
+        return ret;
     },
 
 	createPolygonFromBounds: function(latLngBounds) {
@@ -82951,4 +83034,4 @@ module.exports = {
 
 };
 
-},{"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[190]);
+},{"./config":187,"jquery":77,"leaflet":85,"underscore":177,"underscore.string":131}]},{},[190]);

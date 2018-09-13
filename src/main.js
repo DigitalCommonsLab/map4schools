@@ -187,7 +187,7 @@ if(location.hash=='#debug') {
 		boxShadow:'0 0 16px #666'
 	}).show();*/
 
-	$.getJSON(testUrl, function(geoSchools) {
+	utils.getData(testUrl, function(geoSchools) {
 		
 		geoSchools.features = _.filter(geoSchools.features, function(f) {
 			return  f.properties.level!=='SCUOLA INFANZIA NON STATALE' &&

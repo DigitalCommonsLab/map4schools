@@ -63,5 +63,33 @@ module.exports = {
 		details: H.compile($('#tmpl_details').html()),
 		sel_level: H.compile($('#tmpl_sel_level').html()),
 		map_popup: H.compile($('#tmpl_popup').html())
+	},
+	getToken: function(cb) {
+
+		return false;
+
+		/*var self = this;
+
+		var passedToken = self.hashParams('access_token');
+
+		if (!passedToken) {
+
+			self.token = sessionStorage.access_token;
+
+			if (!self.token || self.token == 'null' || self.token == 'undefined') {
+				window.location = self.urls.aacUrl();   
+			}
+			else {
+				if(_.isFunction(cb))
+					cb(self.token);
+			}
+
+		} else {
+			sessionStorage.access_token = passedToken;
+			window.location.hash = '';
+			window.location.reload();
+		}
+
+		return self.token;*/
 	}
 }
