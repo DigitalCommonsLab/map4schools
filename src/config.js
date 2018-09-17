@@ -2,7 +2,6 @@
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
 var L = require('leaflet');
-
 L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
 
 var urls = {
@@ -14,7 +13,7 @@ var urls = {
 	auth = {
 		enabled: true, 
 		clientId: window.aacClientId || '69b61f8f-0562-45fb-ba15-b0a61d4456f0',
-		//clientSecret: window.aacClientSecret || null
+		//clientSecret: window.aacClientSecret || null,
 		matchPath: window.aacMatchPath || "/(asl|cs)-stats/"	//domain to send auth header
 	};
 
