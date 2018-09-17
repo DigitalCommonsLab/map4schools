@@ -88,8 +88,6 @@ $(function() {
 			table.update(geoRes);
 
 		});
-
-		
 	}
 
 	//init maps

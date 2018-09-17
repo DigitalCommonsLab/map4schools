@@ -158,6 +158,8 @@ module.exports = {
         var self = this,
             ret = false;
 
+        var sendAuth = !!url.match(new RegExp(config.auth.matchPath));
+
         if(cache===false) {
             ret = $.ajax({
                 url: url,
@@ -165,8 +167,7 @@ module.exports = {
                 //async: false,
                 beforeSend: function (xhr, req) {
 
-                    if(self.getDomain(req.url) === config.urls.aacDomain) {
-
+                    if(sendAuth) {
                         var token = config.getToken();
                         if(token) {
                             xhr.setRequestHeader('Authorization', 'Bearer '+token);
@@ -196,8 +197,8 @@ module.exports = {
                 dataType: 'json',
                 //async: false,
                 beforeSend: function (xhr, req) {
-                    if(self.getDomain(req.url) === config.urls.aacDomain) {
-
+                    
+                    if(sendAuth) {
                         var token = config.getToken();
                         if(token) {
                             xhr.setRequestHeader('Authorization', 'Bearer '+token);
