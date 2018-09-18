@@ -19,7 +19,7 @@
     "jquery": "3.3.1",
     "leaflet": "1.3.1",
     "leaflet-draw": "^1.0.2",
-    "leaflet-geojson-selector": "^0.4.5",
+    "leaflet-geojson-selector": "^0.4.6",
     "leaflet-gps": "^1.7.6",
     "leaflet-panel-layers": "^1.2.2",
     "leaflet-search": "^2.9.0",

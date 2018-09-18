@@ -13,9 +13,7 @@ module.exports = {
 
 		self.$profile = $(el);
 
-		self.data = {
-			//
-		};
+		self.data = {};
 
 		self.getData('student', function(json) {
 			self.$profile.find('#username').text( json.name+' '+json.surname );
@@ -44,7 +42,9 @@ module.exports = {
 	},
 	
 	logout: function() {
+		
 		delete sessionStorage.access_token;
+
 		location.href = '../professioni_istat/login.html';
 	},
 
@@ -73,7 +73,7 @@ module.exports = {
 						for(var i in ss) {
 							var code = ss[i];
 
-							//ONLY ISFOL CODES "CxxA"
+							//PATCH FOR API ONLY ISFOL CODES "CxxA"
 							if(code[0]==='C') {
 								self.data.skills.push( code.toLowerCase() );
 							}
@@ -81,7 +81,7 @@ module.exports = {
 					});
 					
 					cb(self.data.skills);
-				});	
+				});
 			}
 		}
 		else if(name==='student') {

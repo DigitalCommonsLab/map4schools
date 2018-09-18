@@ -86,7 +86,6 @@ $(function() {
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
-
 		});
 	}
 

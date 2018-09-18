@@ -51970,7 +51970,7 @@ this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e)
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, {}, { "insertAt": "top" })); module.exports = css;
 },{"browserify-css":8}],82:[function(require,module,exports){
 /* 
- * Leaflet GeoJSON Selector v0.4.5 - 2018-05-30 
+ * Leaflet GeoJSON Selector v0.4.6 - 2018-09-18 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -52083,13 +52083,9 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 		this._items = [];
 
-		L.DomEvent
-			.on(container, 'mouseover', function (e) {
-				map.scrollWheelZoom.disable();
-			})
-			.on(container, 'mouseout', function (e) {
-				map.scrollWheelZoom.enable();
-			});
+		L.DomEvent 
+		.disableClickPropagation(container) 
+		.disableScrollPropagation(container);
 
 		if(this.options.listOnlyVisibleLayers)
 			map.on('moveend', this._updateListVisible, this);
@@ -80427,7 +80423,7 @@ module.exports={
     "jquery": "3.3.1",
     "leaflet": "1.3.1",
     "leaflet-draw": "^1.0.2",
-    "leaflet-geojson-selector": "^0.4.5",
+    "leaflet-geojson-selector": "^0.4.6",
     "leaflet-gps": "^1.7.6",
     "leaflet-panel-layers": "^1.2.2",
     "leaflet-search": "^2.9.0",
@@ -81870,7 +81866,6 @@ $(function() {
 			self.layerData.addData(geoRes);
 
 			table.update(geoRes);
-
 		});
 	}
 
@@ -82089,7 +82084,12 @@ module.exports = {
 		self.onInit = opts && opts.onInit,
 		self.onSelect = opts && opts.onSelect,
 		
-		self.map = L.map(el, utils.getMapOpts({ minZoom:5,scrollWheelZoom: false}) )
+		self.mapOpts = utils.getMapOpts({
+			minZoom: 5,
+			scrollWheelZoom: false
+		});
+
+		self.map = L.map(el, self.mapOpts)
 			.on('popupopen', function(e) {
 			    var p = self.map.project(e.popup._latlng);
 			    p.y -= e.popup._container.clientHeight/2;
@@ -82681,9 +82681,7 @@ module.exports = {
 
 		self.$profile = $(el);
 
-		self.data = {
-			//
-		};
+		self.data = {};
 
 		self.getData('student', function(json) {
 			self.$profile.find('#username').text( json.name+' '+json.surname );
@@ -82712,7 +82710,9 @@ module.exports = {
 	},
 	
 	logout: function() {
+		
 		delete sessionStorage.access_token;
+
 		location.href = '../professioni_istat/login.html';
 	},
 
@@ -82741,7 +82741,7 @@ module.exports = {
 						for(var i in ss) {
 							var code = ss[i];
 
-							//ONLY ISFOL CODES "CxxA"
+							//PATCH FOR API ONLY ISFOL CODES "CxxA"
 							if(code[0]==='C') {
 								self.data.skills.push( code.toLowerCase() );
 							}
@@ -82749,7 +82749,7 @@ module.exports = {
 					});
 					
 					cb(self.data.skills);
-				});	
+				});
 			}
 		}
 		else if(name==='student') {
