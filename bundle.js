@@ -1,3 +1,18 @@
+(function () {
+  var socket = document.createElement('script')
+  var script = document.createElement('script')
+  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
+  script.type = 'text/javascript'
+
+  socket.onload = function () {
+    document.head.appendChild(script)
+  }
+  script.text = ['window.socket = io("http://localhost:3001");',
+  'socket.on("bundle", function() {',
+  'console.log("livereaload triggered")',
+  'window.location.reload();});'].join('\n')
+  document.head.appendChild(socket)
+}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80671,8 +80686,12 @@ module.exports = {
 
 					json = _.groupBy(json,'annoScolastico');
 
-					json = _.map(json, function(years, year) {
+					var yy = [];
 
+					json = _.map(json, function(years, year) {
+						
+						yy.push(year.substr(0,4));
+						
 						return {
 							'annoScolastico': year,
 							'numeroAlunni': _.map(anni, function(anno) {
@@ -80690,6 +80709,8 @@ module.exports = {
 						}
 					});
 
+					yy = yy.join(', ');
+
 					//console.log('prechart',_.pluck(json,'numeroAlunni'))
 
 					json = _.map(json, function(v,k) {
@@ -80698,7 +80719,7 @@ module.exports = {
 
 					//console.log('registers',anni,json);
 
-					cb(json);
+					cb(json, yy);
 				}
 				else
 					cb([]);
@@ -80745,8 +80766,6 @@ module.exports = {
 
 				if(_.isArray(json) && json.length>0) {
 
-					console.log('getExams',json);
-
 					json = json[0];
 					//PATCH API
 
@@ -80765,7 +80784,6 @@ module.exports = {
 							vals.push(v)
 					});
 
-				
 					json = _.map(labels, function(l,i) {
 						return [l, parseFloat(vals[i])];
 					});
@@ -81813,7 +81831,6 @@ $(function() {
 
 	$('#version').text('v'+pkg.version);
 
-
 	config.init(null, function(opts) {
 
 		profile.init('#profile');
@@ -81900,11 +81917,13 @@ $(function() {
 				$('#charts_registers').show();
 
 				cartella
-				.getDataSchool(row, 'registers', function(data) {
+				.getDataSchool(row, 'registers', function(data, year) {
 					charts.line.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'exams', function(data) {
+				.getDataSchool(row, 'exams', function(data, year) {
 					charts.bar.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				});
 			}
 			else
@@ -81914,14 +81933,17 @@ $(function() {
 				$('#charts_registers').hide();
 				
 				cartella
-				.getDataSchool(row, 'gender', function(data) {
+				.getDataSchool(row, 'gender', function(data, year) {
 					charts.vert.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'age', function(data) {
+				.getDataSchool(row, 'age', function(data, year) {
 					charts.oriz.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'evaluations', function(data) {
+				.getDataSchool(row, 'evaluations', function(data, year) {
 					charts.radar.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				});
 			}
 		}

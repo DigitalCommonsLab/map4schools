@@ -224,8 +224,12 @@ module.exports = {
 
 					json = _.groupBy(json,'annoScolastico');
 
-					json = _.map(json, function(years, year) {
+					var yy = [];
 
+					json = _.map(json, function(years, year) {
+						
+						yy.push(year.substr(0,4));
+						
 						return {
 							'annoScolastico': year,
 							'numeroAlunni': _.map(anni, function(anno) {
@@ -243,6 +247,8 @@ module.exports = {
 						}
 					});
 
+					yy = yy.join(', ');
+
 					//console.log('prechart',_.pluck(json,'numeroAlunni'))
 
 					json = _.map(json, function(v,k) {
@@ -251,7 +257,7 @@ module.exports = {
 
 					//console.log('registers',anni,json);
 
-					cb(json);
+					cb(json, yy);
 				}
 				else
 					cb([]);
@@ -298,8 +304,6 @@ module.exports = {
 
 				if(_.isArray(json) && json.length>0) {
 
-					console.log('getExams',json);
-
 					json = json[0];
 					//PATCH API
 
@@ -318,7 +322,6 @@ module.exports = {
 							vals.push(v)
 					});
 
-				
 					json = _.map(labels, function(l,i) {
 						return [l, parseFloat(vals[i])];
 					});

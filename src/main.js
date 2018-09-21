@@ -48,7 +48,6 @@ $(function() {
 
 	$('#version').text('v'+pkg.version);
 
-
 	config.init(null, function(opts) {
 
 		profile.init('#profile');
@@ -135,11 +134,13 @@ $(function() {
 				$('#charts_registers').show();
 
 				cartella
-				.getDataSchool(row, 'registers', function(data) {
+				.getDataSchool(row, 'registers', function(data, year) {
 					charts.line.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'exams', function(data) {
+				.getDataSchool(row, 'exams', function(data, year) {
 					charts.bar.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				});
 			}
 			else
@@ -149,14 +150,17 @@ $(function() {
 				$('#charts_registers').hide();
 				
 				cartella
-				.getDataSchool(row, 'gender', function(data) {
+				.getDataSchool(row, 'gender', function(data, year) {
 					charts.vert.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'age', function(data) {
+				.getDataSchool(row, 'age', function(data, year) {
 					charts.oriz.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				})
-				.getDataSchool(row, 'evaluations', function(data) {
+				.getDataSchool(row, 'evaluations', function(data, year) {
 					charts.radar.update(data);
+					$(charts.bar.el).parent().find('.year').text(year);
 				});
 			}
 		}
