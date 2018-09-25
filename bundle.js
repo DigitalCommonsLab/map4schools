@@ -51955,7 +51955,7 @@ this._selectedPathOptions&&(e instanceof L.Marker?this._toggleMarkerHighlight(e)
 var css = ".leaflet-container .geojson-list{position:relative;float:left;color:#1978cf;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:0;background-color:rgba(255,255,255,.6);z-index:1000;box-shadow:0 1px 7px rgba(0,0,0,.65);margin:0;min-width:50px;min-height:26px;overflow-y:scroll}.leaflet-control.geojson-list .geojson-list-toggle{display:none}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle{display:block}.geojson-list-group{list-style:none;padding:0;margin:0}.geojson-list-item{padding:0;margin:0;clear:both;cursor:pointer;display:block;overflow:hidden;line-height:18px;vertical-align:middle;font-size:14px;min-width:120px;color:#666;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.5);-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-ms-user-select:none;user-select:none;white-space:nowrap;text-transform:capitalize}.geojson-list-item.active,.geojson-list-item:hover{display:block;color:#666;text-decoration:none;background-color:rgba(255,204,0,.6)}.geojson-list-item.selected{color:#666;background-color:rgba(255,136,0,.8)}.geojson-list-item input{line-height:18px;margin:4px}.geojson-list-item label{display:block;cursor:pointer;vertical-align:middle}.leaflet-control.geojson-list .geojson-list-group{display:block}.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul{display:none}.geojson-list .geojson-list-toggle{display:block;float:left;width:26px;height:26px;background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px 2px;border-radius:4px}.geojson-list .geojson-list-toggle.active:hover,.geojson-list .geojson-list-toggle:hover{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -24px #fff}.geojson-list .geojson-list-toggle.active{background:url(node_modules/leaflet-geojson-selector/images/list-icon.png) no-repeat 2px -50px #fff}"; (require("browserify-css").createStyle(css, {}, { "insertAt": "top" })); module.exports = css;
 },{"browserify-css":8}],82:[function(require,module,exports){
 /* 
- * Leaflet GeoJSON Selector v0.4.6 - 2018-09-18 
+ * Leaflet GeoJSON Selector v0.5.0 - 2018-09-25 
  * 
  * Copyright 2018 Stefano Cudini 
  * stefano.cudini@gmail.com 
@@ -52054,46 +52054,56 @@ L.Control.GeoJSONSelector = L.Control.extend({
 
 	onAdd: function (map) {
 
-		var container = L.DomUtil.create('div', 'geojson-list');
+		var self = this;
+
+		this._container = L.DomUtil.create('div', 'geojson-list');
 
 		this._baseName = 'geojson-list';
 
 		this._map = map;
 
-		this._container = container;
-
 		this._id = this._baseName + L.stamp(this._container);
 
-		this._list = L.DomUtil.create('ul', 'geojson-list-group', container);
+		this._list = L.DomUtil.create('ul', 'geojson-list-group', this._container);
+
+		if(this._layer)
+			this._map.addLayer(this._layer);
 
 		this._items = [];
 
-		L.DomEvent 
-		.disableClickPropagation(container) 
-		.disableScrollPropagation(container);
+		L.DomEvent
+		.disableClickPropagation(this._container) 
+		.disableScrollPropagation(this._container);
 
 		if(this.options.listOnlyVisibleLayers)
 			map.on('moveend', this._updateListVisible, this);
 
 		map.whenReady(function(e) {
-			container.style.height = (map.getSize().y)+'px';
+			var s = map.getSize();
+			self._container.style.height = (s.y)+'px';
+			self._container.style.maxWidth = (s.x/2)+'px';
 		});
 
 		this._initToggle();
 		this._updateList();
 
-		return container;
+		return this._container;
 	},
 	
 	onRemove: function(map) {
-		map.off('moveend', this._updateList, this);	
+		map.off('moveend', this._updateListVisible, this);
+
+		this._layer.remove();
 	},
 
 	reload: function(layer) {
 
-		//TODO off events
+		if(this._map && this._layer && this._map.hasLayer(this._layer))
+			this._map.removeLayer(this._layer);
 
 		this._layer = layer;
+
+		this._map.addLayer(layer);
 
 		this._updateList();
 
@@ -52230,10 +52240,9 @@ L.Control.GeoJSONSelector = L.Control.extend({
 	_updateList: function() {
 	
 		var self = this,
-			layers = [],
-			sortProp = this.options.listSortBy;
+			layers = [];
 
-		//TODO SORTby
+		if(!this._layer) return;
 
 		//this._list.style.minWidth = '';
 		this._list.innerHTML = '';
@@ -52244,47 +52253,68 @@ L.Control.GeoJSONSelector = L.Control.extend({
 			if(layer.setStyle)
 				layer.setStyle( self.options.style );
 
-			
-				layer
-				.on('click', L.DomEvent.stop)
-				.on('click', function(e) {
-					e.target.itemLabel.click();
-				})
-				.on('mouseover', function(e) {
+			layer
+			.on('click', L.DomEvent.stop)
+			.on('click', function(e) {
+				e.target.itemLabel.click();
+			})
+			.on('mouseover', function(e) {
+				if(e.target.setStyle)
 					e.target.setStyle( self.options.activeStyle );
-					
-					if(self.options.activeListFromLayer)
-						L.DomUtil.addClass(e.target.itemList, self.options.activeClass);
-				})
-				.on('mouseout', function(e) {
+				
+				if(self.options.activeListFromLayer)
+					L.DomUtil.addClass(e.target.itemList, self.options.activeClass);
+			})
+			.on('mouseout', function(e) {
+				if(e.target.setStyle)
 					e.target.setStyle(e.target.itemList.selected ? self.options.selectStyle : self.options.style );
-					
-					if(self.options.activeListFromLayer)
-						L.DomUtil.removeClass(e.target.itemList, self.options.activeClass);
-				});
+				
+				if(self.options.activeListFromLayer)
+					L.DomUtil.removeClass(e.target.itemList, self.options.activeClass);
+			});
 			
 		});
 
-		layers.sort(function(a, b) {
-			var ap = self._getPath(a.feature, sortProp),
-				bp = self._getPath(b.feature, sortProp);
+		if(this.options.listSortBy) {
+			layers.sort(function(a, b) {
+				var sortProp = self.options.listSortBy,
+					ap = self._getPath(a.feature, sortProp),
+					bp = self._getPath(b.feature, sortProp);
 
-			if(ap < bp)
-				return -1;
-			if(ap > bp)
-				return 1;
-			return 0;
-		});
+				if(ap < bp)
+					return -1;
+				if(ap > bp)
+					return 1;
+				return 0;
+			});
+		}
 
-		for (var i=0; i<layers.length; i++)
+		for(var i=0; i<layers.length; i++) {
 			this._list.appendChild( this._createItem( layers[i] ) );
+		}
+
+
+		if(this._map.hasLayer(this._layer)) {
+
+			if(this._layer.getBounds) {
+				
+				this._layerbb = this._layer.getBounds();
+				
+				if(this._layerbb.isValid()) {
+					this._map.setMaxBounds( this._layerbb.pad(0.5) );
+					this._map.fitBounds( this._layerbb );
+				}
+			}
+		}
 	},
 
 	_updateListVisible: function() {
 
 		var self = this,
 			layerbb, visible;
-		
+	
+		if(!this._layer) return;
+
 		this._layer.eachLayer(function(layer) {
 
 			if(layer.getBounds)
@@ -80408,7 +80438,7 @@ module.exports={
     "jquery": "3.3.1",
     "leaflet": "1.3.1",
     "leaflet-draw": "^1.0.2",
-    "leaflet-geojson-selector": "^0.4.6",
+    "leaflet-geojson-selector": "^0.5.0",
     "leaflet-gps": "^1.7.6",
     "leaflet-panel-layers": "^1.2.2",
     "leaflet-search": "^2.9.0",
