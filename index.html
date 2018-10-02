@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.thymeleaf.org">
 <head> 
 	<title>Cedus4School - SCUOLA</title> 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet" />
 	<link rel="stylesheet" href="lib/bootstrap.min.css" />
 	<link rel="stylesheet" href="main.css" />
 </head> 
@@ -218,7 +219,7 @@
 	<footer class="pt-4 my-md-5 pt-md-5 border-top">
 	    <div class="row">
 	      <div class="col-md col-md">
-	        <img class="mb-2" src="images/fbk_logo.png" alt="" >
+	        <img class="mb-2" src="images/fbk_logo.png" alt="" />
 	      </div>
 	      <div class="col-md align-bottom">
 	        <a href="#">&copy; 2018 Smart Cities and Communities</a>
@@ -264,7 +265,7 @@
 {{#if time}} distanza: <b>{{time}}</b> minuti <br />{{/if}}
 </script>
 <script id="tmpl_sel_level" type="text/x-handlebars-template">
-	<option selected>Open this select menu</option>
+	<option selected="selected">Open this select menu</option>
 	<option value="0">Pre-primary</option>
 	<option value="1">Primary education or first stage of basic education</option>
 	<option value="2">Lower secondary or second stage of basic education</option>
@@ -291,6 +292,6 @@
 	</div>
 {{/with}}
 </script>
-<script src="bundle.js"></script>
+<script src="scuole.js"></script>
 </body>
 </html>
