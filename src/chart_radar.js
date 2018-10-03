@@ -29,15 +29,19 @@ module.exports = {
 
 console.log('radar update', data);
 
-		this.chart = RadarChart(this.el, {
-			data: data,
-			labels: labels,
-			colors: ["red","green"],
-			w: width,
-			h: height,
-			margin: margin,
-			maxValue: 0.5,
-			levels: 5
-		});
+		if(data.length > 0) {
+			this.chart = RadarChart(this.el, {
+				data: data,
+				labels: labels,
+				colors: ["red","green"],
+				w: width,
+				h: height,
+				margin: margin,
+				maxValue: 0.5,
+				levels: 5
+			});
+		}
+		else
+			$(this.el).html('NO DATA');
 	}
 }

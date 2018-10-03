@@ -81070,16 +81070,20 @@ module.exports = {
 
 console.log('radar update', data);
 
-		this.chart = RadarChart(this.el, {
-			data: data,
-			labels: labels,
-			colors: ["red","green"],
-			w: width,
-			h: height,
-			margin: margin,
-			maxValue: 0.5,
-			levels: 5
-		});
+		if(data.length > 0) {
+			this.chart = RadarChart(this.el, {
+				data: data,
+				labels: labels,
+				colors: ["red","green"],
+				w: width,
+				h: height,
+				margin: margin,
+				maxValue: 0.5,
+				levels: 5
+			});
+		}
+		else
+			$(this.el).html('NO DATA');
 	}
 }
 },{"./lib/radarChart_d3_5.4":189,"./utils":198,"d3":43,"jquery":77,"underscore":177}],186:[function(require,module,exports){
