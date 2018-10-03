@@ -81171,7 +81171,8 @@ var urls = {
 		baseUrlDev: window.baseUrlDev || "./data/debug/",	
 		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
-		aacRedirect: window.aacRedirect || location.href
+		aacRedirect: window.aacRedirect || location.href,
+		aacRedirectLogout: window.aacRedirectLogout || 'login.html'
 	},
 	auth = {
 		enabled: true, 
@@ -82704,7 +82705,7 @@ module.exports = {
 		
 		delete sessionStorage.access_token;
 
-		location.href = '../professioni_istat/login.html';
+		location.href = window.aacRedirectLogout || 'login.html';
 	},
 
 	getData: function(name, cb) {

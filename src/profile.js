@@ -45,7 +45,7 @@ module.exports = {
 		
 		delete sessionStorage.access_token;
 
-		location.href = '../professioni_istat/login.html';
+		location.href = window.aacRedirectLogout || 'login.html';
 	},
 
 	getData: function(name, cb) {
