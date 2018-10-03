@@ -81165,6 +81165,7 @@ module.exports = {
 var $ = jQuery = require('jquery');
 var H = require('handlebars');
 var L = require('leaflet');
+
 L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
 
 var urls = {
