@@ -20,7 +20,9 @@ body {
 .leaflet-control-layers-scrollbar {
     overflow-y: auto;
 }
-
+.leaflet-control-layers-toggle {
+    background-image: none;
+}
 .breadcrumb-item + .breadcrumb-item::before,
 .breadcrumb > li:before {
     content: "►";

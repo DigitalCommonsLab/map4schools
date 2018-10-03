@@ -27,6 +27,8 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(380, window.innerHeight - margin.top - margin.bottom - 20);
 
+console.log('radar update', data);
+
 		this.chart = RadarChart(this.el, {
 			data: data,
 			labels: labels,

@@ -39,6 +39,8 @@ module.exports = {
 		self.tmplLegend = H.compile($('#tmpl_legend').html());
 		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
 
+        L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
+
 		self.map = L.map(el, utils.getMapOpts());
 
 		self.map.addControl(L.control.zoom({position:'topright'}));

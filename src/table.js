@@ -35,6 +35,8 @@ module.exports = {
 			pagination:true,
 			//showColumns: true,
 			clickToSelect:true,
+
+			height:400,
 			
 			pageSize: 5,
 			pageList: [5],

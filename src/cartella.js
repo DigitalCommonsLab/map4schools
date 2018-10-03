@@ -51,8 +51,6 @@ module.exports = {
 
 		utils.getData(url, function(json) {
 
-			//console.log('search schools', json);
-
 			if(json.length) {
 
 				json = _.map(json, function(v) {
@@ -72,7 +70,7 @@ module.exports = {
 						return geoutils.pointInPolygon(f.geometry, geoArea.features[0].geometry);
 					})
 				};
-
+				
 				cb(geojson);
 			}
 
@@ -268,9 +266,6 @@ module.exports = {
 
 					json = _.sortBy(json,'CODICECRITERIO');
 
-					//console.log('getEvaluations',json);
-					//console.log('criteri',_.pluck(json,'CODICECRITERIO').sort())
-
 					json = [
 						_.map(json, function(o) {
 							return {
@@ -279,10 +274,9 @@ module.exports = {
 						}),
 						_.map(json, function(o) {	//media nazionale
 							return {
-								//TODO COLLEGA API MEDIA NAZIONALE
-								value: 4
+								value: o.MEDIANAZIONALE
 							};
-						})			
+						})
 					];
 
 					cb(json)
@@ -297,8 +291,6 @@ module.exports = {
 			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getExams/'+obj.id, function(json) {
 
 				if(_.isArray(json) && json.length>0) {
-
-					console.log('getExams',json);
 
 					json = json[0];
 					//PATCH API
@@ -318,7 +310,6 @@ module.exports = {
 							vals.push(v)
 					});
 
-				
 					json = _.map(labels, function(l,i) {
 						return [l, parseFloat(vals[i])];
 					});

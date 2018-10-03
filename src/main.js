@@ -15,7 +15,6 @@ var bt = require('bootstrap');
 
 var L = require('leaflet');
 require('../node_modules/leaflet/dist/leaflet.css');
-
 //var dissolve = require('geojson-dissolve');
 
 require('../node_modules/bootstrap/dist/css/bootstrap.min.css');
@@ -48,7 +47,6 @@ $(function() {
 
 	$('#version').text('v'+pkg.version);
 
-
 	config.init(null, function(opts) {
 
 		profile.init('#profile');
@@ -63,6 +61,10 @@ $(function() {
 		if(!self.layerData) {
 			self.layerData = L.geoJSON([], {
 				pointToLayer: function(f, ll) {
+				
+			//TODO
+			//CAUSE CRASH
+
 					return L.circleMarker(ll, {
 						radius: 6,
 						weight: 2,
@@ -70,10 +72,7 @@ $(function() {
 						fillColor:'#fff',
 						fillOpacity:1,
 						opacity:1
-					});
-				},
-				onEachFeature: function(f, layer) {
-					layer.bindTooltip( config.tmpls.map_popup(f.properties), {direction:'top'} )
+					}).bindTooltip( config.tmpls.map_popup(f.properties), {direction:'top'} );
 				}
 			}).addTo(map);
 		}
@@ -114,10 +113,18 @@ $(function() {
 
 			if(mapActive.layerData) {
 				mapActive.layerData.eachLayer(function(l) {
+					
 					l.closeTooltip();
+
 					if(row.id===l.feature.properties.id) {
 						mapActive.map.setView(l.getLatLng(), 14);
+
 						l.openTooltip();
+
+						/*if(!mapActive.marker)
+							mapActive.marker = L.marker(l.getLatLng()).addTo(mapActive.map);
+						else
+							mapActive.marker.setLatLng( l.getLatLng() );*/
 					}
 				});
 			}

@@ -79,9 +79,11 @@ module.exports = {
 		self.onSelect = opts && opts.onSelect,
 		
 		self.mapOpts = utils.getMapOpts({
-			minZoom: 5,
-			scrollWheelZoom: false
+			scrollWheelZoom: false,
+			minZoom: 5
 		});
+
+        L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
 
 		self.map = L.map(el, self.mapOpts)
 			.on('popupopen', function(e) {
@@ -97,7 +99,6 @@ module.exports = {
 				l.bindTooltip(f.properties.name, {sticky: true, direction:'top'});
 			}
 		}).addTo(self.map);
-
 
 		self.loadGeojson(function(json) {
 			
@@ -117,8 +118,7 @@ module.exports = {
 					if(e.selected) {
 						self.update( L.featureGroup(e.layers).toGeoJSON() );
 					}
-
-			}).addTo(self.map);
+				}).addTo(self.map);
 		});
 
 		self.$breadcrumb

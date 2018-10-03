@@ -98,12 +98,13 @@ module.exports = {
     },
 
 	getMapOpts: function(opts) {
+
 		return _.defaults(opts || {}, {
 			zoom: 13,
-            //maxZoom:16,
+            maxZoom:16,
             minZoom:5,
             scrollWheelZoom: false,
-			center: new L.latLng([46.07,11.13]),
+			center: L.latLng([46.07,11.13]),
 			zoomControl: false,
 			layers: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'

@@ -60,7 +60,7 @@ module.exports = function(el, options) {
 	var rScale = d3.scaleLinear()
 		.range([0, radius])
 		.domain([0, maxValue]);
-		
+
 	/////////////////////////////////////////////////////////
 	//////////// Create the container SVG and g /////////////
 	/////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ module.exports = function(el, options) {
 	   .text(function(d,i) { return Format(maxValue * d/cfg.levels); });
 
 	//////////////////// Draw the axes //////////////////////
-		
+
 	//Create the straight lines radiating outward from the center
 	var axis = axisGrid.selectAll(".axis")
 		.data(labels)
