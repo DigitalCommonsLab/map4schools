@@ -2,8 +2,10 @@
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
+
+var config = require('./config');
 var utils = require('./utils');
-//var L = require('leaflet');
+
 var Selector = require('leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
@@ -25,7 +27,7 @@ module.exports = {
 	},
 
 	config: {
-		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
+		baseUrlGeojson: config.urls.baseUrlGeojson,
 		selector: {
 			zoomToLayer: true,
 			listOnlyVisibleLayers: true,

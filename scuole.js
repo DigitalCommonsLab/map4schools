@@ -80389,7 +80389,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
@@ -81173,13 +81173,20 @@ var urls = {
 		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
 		aacRedirect: window.aacRedirect || location.href,
-		aacRedirectLogout: window.aacRedirectLogout || 'login.html'
+		aacRedirectLogout: window.aacRedirectLogout || 'login.html',
+		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
 	},
 	auth = {
 		enabled: true, 
 		clientId: window.aacClientId || '69b61f8f-0562-45fb-ba15-b0a61d4456f0',
 		//clientSecret: window.aacClientSecret || null,
 		matchPath: window.aacMatchPath || "/(asl|cs)-stats/"	//domain to send auth header
+	},
+	accounts = {
+		openrouteservice: {
+			name: window.openrouteserviceName || "osm4school",
+			key: window.openrouteserviceKey || "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
+		}
 	};
 
 urls.aacUrl = H.compile(urls.aacBaseUrl + 'response_type=token'+
@@ -81233,6 +81240,8 @@ module.exports = {
 	
 	urls: urls,
 
+	accounts: accounts,
+
 	init: function(opts, cb) {
 
 		var self = this;
@@ -81284,13 +81293,6 @@ module.exports = {
 		}
 
 		return self.token;
-	},
-
-	accounts: {
-		openrouteservice: {
-			name: "osm4school",
-			key: "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
-		}
 	},
 
 	radarLabels: {
@@ -81999,8 +82001,10 @@ if(location.hash=='#debug') {
 var $ = jQuery = require('jquery');
 var _ = require('underscore'); 
 var H = require('handlebars');
+
+var config = require('./config');
 var utils = require('./utils');
-//var L = require('leaflet');
+
 var Selector = require('leaflet-geojson-selector');
 
 require('../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css');
@@ -82022,7 +82026,7 @@ module.exports = {
 	},
 
 	config: {
-		baseUrlGeojson: 'https://unpkg.com/confini-istat@1.1.0/geojson/',
+		baseUrlGeojson: config.urls.baseUrlGeojson,
 		selector: {
 			zoomToLayer: true,
 			listOnlyVisibleLayers: true,
@@ -82244,7 +82248,7 @@ module.exports = {
   	}	
 };
 
-},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./utils":198,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],192:[function(require,module,exports){
+},{"../node_modules/leaflet-geojson-selector/dist/leaflet-geojson-selector.min.css":81,"./config":187,"./utils":198,"handlebars":76,"jquery":77,"leaflet-geojson-selector":82,"underscore":177}],192:[function(require,module,exports){
 
 var $ = jQuery = require('jquery');
 var utils = require('./utils');
