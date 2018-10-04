@@ -82742,7 +82742,8 @@ module.exports = {
 					});
 					
 					cb(self.data.skills);
-				});
+					
+				}, false);
 			}
 		}
 		else if(name==='student') {
@@ -82759,7 +82760,7 @@ module.exports = {
 					self.data.student = json;
 
 					cb(self.data.student);
-				});	
+				}, false);	
 			}
 		}
 	}
