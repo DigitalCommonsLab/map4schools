@@ -278,7 +278,7 @@ module.exports = {
 						}),
 						_.map(json, function(o) {	//media nazionale
 							return {
-								value: o.MEDIANAZIONALE
+								value: o.MEDIAREGIONALE
 							};
 						})
 					];

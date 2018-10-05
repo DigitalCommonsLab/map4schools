@@ -27,8 +27,6 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(380, window.innerHeight - margin.top - margin.bottom - 20);
 
-console.log('radar update', data);
-
 		if(data.length > 0) {
 			this.chart = RadarChart(this.el, {
 				data: data,
@@ -42,6 +40,6 @@ console.log('radar update', data);
 			});
 		}
 		else
-			$(this.el).html('NO DATA');
+			$(this.el).html('<h1>NO DATA</h1>');
 	}
 }

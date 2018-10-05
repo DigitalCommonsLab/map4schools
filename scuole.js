@@ -80389,7 +80389,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
@@ -80725,7 +80725,7 @@ module.exports = {
 						}),
 						_.map(json, function(o) {	//media nazionale
 							return {
-								value: o.MEDIANAZIONALE
+								value: o.MEDIAREGIONALE
 							};
 						})
 					];
@@ -81072,8 +81072,6 @@ module.exports = {
 			width = Math.min(500, window.innerWidth - 10) - margin.left - margin.right,
 			height = Math.min(380, window.innerHeight - margin.top - margin.bottom - 20);
 
-console.log('radar update', data);
-
 		if(data.length > 0) {
 			this.chart = RadarChart(this.el, {
 				data: data,
@@ -81087,7 +81085,7 @@ console.log('radar update', data);
 			});
 		}
 		else
-			$(this.el).html('NO DATA');
+			$(this.el).html('<h1>NO DATA</h1>');
 	}
 }
 },{"./lib/radarChart_d3_5.4":189,"./utils":198,"d3":43,"jquery":77,"underscore":177}],186:[function(require,module,exports){
@@ -81933,6 +81931,9 @@ $(function() {
 					charts.oriz.update(data);
 				})
 				.getDataSchool(row, 'evaluations', function(data) {
+
+					//console.log('radar update', row.id,row.name, data);
+
 					charts.radar.update(data);
 				});
 			}
