@@ -163,6 +163,9 @@ $(function() {
 					charts.oriz.update(data);
 				})
 				.getDataSchool(row, 'evaluations', function(data) {
+
+					//console.log('radar update', row.id,row.name, data);
+
 					charts.radar.update(data);
 				});
 			}
