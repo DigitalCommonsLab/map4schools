@@ -21,8 +21,8 @@ var urls = {
 	},
 	accounts = {
 		openrouteservice: {
-			name: window.openrouteserviceName || "osm4school",
-			key: window.openrouteserviceKey || "5b3ce3597851110001cf624869d1edf4bd89437f987c28985184f5df"
+			name: window.openrouteserviceName || "cedus",
+			key: window.openrouteserviceKey || "5b3ce3597851110001cf624821028834cb684480b8cbfe542d1ce2f9"
 		}
 	};
 

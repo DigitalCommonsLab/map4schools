@@ -258,6 +258,10 @@ module.exports = {
 		}
 		else if(name==='evaluations') {
 
+			//TODO
+			//
+			//https://dev.smartcommunitylab.it/jira/browse/CED-42
+
 			var istituteId = obj.raw.CODICEISTITUTORIFERIMENTO;
 
 			utils.getData(config.urls.baseUrlPro+'isfol/1.0.0/getEvaluations/'+istituteId, function(json) {
