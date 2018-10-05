@@ -11,7 +11,7 @@ var urls = {
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
 		aacRedirect: window.aacRedirect || location.href,
 		aacRedirectLogout: window.aacRedirectLogout || 'login.html',
-		baseUrlGeojson: window.baseUrlGeojson || 'https://s3-eu-west-1.amazonaws.com/confini-istat-geojson/'//'https://unpkg.com/confini-istat@1.1.0/geojson/',
+		baseUrlGeojson: window.baseUrlGeojson || 'https://unpkg.com/confini-istat@1.1.0/geojson/',
 	},
 	auth = {
 		enabled: true, 
