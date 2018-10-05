@@ -80420,6 +80420,7 @@ module.exports={
   },
   "scripts": {
     "build": "browserify src/main.js -o scuole.js",
+	"cpcedus": "cp scuole.js ../cedus/cedus-engine/src/main/resources/public/cedus4school/",
     "start": "watchify -p browserify-livereload src/main.js -o scuole.js",
     "test_radar": "watchify -p browserify-livereload tests/radar.js -o tests/radar_bundle.js"
   },
