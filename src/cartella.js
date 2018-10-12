@@ -302,8 +302,13 @@ module.exports = {
 					var labels = [];
 					_.each(json, function(v,k) {
 						if(k.startsWith('intervallo_')) {
-							json[k] = ""+v;
-							labels.push(json[k]);
+							if(!_.isObject(v)) {
+							
+								json[k] = ""+v;
+								labels.push(json[k]);
+
+							//	console.log( json[k] );
+							}
 						}
 						return v;
 					});
