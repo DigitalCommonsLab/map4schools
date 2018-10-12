@@ -80412,6 +80412,7 @@ module.exports={
     "leaflet-gps": "^1.7.6",
     "leaflet-panel-layers": "^1.2.2",
     "leaflet-search": "^2.9.0",
+    "openrouteservice-js": "0.0.1",
     "osmtogeojson": "^3.0.0-beta.3",
     "popper.js": "^1.14.3",
     "turf-difference": "^3.0.12",
@@ -80420,7 +80421,7 @@ module.exports={
   },
   "scripts": {
     "build": "browserify src/main.js -o scuole.js",
-	"cpcedus": "cp scuole.js ../cedus/cedus-engine/src/main/resources/public/cedus4school/",
+    "cpcedus": "cp scuole.js ../cedus/cedus-engine/src/main/resources/public/cedus4school/",
     "start": "watchify -p browserify-livereload src/main.js -o scuole.js",
     "test_radar": "watchify -p browserify-livereload tests/radar.js -o tests/radar_bundle.js"
   },
@@ -81173,7 +81174,7 @@ L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/imag
 
 var urls = {
 		baseUrlDev: window.baseUrlDev || "./data/debug/",	
-		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
+		baseUrlPro: window.baseUrlPro || "https://api-dev.smartcommunitylab.it/t/sco.cartella/",
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
 		aacRedirect: window.aacRedirect || location.href,
 		aacRedirectLogout: window.aacRedirectLogout || 'login.html',

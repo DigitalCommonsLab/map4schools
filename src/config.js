@@ -7,7 +7,7 @@ L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/imag
 
 var urls = {
 		baseUrlDev: window.baseUrlDev || "./data/debug/",	
-		baseUrlPro: window.baseUrlPro || "https://api-test.smartcommunitylab.it/t/sco.cartella/",
+		baseUrlPro: window.baseUrlPro || "https://api-dev.smartcommunitylab.it/t/sco.cartella/",
 		aacBaseUrl: window.aacBaseUrl || "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?",
 		aacRedirect: window.aacRedirect || location.href,
 		aacRedirectLogout: window.aacRedirectLogout || 'login.html',
