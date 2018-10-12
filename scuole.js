@@ -80389,7 +80389,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
