@@ -279,8 +279,8 @@
 </ol>
 </script>
 <script id="tmpl_popup" type="text/x-handlebars-template">
+{{#if label}}<b>{{label}}</b> <br />{{/if}}
 <big>{{#if name}} {{name}} {{/if}}</big>
-{{#if address}} <b>{{label}}</b> <br />{{/if}}
 {{#if address}} <i>{{address}}</i> <br />{{/if}}
 {{#if time}} distanza: <b>{{time}}</b> minuti <br />{{/if}}
 </script>
