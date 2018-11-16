@@ -20,10 +20,10 @@
         <a class="nav-link active" href="index.html">SCUOLA</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../professioni_istat/index.html">IL MIO PERCORSO</a>
+        <a class="nav-link" href="professioni.html">IL MIO PERCORSO</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../professioni_istat/search.html">ASPIRAZIONI</a>
+        <a class="nav-link" href="professioni_search.html">ASPIRAZIONI</a>
       </li>
     </ul>
   </div>
@@ -235,6 +235,29 @@
 
 </div>
 
+
+<div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Data Privacy</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" data-source="./privacy.html">
+        Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum <br />
+        Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum <br />
+        Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum <br />
+        Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum <br />
+      </div>
+      <div class="modal-footer">
+        <button id="btn-accept" type="button" class="btn btn-primary">Accetta</button>
+        <button id="btn-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- DYNAMIC TEMAPLATES -->
 <script id="tmpl_bread_admin" type="text/x-handlebars-template">
 <ol class="breadcrumb blue-bg">
@@ -295,10 +318,11 @@
 <script>	
 //TODO INSIDE cedus  var aacUrl = [[${aacUrl}]];
 //var baseUrlDev = "./data/debug/";
-var baseUrlPro = "https://api-dev.smartcommunitylab.it/t/sco.cartella/";
+var baseUrlPro = "https://api-test.smartcommunitylab.it/t/sco.cartella/";
 var aacBaseUrl = "https://am-dev.smartcommunitylab.it/aac/eauth/authorize?";
 var aacRedirect = location.href;
-var aacClientId = 'c5389529-fe0e-4f67-bf90-c55d9df65b66';
+//var aacClientId = 'c5389529-fe0e-4f67-bf90-c55d9df65b66';
+var aacClientId = '69b61f8f-0562-45fb-ba15-b0a61d4456f0';
 var aacClientSecret = null;
 var aacMatchPath = "/(asl|cs)-stats/"	//domain to send auth heade;
 var tablePageSize = 10;
