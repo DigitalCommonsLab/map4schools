@@ -81196,6 +81196,9 @@ var urls = {
 			name: window.openrouteserviceName || "cedus",
 			key: window.openrouteserviceKey || "5b3ce3597851110001cf624821028834cb684480b8cbfe542d1ce2f9"
 		}
+	},
+	opts = {
+		tablePageSize: window.tablePageSize || 5
 	};
 
 urls.aacUrl = H.compile(urls.aacBaseUrl + 'response_type=token'+
@@ -81245,6 +81248,8 @@ else	//DEBUG API via json files in
 
 module.exports = {
 
+	opts: opts,
+	
 	auth: auth,
 	
 	urls: urls,
@@ -81884,6 +81889,7 @@ $(function() {
 	};
 
 	table.init('#table_selection', {
+		pageSize: config.opts.tablePageSize,
 		onSelect: function(row) {
 
 			if(mapActive.layerData) {
@@ -82853,7 +82859,7 @@ module.exports = {
 
 			height:400,
 			
-			pageSize: 5,
+			pageSize: opts.pageSize || 5,
 			pageList: [5],
 			//showToggle:true,//cardView: true,
 			data: [],

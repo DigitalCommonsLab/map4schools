@@ -109,6 +109,7 @@ $(function() {
 	};
 
 	table.init('#table_selection', {
+		pageSize: config.opts.tablePageSize,
 		onSelect: function(row) {
 
 			if(mapActive.layerData) {

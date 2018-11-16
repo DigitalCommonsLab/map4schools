@@ -38,7 +38,7 @@ module.exports = {
 
 			height:400,
 			
-			pageSize: 5,
+			pageSize: opts.pageSize || 5,
 			pageList: [5],
 			//showToggle:true,//cardView: true,
 			data: [],

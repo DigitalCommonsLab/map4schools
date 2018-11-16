@@ -239,3 +239,8 @@ li.nav-item.logout {
   display: inline-block;
   vertical-align: bottom;
 }
+
+.fixed-table-body {
+    height: auto;
+    /*max-height: 200px*/
+}
