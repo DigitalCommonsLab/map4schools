@@ -118,6 +118,25 @@ module.exports = {
 			collapsed:false
 		}).addTo(self.map);	
 
+		(function() {
+			var control = new L.Control({position:'bottomleft'});
+			control.onAdd = function(map) {
+					var legend = L.DomUtil.create('div','legend');
+					
+					var ll = _.map(self.config.overpassTags, function(v,k) {
+						var t = v.split('=')[1],
+							c = v.replace('=','_');
+						return '<span class="'+c+'">&#11044; '+t+'</span>';
+					});
+
+					legend.innerHTML = ll.join("<br />\n");
+
+					return legend;
+				};
+			return control;
+		}())
+		.addTo(self.map);
+
 		return this;
 	},
 
