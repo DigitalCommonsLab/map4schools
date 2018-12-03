@@ -82499,7 +82499,7 @@ module.exports = {
   		width: 500,
   		height: 500,
   		overpassTags: [
-  			{tag:"amenity=parking",color:'blue'},
+  			{tag:"amenity=parking",color:'DodgerBlue'},
 			{tag:"amenity=bar",color:'orange'},
 			{tag:"amenity=restaurant",color:'brown'}
 		]
