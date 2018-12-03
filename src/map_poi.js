@@ -73,10 +73,24 @@ module.exports = {
 			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
 		}).addTo(self.map);
 
+		self.legend = new L.Control({position:'bottomleft'});
+		self.legend.onAdd = function(map) {
+			var legend = L.DomUtil.create('div','legend');
+			
+			var ll = _.map(self.config.overpassTags, function(v,k) {
+				var t = v.tag.split('=')[1];
+				return '<span style="color:'+v.color+'">&#11044; '+t+'</span>';
+			});
+
+			legend.innerHTML = ll.join("<br />\n");
+
+			return legend;
+		};
+		self.legend.addTo(self.map);
+
 		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
-				console.log(f.properties)
-
+				
 				var color = 'white';
 				
 				_.each(self.config.overpassTags, function(v,k) {
@@ -120,7 +134,12 @@ module.exports = {
 
 			},
 			attribution:'<a href="http://overpass-api.de/">OverpassApi</a>',
-		}).addTo(self.map);	
+		}).on('add', function(e) {
+			self.map.addControl(self.legend);
+		}).on('remove', function(e) {
+			self.map.removeControl(self.legend);
+		})
+		.addTo(self.map);	
 
 		L.control.layers(null, {
 			'Luoghi di interesse': self.layerPoi,
@@ -129,24 +148,6 @@ module.exports = {
 			position:'bottomright',
 			collapsed:false
 		}).addTo(self.map);	
-
-		(function() {
-			var control = new L.Control({position:'bottomleft'});
-			control.onAdd = function(map) {
-					var legend = L.DomUtil.create('div','legend');
-					
-					var ll = _.map(self.config.overpassTags, function(v,k) {
-						var t = v.tag.split('=')[1];
-						return '<span style="color:'+v.color+'">&#11044; '+t+'</span>';
-					});
-
-					legend.innerHTML = ll.join("<br />\n");
-
-					return legend;
-				};
-			return control;
-		}())
-		.addTo(self.map);
 
 		return this;
 	},
