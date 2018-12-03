@@ -20,9 +20,9 @@ module.exports = {
   		width: 500,
   		height: 500,
   		overpassTags: [
-  			"amenity=parking",
-			"amenity=bar",
-			"highway=restaurant"
+  			{tag:"amenity=parking",color:'blue'},
+			{tag:"amenity=bar",color:'orange'},
+			{tag:"amenity=restaurant",color:'brown'}
 		]
   	},
 
@@ -47,7 +47,7 @@ module.exports = {
 		self.marker = L.marker([0,0]).addTo(self.map).bindTooltip('',{direction:'top', offset: L.point(0,-10)});
 
 		self._overpassKeys = _.uniq(_.map(self.config.overpassTags, function(t) {
-			return t.split('=')[0];
+			return t.tag.split('=')[0];
 		}));
 	
 		self.layerIso = L.geoJSON([], {
@@ -75,12 +75,23 @@ module.exports = {
 
 		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
+				console.log(f.properties)
+
+				var color = 'white';
+				
+				_.each(self.config.overpassTags, function(v,k) {
+					var tag = v.tag.split('=')[1];
+					if(tag===f.properties.amenity) 
+						color = v.color;
+				});
+
 				return L.circleMarker(ll, {
 					radius: 5,
-					weight: 2,
+					weight: 1,
 					opacity: 1,
-					fillOpacity: 1,
-					fillColor: '#fff'
+					color:'white',
+					fillOpacity: 0.8,
+					fillColor: color
 				})
 			},
 			onEachFeature: function(feature, layer) {
@@ -96,8 +107,9 @@ module.exports = {
 
 					if(!f.properties.time) {
 						self.layerIso.eachLayer(function(l) {
-							if(geoutils.pointInPolygon(f.geometry, l.feature.geometry))
+							if(geoutils.pointInPolygon(f.geometry, l.feature.geometry)) {
 								f.properties.time = Math.floor(l.feature.properties.value / 60); 
+							}
 						});
 					}
 
@@ -124,9 +136,8 @@ module.exports = {
 					var legend = L.DomUtil.create('div','legend');
 					
 					var ll = _.map(self.config.overpassTags, function(v,k) {
-						var t = v.split('=')[1],
-							c = v.replace('=','_');
-						return '<span class="'+c+'">&#11044; '+t+'</span>';
+						var t = v.tag.split('=')[1];
+						return '<span style="color:'+v.color+'">&#11044; '+t+'</span>';
 					});
 
 					legend.innerHTML = ll.join("<br />\n");
@@ -156,8 +167,9 @@ module.exports = {
 
 			var bbox = utils.bufferLoc(obj.loc, 200);
 
-			if(geoIso.bbox)
+			if(geoIso.bbox) {
 				bbox = L.latLngBounds(L.latLng(geoIso.bbox[1],geoIso.bbox[0]), L.latLng(geoIso.bbox[3],geoIso.bbox[2]) );
+			}
 
 			self.map.fitBounds(bbox.pad(-0.9));
 
@@ -174,7 +186,7 @@ module.exports = {
 				
 				self.layerPoi.addData(geoPoi);
 
-			}, self.config.overpassTags);
+			}, _.pluck(self.config.overpassTags,'tag'));
 
 		});
 	}
