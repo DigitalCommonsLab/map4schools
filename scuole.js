@@ -1,18 +1,3 @@
-(function () {
-  var socket = document.createElement('script')
-  var script = document.createElement('script')
-  socket.setAttribute('src', 'http://localhost:3001/socket.io/socket.io.js')
-  script.type = 'text/javascript'
-
-  socket.onload = function () {
-    document.head.appendChild(script)
-  }
-  script.text = ['window.socket = io("http://localhost:3001");',
-  'socket.on("bundle", function() {',
-  'console.log("livereaload triggered")',
-  'window.location.reload();});'].join('\n')
-  document.head.appendChild(socket)
-}());
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
@@ -80404,7 +80389,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
@@ -82515,9 +82500,6 @@ module.exports = {
 
 		self.$el.width(self.config.width).height(self.config.height);
 
-		self.tmplLegend = H.compile($('#tmpl_legend').html());
-		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
-
         L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
 
 		self.map = L.map(el, utils.getMapOpts());
@@ -82529,44 +82511,30 @@ module.exports = {
 			return t.tag.split('=')[0];
 		}));
 	
-		self.layerIso = L.geoJSON([], {
-			style: function(f) {
-				return {
-					weight: 1,
-					color: '#fff',
-					fillColor: f.properties.color,
-					fillOpacity: 0.6,
-					opacity:0.8
-				};
-			},
-/*			onEachFeature: function(f, layer) {
-				layer.on('click', function(e) {
-					self.layerIso.eachLayer(function(l){
-						self.layerIso.resetStyle(l);
-					});	
-					e.target.setStyle({
-						fillColor:'orange'
-					});
-				})
-			}*/
-			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
-		}).addTo(self.map);
-
-		self.legend = new L.Control({position:'bottomleft'});
-		self.legend.onAdd = function(map) {
-			var legend = L.DomUtil.create('div','legend');
-			
+		self.legendPoi = new L.Control({position:'bottomleft'});
+		self.legendPoi.onAdd = function(map) {
+			var div = L.DomUtil.create('div','legend');
 			var ll = _.map(self.config.overpassTags, function(v,k) {
 				var t = v.tag.split('=')[1];
-				return '<span style="color:'+v.color+'">&#11044; '+t+'</span>';
+				return '<b style="color:'+v.color+'">&#11044;</b> <span>'+t+'</span>';
 			});
-
-			legend.innerHTML = ll.join("<br />\n");
-
-			return legend;
+			div.innerHTML = ll.join("<br />\n");
+			return div;
 		};
-		self.legend.addTo(self.map);
-
+		self.legendPoi.addTo(self.map);
+		
+		self.legendIso = new L.Control({position:'bottomleft'});
+		self.legendIso.onAdd = function(map) {
+			var div = L.DomUtil.create('div','legend');
+			var ll = _.map(iso.getLegend().list, function(v,k) {
+				var t = v.value+' minuti';
+				return '<b style="color:'+v.color+'">&#11035;</b> <span>'+t+'</span>';
+			});
+			div.innerHTML = ll.join("<br />\n");
+			return div;
+		};
+		self.legendIso.addTo(self.map);
+		
 		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				
@@ -82614,11 +82582,40 @@ module.exports = {
 			},
 			attribution:'<a href="http://overpass-api.de/">OverpassApi</a>',
 		}).on('add', function(e) {
-			self.map.addControl(self.legend);
+			self.map.addControl(self.legendPoi);
+			e.target.bringToFront();
 		}).on('remove', function(e) {
-			self.map.removeControl(self.legend);
+			self.map.removeControl(self.legendPoi);
 		})
 		.addTo(self.map);	
+
+		self.layerIso = L.geoJSON([], {
+			style: function(f) {
+				return {
+					weight: 1,
+					color: '#fff',
+					fillColor: f.properties.color,
+					fillOpacity: 0.6,
+					opacity:0.8
+				};
+			},
+/*			onEachFeature: function(f, layer) {
+				layer.on('click', function(e) {
+					self.layerIso.eachLayer(function(l){
+						self.layerIso.resetStyle(l);
+					});	
+					e.target.setStyle({
+						fillColor:'orange'
+					});
+				})
+			}*/
+			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
+		}).on('add', function(e) {
+			self.map.addControl(self.legendIso);
+			e.target.bringToBack();
+		}).on('remove', function(e) {
+			self.map.removeControl(self.legendIso);
+		}).addTo(self.map);
 
 		L.control.layers(null, {
 			'Luoghi di interesse': self.layerPoi,

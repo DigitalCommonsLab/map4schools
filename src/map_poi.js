@@ -36,9 +36,6 @@ module.exports = {
 
 		self.$el.width(self.config.width).height(self.config.height);
 
-		self.tmplLegend = H.compile($('#tmpl_legend').html());
-		$('#poi_legend').append( self.tmplLegend(iso.getLegend()) );
-
         L.Icon.Default.imagePath = location.href.split('/').slice(0,-1).join('/')+'/images/';
 
 		self.map = L.map(el, utils.getMapOpts());
@@ -50,44 +47,30 @@ module.exports = {
 			return t.tag.split('=')[0];
 		}));
 	
-		self.layerIso = L.geoJSON([], {
-			style: function(f) {
-				return {
-					weight: 1,
-					color: '#fff',
-					fillColor: f.properties.color,
-					fillOpacity: 0.6,
-					opacity:0.8
-				};
-			},
-/*			onEachFeature: function(f, layer) {
-				layer.on('click', function(e) {
-					self.layerIso.eachLayer(function(l){
-						self.layerIso.resetStyle(l);
-					});	
-					e.target.setStyle({
-						fillColor:'orange'
-					});
-				})
-			}*/
-			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
-		}).addTo(self.map);
-
-		self.legend = new L.Control({position:'bottomleft'});
-		self.legend.onAdd = function(map) {
-			var legend = L.DomUtil.create('div','legend');
-			
+		self.legendPoi = new L.Control({position:'bottomleft'});
+		self.legendPoi.onAdd = function(map) {
+			var div = L.DomUtil.create('div','legend');
 			var ll = _.map(self.config.overpassTags, function(v,k) {
 				var t = v.tag.split('=')[1];
-				return '<span style="color:'+v.color+'">&#11044; '+t+'</span>';
+				return '<b style="color:'+v.color+'">&#11044;</b> <span>'+t+'</span>';
 			});
-
-			legend.innerHTML = ll.join("<br />\n");
-
-			return legend;
+			div.innerHTML = ll.join("<br />\n");
+			return div;
 		};
-		self.legend.addTo(self.map);
-
+		self.legendPoi.addTo(self.map);
+		
+		self.legendIso = new L.Control({position:'bottomleft'});
+		self.legendIso.onAdd = function(map) {
+			var div = L.DomUtil.create('div','legend');
+			var ll = _.map(iso.getLegend().list, function(v,k) {
+				var t = v.value+' minuti';
+				return '<b style="color:'+v.color+'">&#11035;</b> <span>'+t+'</span>';
+			});
+			div.innerHTML = ll.join("<br />\n");
+			return div;
+		};
+		self.legendIso.addTo(self.map);
+		
 		self.layerPoi = L.geoJSON([], {
 			pointToLayer: function(f, ll) {
 				
@@ -135,11 +118,40 @@ module.exports = {
 			},
 			attribution:'<a href="http://overpass-api.de/">OverpassApi</a>',
 		}).on('add', function(e) {
-			self.map.addControl(self.legend);
+			self.map.addControl(self.legendPoi);
+			e.target.bringToFront();
 		}).on('remove', function(e) {
-			self.map.removeControl(self.legend);
+			self.map.removeControl(self.legendPoi);
 		})
 		.addTo(self.map);	
+
+		self.layerIso = L.geoJSON([], {
+			style: function(f) {
+				return {
+					weight: 1,
+					color: '#fff',
+					fillColor: f.properties.color,
+					fillOpacity: 0.6,
+					opacity:0.8
+				};
+			},
+/*			onEachFeature: function(f, layer) {
+				layer.on('click', function(e) {
+					self.layerIso.eachLayer(function(l){
+						self.layerIso.resetStyle(l);
+					});	
+					e.target.setStyle({
+						fillColor:'orange'
+					});
+				})
+			}*/
+			attribution:'<a href="https://openrouteservice.org">OpenRouteService</a>',
+		}).on('add', function(e) {
+			self.map.addControl(self.legendIso);
+			e.target.bringToBack();
+		}).on('remove', function(e) {
+			self.map.removeControl(self.legendIso);
+		}).addTo(self.map);
 
 		L.control.layers(null, {
 			'Luoghi di interesse': self.layerPoi,

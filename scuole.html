@@ -125,6 +125,37 @@
 				</p>
 			</div>
 		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card" >
+				  <div class="card-body">
+				    <b class="card-title">Luoghi di interesse nei pressi della scuola</b>
+				    <p class="card-text small">
+				    	palestre,centri sportivi,pub,parchi,uffici
+				    </p>		    
+					<div id="map_poi">
+						<!-- RENDER -->
+					</div>
+				  </div>
+				</div>
+			</div>	
+			<div class="col-md-6" id="charts_radar">
+				<div class="card" >
+				  <div class="card-body">
+				    <b class="card-title">Autovalutazione performance della scuola</b>
+				    <p class="card-text small">
+				    	Sette parametri di risposta al questionario dato ai direttori scolastici
+				    </p>
+					<div id="chart_radar">
+						<!-- RENDER -->
+					</div>
+			    	<span class="badge badge-success">Media Regionale</span>
+			    	<span class="badge badge-danger">Parametri Scuola</span>
+				  </div>
+				</div>
+			</div>		
+		</div>
+		
 		<div class="row" id="charts_age_gender">
 			<div class="col-md-6">
 				<div class="card">
@@ -179,40 +210,6 @@
 				</div>
 			</div>
 		</div>	
-		<div class="row">
-			<div class="col-md-6">
-				<div class="card" >
-				  <div class="card-body">
-				    <b class="card-title">Luoghi di interesse nei pressi della scuola</b>
-				    <p class="card-text small">
-				    	palestre,centri sportivi,pub,parchi,uffici
-				    </p>		    
-					<div id="map_poi">
-						<!-- RENDER -->
-					</div>
-					<br />
-					<div id="poi_legend">
-						<!-- RENDER -->
-					</div>
-				  </div>
-				</div>
-			</div>	
-			<div class="col-md-6" id="charts_radar">
-				<div class="card" >
-				  <div class="card-body">
-				    <b class="card-title">Autovalutazione performance della scuola</b>
-				    <p class="card-text small">
-				    	Sette parametri di risposta al questionario dato ai direttori scolastici
-				    </p>
-					<div id="chart_radar">
-						<!-- RENDER -->
-					</div>
-			    	<span class="badge badge-success">Media Regionale</span>
-			    	<span class="badge badge-danger">Parametri Scuola</span>
-				  </div>
-				</div>
-			</div>		
-		</div>
 
 	</div>
 
@@ -301,16 +298,6 @@
 	{{#if address}}<i>Indirizzo:</i> {{address}} <br />{{/if}}
 	{{#if email}}<i>Email:</i> {{email}} <br />{{/if}}
 	{{#if website}}<i>Sito Web:</i> <a href="{{website}}" target="_blank">{{website}}</a> <br />{{/if}}
-</script>
-<script id="tmpl_legend" type="text/x-handlebars-template">
-{{#with this}}
-	<div class="legend">
-	<small>{{title}}: </small>
-	{{#each list}}
-		<span class="badge badge-success" style="background:{{color}}">{{value}}</span>
-	{{/each}}
-	</div>
-{{/with}}
 </script>
 <script>
 //TODO INSIDE cedus  var aacUrl = [[${aacUrl}]];
