@@ -80389,7 +80389,7 @@ module.exports.POLAR_RADIUS = 6356752.3142;
 },{}],180:[function(require,module,exports){
 module.exports={
   "name": "osm4schools",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "mappa delle scuole",
   "author": {
     "name": "Stefano Cudini",
@@ -82484,9 +82484,10 @@ module.exports = {
   		width: 500,
   		height: 500,
   		overpassTags: [
-  			{tag:"amenity=parking",color:'DodgerBlue'},
-			{tag:"amenity=bar",color:'orange'},
-			{tag:"amenity=restaurant",color:'brown'}
+  			{tag:"amenity=bar",color:'orange',label:"Bar"},
+  			{tag:"amenity=parking",color:'DodgerBlue',label:"Parcheggi"},
+			{tag:"amenity=post_office",color:'brown',label:"Uffici Postali"},
+			{tag:"amenity=school",color:'red',label:"Altre Scuole"},
 		]
   	},
 
@@ -82515,8 +82516,7 @@ module.exports = {
 		self.legendPoi.onAdd = function(map) {
 			var div = L.DomUtil.create('div','legend');
 			var ll = _.map(self.config.overpassTags, function(v,k) {
-				var t = v.tag.split('=')[1];
-				return '<b style="color:'+v.color+'">&#11044;</b> <span>'+t+'</span>';
+				return '<b style="color:'+v.color+'">&#11044;</b> <span>'+v.label+'</span>';
 			});
 			div.innerHTML = ll.join("<br />\n");
 			return div;

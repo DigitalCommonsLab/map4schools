@@ -48,7 +48,7 @@ body {
 }
 
 .legend.leaflet-control {
-  min-width: 120px;
+  min-width: 100px;
   background: #fff;
   padding: 4px;
   border-radius: 5px;
